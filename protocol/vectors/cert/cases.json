@@ -1,0 +1,370 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "cert_valid_pc",
+      "cert": {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "pc",
+        "max_level": 2,
+        "pubkey": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T09:00:00Z",
+        "expires_at": "2027-11-02T09:00:00Z",
+        "sig": "SS88abK7Um7KGNBRI4SGlbmgfm-2OTRHn4NssXNkelXut0n8s763oU57PNhg1IhkHhVUNopl3cHUlq1QsPSIXA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "revoked_hashes": []
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "cert_expired",
+      "cert": {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "pc",
+        "max_level": 2,
+        "pubkey": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T09:00:00Z",
+        "expires_at": "2026-11-02T09:30:00Z",
+        "sig": "PFon5KTgri9SauPhEK4vMVU919u1TPSdZYKtj0yvJiC08IiIIcwj2KQhyXY8ZE21kfGLw7WGdaIDape23P2dKg"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "revoked_hashes": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "CERT_EXPIRED"
+      }
+    },
+    {
+      "name": "cert_not_yet_valid",
+      "cert": {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "pc",
+        "max_level": 2,
+        "pubkey": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T10:10:00Z",
+        "expires_at": "2027-11-02T09:00:00Z",
+        "sig": "9NjDjBKDWH7Td1C3GRfb9I5Vnb9Zlp8mFdHFCgo3Ner6k6p-50qiIy6PLdaXN5ODIhdY710rw6le5b5LkozBRQ"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "revoked_hashes": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "CERT_NOT_YET_VALID"
+      }
+    },
+    {
+      "name": "cert_bad_role",
+      "cert": {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "hub",
+        "max_level": 2,
+        "pubkey": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T09:00:00Z",
+        "expires_at": "2027-11-02T09:00:00Z",
+        "sig": "tPvpofbzT1nxOd_OPggzo5DBd-bSChdZBk-Ok2Wz-aSB1qsDDVV0E4CK1-nod_LioQDfPoXOO7kx3XrEKQoaBg"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "revoked_hashes": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "CERT_INVALID"
+      }
+    },
+    {
+      "name": "cert_watch_l3",
+      "cert": {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "watch",
+        "max_level": 3,
+        "pubkey": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T09:00:00Z",
+        "expires_at": "2027-11-02T09:00:00Z",
+        "sig": "ClO5jcsFtzSwwIpz_M79Orw9B1x4iqKxzc61XRv5PYuGlB3JJlMaVJj19Ihjppvm9Yy6k8LN6PVruYKSWC9qeA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "revoked_hashes": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "CERT_LEVEL"
+      }
+    },
+    {
+      "name": "cert_expires_before_issued",
+      "cert": {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "pc",
+        "max_level": 2,
+        "pubkey": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T09:00:00Z",
+        "expires_at": "2026-11-02T08:00:00Z",
+        "sig": "A_8HYnL2oN-_vWN4jvynDiJkFp6Pz0CMcHhC1y-0exJXMam1A4G8Ymmka-icW60PBO3keHZqN28LNWi8p0HVnA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "revoked_hashes": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "CERT_INVALID"
+      }
+    },
+    {
+      "name": "cert_tampered",
+      "cert": {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "pc",
+        "max_level": 1,
+        "pubkey": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T09:00:00Z",
+        "expires_at": "2027-11-02T09:00:00Z",
+        "sig": "wuOieXW0a8t_3FN-qw2BDQlFpVKIjntTGohzp4vf31j2IBjJdGwvFev8hVr_5pbsyqQDj_oM0Ht3dKDH1j891w"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "revoked_hashes": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "CERT_SIGNATURE"
+      }
+    },
+    {
+      "name": "cert_unknown_field",
+      "cert": {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "pc",
+        "max_level": 2,
+        "pubkey": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T09:00:00Z",
+        "expires_at": "2027-11-02T09:00:00Z",
+        "sig": "h_PR80sd2-nwKlABf59RjbF0j9GfC8WtVv01Nv_Fn0v2pjI3LY4K8giayfXeyoncC4r-mI00KkJQKGiINSPw5g",
+        "extra": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "revoked_hashes": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "CERT_INVALID"
+      }
+    },
+    {
+      "name": "cert_revoked",
+      "cert": {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "pc",
+        "max_level": 2,
+        "pubkey": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T09:00:00Z",
+        "expires_at": "2027-11-02T09:00:00Z",
+        "sig": "c4XaFTXTTtGfKiEbgpJ58YuJRpd3w4blDz0eof7DlJFrtN6_YwIpKqsSZOHw5rpPlEtU9T1-nzbtpO3DLeUHrQ"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "revoked_hashes": [
+          "79dffadc9d45fcd690469d84e45d3e763dc495e6d9742a54c3939b952b121e40"
+        ]
+      },
+      "expect": {
+        "ok": false,
+        "code": "CERT_REVOKED"
+      }
+    },
+    {
+      "name": "cert_wrong_root",
+      "cert": {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "pc",
+        "max_level": 2,
+        "pubkey": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T09:00:00Z",
+        "expires_at": "2027-11-02T09:00:00Z",
+        "sig": "38yyo2DfM1Vy2koPOvhSP3DFSaGM3YLWVFLmcX4zhGpvQ2etrGw7DuXM5-Jr8cr10zG4T7m1EJG6qYINhhIOAg"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+          "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+        },
+        "revoked_hashes": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "CERT_SIGNATURE"
+      }
+    },
+    {
+      "name": "cert_sig_not_string",
+      "cert": {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "pc",
+        "max_level": 2,
+        "pubkey": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T09:00:00Z",
+        "expires_at": "2027-11-02T09:00:00Z",
+        "sig": 123
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        },
+        "revoked_hashes": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "CERT_INVALID"
+      }
+    }
+  ]
+}

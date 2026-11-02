@@ -11,6 +11,9 @@
 - 金标准向量 `vectors/`，Kotlin 与 Python 两份实现必须 100% 通过。
 - 新增 `schema/device-cert.v1.json`：手机签发的设备证书（`spec/pairing.md`），
   `core/kotlin` 提供 `DeviceCert.create/verify`；当前手工交换 JSON，扫码后续补。
+- 新增 `schema/revocation.v1.json` 与 `vectors/cert`、`vectors/revocation` 金标准向量
+  （设备证书 11 条、吊销记录 9 条），Kotlin 与 Python 参考实现同跑同过；覆盖过期、
+  未生效、角色越权、篡改、未知字段、错误信任根、已吊销、错误签名者。
 
 ### 与旧原型的关系
 

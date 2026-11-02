@@ -1,0 +1,230 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "revocation_valid",
+      "revocation": {
+        "v": 1,
+        "device_id": "pc-1",
+        "cert_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "revoked_at": "2026-11-02T10:00:00Z",
+        "issued_by": "phone-1",
+        "reason": "用户吊销",
+        "sig": "wWs_h3wiuKWctHfHqbYOOFdmWLGVlnErL7ll7_Gmc5E6tKM5q279MrbLVj3q0kcywuBEqAUv6WtjcqXBetTr5Q"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "revocation_tampered",
+      "revocation": {
+        "v": 1,
+        "device_id": "pc-1",
+        "cert_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "revoked_at": "2026-11-02T10:00:00Z",
+        "issued_by": "phone-1",
+        "reason": "改过的理由",
+        "sig": "eQ9JRR8h1LcKxxy30TRIA-Uw3pOzhah6eUbWctFbQI3x4k7kgBRXN9o8fB2nnyt6eD-XghU4zPuPisp_LCi8WA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      },
+      "expect": {
+        "ok": false,
+        "code": "REVOCATION_SIGNATURE"
+      }
+    },
+    {
+      "name": "revocation_wrong_signer",
+      "revocation": {
+        "v": 1,
+        "device_id": "pc-1",
+        "cert_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "revoked_at": "2026-11-02T10:00:00Z",
+        "issued_by": "phone-1",
+        "reason": "用户吊销",
+        "sig": "rZXI9DRjcgHYR0MAI51M1l-CGZLjtA2FeRcpTD14FG1TYKAmtFWxfzgc1H0SivGYtyzfVoE7UL7GeP6zHpKkUw"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      },
+      "expect": {
+        "ok": false,
+        "code": "REVOCATION_SIGNATURE"
+      }
+    },
+    {
+      "name": "revocation_not_yet_valid",
+      "revocation": {
+        "v": 1,
+        "device_id": "pc-1",
+        "cert_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "revoked_at": "2026-11-02T10:10:00Z",
+        "issued_by": "phone-1",
+        "reason": "用户吊销",
+        "sig": "X8EIxuDeSaX00gq9NvzfrRgYs5Y-AD2SPfJmyzO-j8jKAPWEk6oamH0gk-pBA46rAOxkh_AUxEkkVTnFEf1LKA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      },
+      "expect": {
+        "ok": false,
+        "code": "REVOCATION_NOT_YET_VALID"
+      }
+    },
+    {
+      "name": "revocation_unknown_field",
+      "revocation": {
+        "v": 1,
+        "device_id": "pc-1",
+        "cert_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "revoked_at": "2026-11-02T10:00:00Z",
+        "issued_by": "phone-1",
+        "reason": "用户吊销",
+        "sig": "lu06wvOGhuPwSamJCBTihbGfa4Dna_jQDiM0ZXeJUDWxi2Tl9MLxrfKbmV4jFIQesGDEWDE9a1MBwV2B7wuoFg",
+        "extra": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      },
+      "expect": {
+        "ok": false,
+        "code": "REVOCATION_INVALID"
+      }
+    },
+    {
+      "name": "revocation_bad_hash",
+      "revocation": {
+        "v": 1,
+        "device_id": "pc-1",
+        "cert_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "revoked_at": "2026-11-02T10:00:00Z",
+        "issued_by": "phone-1",
+        "reason": "用户吊销",
+        "sig": "eYCjcW5zCbgKADmaBEn_SUna-cG3vjVHwdN3ZNBflx75K6qJM676SJgUcOguoSdc_1MBed5mGmn8vvKU_NSYgw"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      },
+      "expect": {
+        "ok": false,
+        "code": "REVOCATION_INVALID"
+      }
+    },
+    {
+      "name": "revocation_long_reason",
+      "revocation": {
+        "v": 1,
+        "device_id": "pc-1",
+        "cert_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "revoked_at": "2026-11-02T10:00:00Z",
+        "issued_by": "phone-1",
+        "reason": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "sig": "lLhRwNgX3gJAjL_eo3G3G_TwR3M4HU1QTITUOY0F06xZWpHYycMwgttxrohJs7jXfI8yf86nH9U0TlSHoFeX1A"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      },
+      "expect": {
+        "ok": false,
+        "code": "REVOCATION_INVALID"
+      }
+    },
+    {
+      "name": "revocation_v_string",
+      "revocation": {
+        "v": "1",
+        "device_id": "pc-1",
+        "cert_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "revoked_at": "2026-11-02T10:00:00Z",
+        "issued_by": "phone-1",
+        "reason": "用户吊销",
+        "sig": "yI0WUgnYKJT4qCJrNOmiMDUDl4jezvLD2QpSRAmxxxqae2O6MeJ_W3Ji6TXkR0c1t2PFlOHdQ2-UTt7hFtEHfg"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      },
+      "expect": {
+        "ok": false,
+        "code": "REVOCATION_INVALID"
+      }
+    },
+    {
+      "name": "revocation_sig_not_string",
+      "revocation": {
+        "v": 1,
+        "device_id": "pc-1",
+        "cert_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "revoked_at": "2026-11-02T10:00:00Z",
+        "issued_by": "phone-1",
+        "reason": "用户吊销",
+        "sig": 123
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "trust_root_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      },
+      "expect": {
+        "ok": false,
+        "code": "REVOCATION_INVALID"
+      }
+    }
+  ]
+}

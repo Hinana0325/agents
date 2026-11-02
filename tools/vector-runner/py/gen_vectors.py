@@ -8,6 +8,7 @@
 """
 
 import base64
+import hashlib
 import json
 import os
 import sys
@@ -24,14 +25,15 @@ TS = "2026-11-02T10:00:00Z"
 
 # 固定测试私钥（只用于向量，任何环境都不得使用）
 _PRIV_SCALAR = 0x0B7A2C1D4E6F8091A3B5C7D9E1F2031425364758697A8B9CADBEDF1021324354
+_OTHER_SCALAR = 0x1C8B3D2E5F7091A2B4C6D8E0F2132435465768798A9BACBDCEDFE0F112233445
 
 
 def _b64(b: bytes) -> str:
     return base64.urlsafe_b64encode(b).decode().rstrip("=")
 
 
-def _keypair():
-    priv = ec.derive_private_key(_PRIV_SCALAR, ec.SECP256R1())
+def _keypair(scalar=_PRIV_SCALAR):
+    priv = ec.derive_private_key(scalar, ec.SECP256R1())
     nums = priv.public_key().public_numbers()
     jwk = {
         "kty": "EC",
@@ -43,16 +45,21 @@ def _keypair():
 
 
 PRIV, PUB_JWK = _keypair()
+OTHER_PRIV, OTHER_PUB_JWK = _keypair(_OTHER_SCALAR)
 
 
-def _sign(payload: dict) -> str:
+def _sign_with(priv, payload: dict) -> str:
     """对 JCS(payload) 做 ES256，返回 raw r||s 的 base64url。"""
     sys.path.insert(0, HERE)
     from jcs import canonicalize
 
-    der = PRIV.sign(canonicalize(payload).encode("utf-8"), ec.ECDSA(hashes.SHA256()))
+    der = priv.sign(canonicalize(payload).encode("utf-8"), ec.ECDSA(hashes.SHA256()))
     r, s = utils.decode_dss_signature(der)
     return _b64(r.to_bytes(32, "big") + s.to_bytes(32, "big"))
+
+
+def _sign(payload: dict) -> str:
+    return _sign_with(PRIV, payload)
 
 
 def _uid(i: int) -> str:
@@ -450,6 +457,145 @@ signed("sig_of_other_envelope", SIGNING, e, bad("BAD_SIG"))
 SIGNING[-1]["envelope"]["sig"] = SIGNING[0]["envelope"]["sig"]
 
 
+CERT_NOW = "2026-11-02T10:00:30Z"
+
+
+def _ok():
+    return {"ok": True}
+
+
+def _bad(code):
+    return {"ok": False, "code": code}
+
+
+def cert(**over):
+    value = {
+        "v": 1,
+        "device_id": "pc-1",
+        "role": "pc",
+        "max_level": 2,
+        "pubkey": PUB_JWK,
+        "issued_by": "phone-1",
+        "issued_at": "2026-11-02T09:00:00Z",
+        "expires_at": "2027-11-02T09:00:00Z",
+    }
+    value.update(over)
+    value["sig"] = _sign(value)
+    return value
+
+
+def cert_case(name, cert_obj, expect, revoked=None, root=None):
+    return {
+        "name": name,
+        "cert": cert_obj,
+        "context": {
+            "now": CERT_NOW,
+            "trust_root_jwk": root or PUB_JWK,
+            "revoked_hashes": revoked or [],
+        },
+        "expect": expect,
+    }
+
+
+def revocation(**over):
+    value = {
+        "v": 1,
+        "device_id": "pc-1",
+        "cert_hash": "a" * 64,
+        "revoked_at": "2026-11-02T10:00:00Z",
+        "issued_by": "phone-1",
+        "reason": "用户吊销",
+    }
+    value.update(over)
+    value["sig"] = _sign(value)
+    return value
+
+
+def revocation_case(name, revocation_obj, expect, root=None):
+    return {
+        "name": name,
+        "revocation": revocation_obj,
+        "context": {"now": CERT_NOW, "trust_root_jwk": root or PUB_JWK},
+        "expect": expect,
+    }
+
+
+def _cert_hash(cert_obj):
+    sys.path.insert(0, HERE)
+    from jcs import canonicalize
+
+    payload = {k: v for k, v in cert_obj.items() if k != "sig"}
+    return hashlib.sha256(canonicalize(payload).encode("utf-8")).hexdigest()
+
+
+CERT = []
+CERT.append(cert_case("cert_valid_pc", cert(), _ok()))
+CERT.append(cert_case("cert_expired", cert(expires_at="2026-11-02T09:30:00Z"), _bad("CERT_EXPIRED")))
+CERT.append(
+    cert_case(
+        "cert_not_yet_valid",
+        cert(issued_at="2026-11-02T10:10:00Z", expires_at="2027-11-02T09:00:00Z"),
+        _bad("CERT_NOT_YET_VALID"),
+    )
+)
+CERT.append(cert_case("cert_bad_role", cert(role="hub"), _bad("CERT_INVALID")))
+CERT.append(cert_case("cert_watch_l3", cert(role="watch", max_level=3), _bad("CERT_LEVEL")))
+CERT.append(cert_case("cert_expires_before_issued", cert(expires_at="2026-11-02T08:00:00Z"), _bad("CERT_INVALID")))
+
+_tampered_cert = cert()
+_tampered_cert["max_level"] = 1
+CERT.append(cert_case("cert_tampered", _tampered_cert, _bad("CERT_SIGNATURE")))
+
+_extra_cert = cert()
+_extra_cert["extra"] = 1
+CERT.append(cert_case("cert_unknown_field", _extra_cert, _bad("CERT_INVALID")))
+
+_revoked_cert = cert()
+CERT.append(
+    cert_case("cert_revoked", _revoked_cert, _bad("CERT_REVOKED"), revoked=[_cert_hash(_revoked_cert)])
+)
+CERT.append(cert_case("cert_wrong_root", cert(), _bad("CERT_SIGNATURE"), root=OTHER_PUB_JWK))
+
+_sig_number = cert()
+_sig_number["sig"] = 123
+CERT.append(cert_case("cert_sig_not_string", _sig_number, _bad("CERT_INVALID")))
+
+REVOCATION = []
+REVOCATION.append(revocation_case("revocation_valid", revocation(), _ok()))
+
+_tampered_revocation = revocation()
+_tampered_revocation["reason"] = "改过的理由"
+REVOCATION.append(revocation_case("revocation_tampered", _tampered_revocation, _bad("REVOCATION_SIGNATURE")))
+
+_wrong_signer = revocation()
+_wrong_signer["sig"] = _sign_with(OTHER_PRIV, {k: v for k, v in _wrong_signer.items() if k != "sig"})
+REVOCATION.append(revocation_case("revocation_wrong_signer", _wrong_signer, _bad("REVOCATION_SIGNATURE")))
+
+REVOCATION.append(
+    revocation_case(
+        "revocation_not_yet_valid",
+        revocation(revoked_at="2026-11-02T10:10:00Z"),
+        _bad("REVOCATION_NOT_YET_VALID"),
+    )
+)
+
+_extra_revocation = revocation()
+_extra_revocation["extra"] = 1
+REVOCATION.append(revocation_case("revocation_unknown_field", _extra_revocation, _bad("REVOCATION_INVALID")))
+
+REVOCATION.append(revocation_case("revocation_bad_hash", revocation(cert_hash="a" * 63), _bad("REVOCATION_INVALID")))
+REVOCATION.append(revocation_case("revocation_long_reason", revocation(reason="x" * 201), _bad("REVOCATION_INVALID")))
+
+_v_string = revocation()
+_v_string["v"] = "1"
+_v_string["sig"] = _sign_with(PRIV, {k: v for k, v in _v_string.items() if k != "sig"})
+REVOCATION.append(revocation_case("revocation_v_string", _v_string, _bad("REVOCATION_INVALID")))
+
+_sig_not_string = revocation()
+_sig_not_string["sig"] = 123
+REVOCATION.append(revocation_case("revocation_sig_not_string", _sig_not_string, _bad("REVOCATION_INVALID")))
+
+
 def dump(cases, path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
@@ -463,6 +609,8 @@ buckets = {
     "policy": POLICY,
     "injection": INJECTION,
     "signing": SIGNING,
+    "cert": CERT,
+    "revocation": REVOCATION,
 }
 
 total = 0

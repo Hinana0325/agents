@@ -324,6 +324,121 @@ def envelope_hash(env):
     return hashlib.sha256(canonicalize(payload).encode("utf-8")).hexdigest()
 
 
+CERT_FIELDS = {"v", "device_id", "role", "max_level", "pubkey", "issued_by", "issued_at", "expires_at", "sig"}
+CERT_ROLES = {"phone", "watch", "pc"}
+REVOCATION_FIELDS = {"v", "device_id", "cert_hash", "revoked_at", "issued_by", "reason", "sig"}
+REVOCATION_REQUIRED = {"v", "device_id", "cert_hash", "revoked_at", "issued_by", "sig"}
+HEX64 = re.compile(r"^[0-9a-f]{64}$")
+B64_32 = re.compile(r"^[A-Za-z0-9_-]{43}$")
+
+
+def _is_int(value):
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _cert_hash(cert):
+    payload = {k: v for k, v in cert.items() if k != "sig"}
+    return hashlib.sha256(canonicalize(payload).encode("utf-8")).hexdigest()
+
+
+def verify_cert(cert, ctx=None):
+    """校验设备证书（device-cert.v1），顺序与 core 的 DeviceCert.verify 一致。"""
+    ctx = ctx or {}
+    if not isinstance(cert, dict) or set(cert.keys()) != CERT_FIELDS:
+        return Result(False, code="CERT_INVALID")
+    if not _is_int(cert.get("v")) or cert["v"] != 1:
+        return Result(False, code="CERT_INVALID")
+    device_id = cert.get("device_id")
+    if not isinstance(device_id, str) or not (1 <= len(device_id) <= 64):
+        return Result(False, code="CERT_INVALID")
+    role = cert.get("role")
+    if role not in CERT_ROLES:
+        return Result(False, code="CERT_INVALID")
+    level = cert.get("max_level")
+    if not _is_int(level) or not (1 <= level <= 3):
+        return Result(False, code="CERT_INVALID")
+    if role != "phone" and level > 2:
+        return Result(False, code="CERT_LEVEL")
+    pubkey = cert.get("pubkey")
+    if not isinstance(pubkey, dict) or set(pubkey.keys()) != {"kty", "crv", "x", "y"}:
+        return Result(False, code="CERT_INVALID")
+    if pubkey.get("kty") != "EC" or pubkey.get("crv") != "P-256":
+        return Result(False, code="CERT_INVALID")
+    for coordinate in ("x", "y"):
+        value = pubkey.get(coordinate)
+        if not isinstance(value, str) or not B64_32.match(value):
+            return Result(False, code="CERT_INVALID")
+    issued_by = cert.get("issued_by")
+    if not isinstance(issued_by, str) or not (1 <= len(issued_by) <= 64):
+        return Result(False, code="CERT_INVALID")
+    issued_text = cert.get("issued_at")
+    expires_text = cert.get("expires_at")
+    if not isinstance(issued_text, str) or not TS.match(issued_text):
+        return Result(False, code="CERT_INVALID")
+    if not isinstance(expires_text, str) or not TS.match(expires_text):
+        return Result(False, code="CERT_INVALID")
+    try:
+        issued_at = _parse_ts(issued_text)
+        expires_at = _parse_ts(expires_text)
+    except ValueError:
+        return Result(False, code="CERT_INVALID")
+    if not expires_at > issued_at:
+        return Result(False, code="CERT_INVALID")
+    now = _parse_ts(ctx["now"])
+    if now > expires_at:
+        return Result(False, code="CERT_EXPIRED")
+    if issued_at > now + _dt.timedelta(seconds=120):
+        return Result(False, code="CERT_NOT_YET_VALID")
+    if not isinstance(cert.get("sig"), str):
+        return Result(False, code="CERT_INVALID")
+    if not verify_es256(cert, ctx.get("trust_root_jwk") or {}):
+        return Result(False, code="CERT_SIGNATURE")
+    if _cert_hash(cert) in (ctx.get("revoked_hashes") or []):
+        return Result(False, code="CERT_REVOKED")
+    return Result(True)
+
+
+def verify_revocation(revocation, ctx=None):
+    """校验吊销记录（revocation.v1），顺序与 core 的 Revocation.verify 一致。"""
+    ctx = ctx or {}
+    if not isinstance(revocation, dict):
+        return Result(False, code="REVOCATION_INVALID")
+    if any(key not in REVOCATION_FIELDS for key in revocation):
+        return Result(False, code="REVOCATION_INVALID")
+    if not REVOCATION_REQUIRED.issubset(revocation):
+        return Result(False, code="REVOCATION_INVALID")
+    if not _is_int(revocation.get("v")) or revocation["v"] != 1:
+        return Result(False, code="REVOCATION_INVALID")
+    device_id = revocation.get("device_id")
+    if not isinstance(device_id, str) or not (1 <= len(device_id) <= 64):
+        return Result(False, code="REVOCATION_INVALID")
+    cert_hash = revocation.get("cert_hash")
+    if not isinstance(cert_hash, str) or not HEX64.match(cert_hash):
+        return Result(False, code="REVOCATION_INVALID")
+    issued_by = revocation.get("issued_by")
+    if not isinstance(issued_by, str) or not (1 <= len(issued_by) <= 64):
+        return Result(False, code="REVOCATION_INVALID")
+    revoked_text = revocation.get("revoked_at")
+    if not isinstance(revoked_text, str) or not TS.match(revoked_text):
+        return Result(False, code="REVOCATION_INVALID")
+    try:
+        revoked_at = _parse_ts(revoked_text)
+    except ValueError:
+        return Result(False, code="REVOCATION_INVALID")
+    now = _parse_ts(ctx["now"])
+    if revoked_at > now + _dt.timedelta(seconds=120):
+        return Result(False, code="REVOCATION_NOT_YET_VALID")
+    if "reason" in revocation:
+        reason = revocation["reason"]
+        if not isinstance(reason, str) or len(reason) > 200:
+            return Result(False, code="REVOCATION_INVALID")
+    if not isinstance(revocation.get("sig"), str):
+        return Result(False, code="REVOCATION_INVALID")
+    if not verify_es256(revocation, ctx.get("trust_root_jwk") or {}):
+        return Result(False, code="REVOCATION_SIGNATURE")
+    return Result(True)
+
+
 def validate(env, ctx=None):
     """校验一条信封。返回 Result；顺序即 error-codes.md 的优先级。"""
     ctx = ctx or {}

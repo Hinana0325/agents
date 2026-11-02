@@ -645,3 +645,27 @@
 - 哈希链只能发现本机文件被改，不能防止攻击者整段重写/回滚；要防回滚需把链头锚定到可信位置（真实 hub 或系统备份）。
 - 电脑端动作历史还没接同一条链（目前只有手机记录页使用 `AuditLog`）。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 25. 设备证书与吊销的金标准向量 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- `gen_vectors.py` 增加第二把固定测试密钥，生成 `protocol/vectors/cert`（11 条）与
+  `protocol/vectors/revocation`（9 条），期望值按 `protocol/spec/pairing.md` 手写。
+- Python 参考实现新增 `verify_cert` / `verify_revocation`，检查顺序与 Kotlin 的
+  `DeviceCert.verify` / `Revocation.verify` 一致；`runner.py` 按目录分派。
+- Kotlin `VectorTest` 同步分派 cert/revocation，同一份向量两侧跑。
+
+### 已核验
+
+1. Python：`TOTAL 203 cases, 0 failed`（新增 cert 11、revocation 9）。
+2. Kotlin：`VectorTest > allVectorsPass PASSED`（矢量总数门槛仍为 ≥150）。
+3. 阳性对照：把 `revocation_valid` 的期望改成失败后，Python 报
+   `FAIL [revocation] revocation_valid`，Kotlin `VectorTest` FAILED；重新生成后两侧恢复全绿。
+4. 覆盖：过期、未生效、角色越权、篡改、未知字段、错误信任根、已吊销、错误签名者、
+   超长 reason、类型错误。
+
+### 未完成
+
+- 向量只覆盖证书/吊销单条校验，不覆盖“先吊销再验证书”的组合流程（该流程由单测与真机联调覆盖）。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。

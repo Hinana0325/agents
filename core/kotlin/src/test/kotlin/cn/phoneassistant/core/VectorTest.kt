@@ -1,6 +1,7 @@
 package cn.phoneassistant.core
 
 import java.io.File
+import java.time.Instant
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -39,21 +40,40 @@ class VectorTest {
                     total++
                     val case = element.jsonObject
                     val name = "${categoryDir.name}/${case["name"]!!.jsonPrimitive.content}"
-                    val envelope = case["envelope"]!!
-                    val ctx = parseContext(case["context"])
                     val expect = case["expect"]!!.jsonObject
-                    val got = EnvelopeValidator.validate(envelope, ctx)
-
                     val expectedOk = expect["ok"]!!.jsonPrimitive.booleanOrNull ?: false
-                    val matches = if (expectedOk) {
-                        got.ok &&
-                            got.level == expect["level"]?.jsonPrimitive?.int &&
-                            got.executable == (expect["executable"]?.jsonPrimitive?.booleanOrNull ?: true)
-                    } else {
-                        !got.ok && got.code == expect["code"]?.jsonPrimitive?.content
+                    val matches = when (categoryDir.name) {
+                        "cert", "revocation" -> {
+                            val context = case["context"]?.jsonObject
+                            val root = context?.get("trust_root_jwk")?.jsonObject
+                            val now = context?.get("now")?.jsonPrimitive?.content
+                            val revoked = (context?.get("revoked_hashes") as? JsonArray)
+                                ?.map { it.jsonPrimitive.content }?.toSet().orEmpty()
+                            if (root == null || now == null) {
+                                false
+                            } else {
+                                val code = if (categoryDir.name == "cert") {
+                                    DeviceCert.verify(case["cert"]!!, root, Instant.parse(now), revoked)
+                                } else {
+                                    Revocation.verify(case["revocation"]!!, root, Instant.parse(now))
+                                }
+                                if (expectedOk) code == null
+                                else code == expect["code"]?.jsonPrimitive?.content
+                            }
+                        }
+                        else -> {
+                            val got = EnvelopeValidator.validate(case["envelope"]!!, parseContext(case["context"]))
+                            if (expectedOk) {
+                                got.ok &&
+                                    got.level == expect["level"]?.jsonPrimitive?.int &&
+                                    got.executable == (expect["executable"]?.jsonPrimitive?.booleanOrNull ?: true)
+                            } else {
+                                !got.ok && got.code == expect["code"]?.jsonPrimitive?.content
+                            }
+                        }
                     }
                     if (!matches) {
-                        failures += "FAIL $name\n  expect $expect\n  got    $got"
+                        failures += "FAIL $name\n  expect $expect"
                     }
                 }
             }

@@ -14,7 +14,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 
-from validator import validate, verify_approval, verify_cert, verify_receipt, verify_revocation  # noqa: E402
+from validator import validate, validate_sync, verify_approval, verify_cert, verify_receipt, verify_revocation  # noqa: E402
 
 
 def main() -> int:
@@ -45,6 +45,8 @@ def main() -> int:
                     got = verify_approval(case["approval"], case["envelope"], case.get("context")).as_dict()
                 elif category == "receipt":
                     got = verify_receipt(case["receipt"]).as_dict()
+                elif category == "sync":
+                    got = validate_sync(case["batch"]).as_dict()
                 else:
                     got = validate(case["envelope"], case.get("context")).as_dict()
             except Exception as exc:  # 解析/环境异常按失败计，不中断整轮
@@ -52,7 +54,7 @@ def main() -> int:
             exp = case["expect"]
             same = got.get("ok") == exp["ok"]
             if same and exp["ok"]:
-                if category not in ("cert", "revocation", "approval", "receipt"):
+                if category not in ("cert", "revocation", "approval", "receipt", "sync"):
                     same = got.get("level") == exp.get("level") and got.get("executable", True) == exp.get("executable", True)
             elif same:
                 same = got.get("code") == exp.get("code")

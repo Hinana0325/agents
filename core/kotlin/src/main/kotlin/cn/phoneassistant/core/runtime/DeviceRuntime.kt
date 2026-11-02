@@ -58,6 +58,9 @@ class DeviceRuntime(
 
     fun stateOf(id: String): EnvelopeState? = records[id]?.state
 
+    /** 这条信封重算后的确认级；本地没有这条信封时返回 null。 */
+    fun requiredLevelOf(id: String): Int? = records[id]?.level
+
     fun receiptOf(id: String): JsonObject? = records[id]?.receipt
 
     /** 投递一条信封（原始 JSON）。返回回执；重复投递返回首次的回执。 */

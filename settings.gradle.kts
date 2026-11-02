@@ -17,3 +17,4 @@ dependencyResolutionManagement {
 rootProject.name = "assistant"
 include(":core:kotlin")
 include(":apps:phone:app")
+include(":apps:desktop:service")

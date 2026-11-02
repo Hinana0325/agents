@@ -1,63 +1,76 @@
-# PC Agent — design only, plus one read-only CLI stub
+# PC Agent（电脑执行节点）
 
-## Status
+## 现状（2026-11-02）
 
-Design document only, except for `file_search.py`, a tiny read-only
-command-line stub described below. **No PC app has been built, no PC OS
-has been decided, nothing has been tested on a PC.** Do not present
-this node as implemented.
+已实现一个**能独立运行的无头服务**（Kotlin/JVM，复用 `core/kotlin`），不依赖手机与云端：
 
-## Role (in order of safety)
+- **本地信封通道**：`inbox/` 投递 → 校验/验签/去重 → 执行 → `outbox/` 回执，`pending/` 存待确认。
+  这是云端 hub 就绪前的传输替代品；换成 WS 拉取后，处理逻辑原样保留。
+- **执行器**：`chat`、`save_note`（写本地备忘）、`web_search`（固定搜索引擎模板）、
+  `open_app`（端上应用目录映射到 url/command）、`set_timer`（进程内计时 + 托盘通知）。
+  日历/闹钟按策略只有手机可达，电脑明确返回失败，不假装成功。
+- **确认**：L1 直接执行；L2 弹托盘确认，确认后用**本机审批密钥**签名 `approval.v1` 再执行；
+  L3 电脑没有审批权，留在 `pending/` 并提示去手机批准。非交互运行（`once`）时 L2 留在 `pending/`。
+- **身份**：P-256 密钥对，`pair` 命令输出 `device_id + 公钥 JWK`，供将来的手机扫码背书使用。
 
-1. **Read-only first:** find files, read file names/content the user
-   explicitly allows, summarise local documents, search the browser
-   history the user explicitly shares. This is the only PC behaviour
-   in scope for a first version.
-2. **Write operations later, Tier-3 only:** create/edit/move a file,
-   change a setting, or run a browser action only after a confirmation
-   on the primary device UI (phone), with the exact path/action shown.
-   Write operations are not in `file_search.py` and must not be added
-   to it without a separate design decision.
-3. **Long tasks:** the PC is the right node for multi-step work that
-   needs a big screen and a keyboard; the cloud splits such work into
-   envelopes, one task_id per task, and the PC reports status back
-   (`pending` → `confirmed` → `executing` → `completed`/`cancelled`).
+已验证：6 个单元测试全绿；本机端到端跑通（device-sim 签发 → 电脑执行 → 回执 done；
+L2 弹窗确认后执行；篡改/错设备被拒；重复投递只执行一次）。
 
-## The stub: `file_search.py`
+**未实现**（不要当成已完成）：
 
-- Searches **only** the directory given on the command line
-  (`--root`), and only for a filename/content substring given with
-  `--query`. Both are required; there are no defaults.
-- Refuses to search outside the allowlisted root: any candidate path
-  that resolves outside `--root` (including via symlinks) is skipped,
-  never followed and never reported as a match.
-- **Read-only by construction:** it opens files for reading only,
-  writes nothing, deletes nothing, moves nothing, and executes nothing.
-  It contains no shell, no subprocess, no network and no credential
-  handling.
-- It does not read browser passwords, tokens, mail stores or any
-  other credential material; if a match happens to be inside such a
-  file, the stub only prints the file path, never the file content
-  for binary or credential-looking files (see the code's extension
-  blocklist — it is a safety net, not a guarantee, so do not point
-  it at a credential directory in the first place).
+- WS/FCM 传输、手机扫码配对与设备证书、设备吊销。
+- 密钥保护：目前私钥是 `~/.dpa-desktop/identity-private.der`（PKCS#8 明文文件），
+  计划要求 DPAPI/TPM 包一层，属 Phase 2 余项，**不要在生产环境使用当前存储方式**。
+- 本地模型、相册整理、文件夹分类、桌面自动化、安装包/自启/自动更新。
+- Compose Desktop 图形界面：v1 用 AWT 托盘 + Swing 确认框（见 ADR 0007）。
+- 运行时状态只在内存里；重启后 `pending/` 会重新处理，但“已执行 id”的去重记录不持久化，
+  依赖本地通道“处理完即移走文件”来避免重放。接 WS 前必须换成持久化收件箱/发件箱。
 
-Usage:
+## 运行
 
 ```bash
-python3 file_search.py --root /path/to/allowed/dir --query report
+# 在仓库根目录
+subst V: "<仓库目录>"          # 目录名含中文时必须
+cd V:
+./gradlew :apps:desktop:service:installDist
+
+# 首次运行生成配置与身份密钥（默认 ~/.dpa-desktop，可用 DPA_DESKTOP_HOME 覆盖）
+DPA_DESKTOP_HOME=/path/to/home apps/desktop/service/build/install/service/bin/service.bat status
+
+# 开发联调：用 device-sim 以 hub 身份签发信封
+uv run --with cryptography python tools/device-sim/sim.py install --desktop-home /path/to/home --dry-run
+uv run --with cryptography python tools/device-sim/sim.py send --desktop-home /path/to/home \
+    --intent save_note --params '{"text":"买牛奶","title":"购物"}' --level 1
+
+# 单次处理 / 常驻（托盘 + L2 弹窗）
+apps/desktop/service/build/install/service/bin/service.bat once
+apps/desktop/service/build/install/service/bin/service.bat run
 ```
 
-## What the PC node does NOT do
+## 配置（`~/.dpa-desktop/config.json`）
 
-- No bypassing OS permissions, no silent installs, no reading browser
-  passwords or tokens, no keylogging, no screen control without an
-  explicit, per-action confirmation.
-- No free-form shell: a future PC executor, if ever built, must take
-  envelopes only, with the same allowlist + tier rules as the phone.
+```json
+{
+  "device_id": "pc-xxxxxxxx",
+  "role": "pc",
+  "hub_pubkey": { "kty": "EC", "crv": "P-256", "x": "...", "y": "..." },
+  "hub_kid": "hub-test-1",
+  "app_catalog": {
+    "com.example.site": { "url": "https://example.com" },
+    "com.example.notepad": { "command": ["notepad.exe"] }
+  },
+  "url_allowlist": ["example.com"],
+  "web_search_template": "https://www.bing.com/search?q={q}",
+  "dry_run": false
+}
+```
 
-## Open decisions for this node
+`hub_pubkey` 为空时服务**拒绝接收任何信封**（不允许跳过验签）。`dry_run=true` 时
+打开浏览器/启动程序只返回将要执行的命令，便于测试。
 
-- PC OS: Windows / macOS / Linux — undecided.
-- PC model and whether it is the user's existing computer: undecided.
-- Browser automation scope (if any): undecided; read-only search first.
+## 安全边界
+
+- 只执行协议白名单里的意图；未知意图、未知参数、低于策略的 level、过期、重放、
+  验签失败一律拒绝，和手机端跑同一份 `protocol/vectors`。
+- L2 的确认是**本机界面点击 + 本机审批密钥签名**，云端伪造不了；L3 电脑无权批准。
+- `capabilities/file_search.py` 仍是只读诊断工具，**没有接入信封**（ADR 0006 默认选项 A）。

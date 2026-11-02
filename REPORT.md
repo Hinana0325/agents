@@ -191,3 +191,40 @@
 - core 测试仍为 26 个全绿；APK 的 `aapt2 dump badging` 复核通过。
 - **仍未在物理真机验证**；模拟器的 AOSP 时钟/日历不能代表小米等厂商实现。
 - 签名私钥与口令只在本机，未进仓库、未打印到日志。
+
+## 9. 电脑端 v1（无头服务）— 2026-11-02 晚（续）
+
+按 DEVELOPMENT.md 把电脑端作为 P1 执行节点推进。没有云端 hub，所以先做“能独立运行”的那一半。
+
+### 做了什么
+
+- 新模块 `:apps:desktop:service`（Kotlin/JVM，复用 `core/kotlin`，无 Android 依赖）。
+- **本地信封通道**：`inbox/` 投递 → 校验/验签/去重 → 执行 → `outbox/` 回执；L2 待确认放 `pending/`。
+  这是 WS 传输就绪前的替代；换成 WSS 拉取后处理逻辑不变。
+- **执行器**：`chat`、`save_note`（写本地备忘）、`web_search`（端上固定搜索模板）、
+  `open_app`（端上应用目录映射 url/command）、`set_timer`（进程内计时 + 托盘通知）。
+  日历/闹钟按策略只属于手机，电脑返回失败而不是假装成功。
+- **确认**：L1 自动执行；L2 弹 Swing 确认框，用户点确认后用**本机 P-256 审批密钥**签名
+  `approval.v1`（绑定信封哈希 + 时间窗 + nonce）再执行；L3 电脑没有审批权，留 pending 并提示去手机。
+- **身份**：`pair` 输出 `device_id + 公钥 JWK`，为将来的手机扫码背书留接口。
+- `tools/device-sim/sim.py`：以 hub 身份签发信封（ES256 + JCS），投递到电脑收件箱；支持 `init/install/send/receipts`。
+- ADR 0007：记录三处偏离（先 AWT 托盘不做 Compose Desktop、本地目录通道、密钥明文文件）及原因。
+- CI 增加 desktop job（test + installDist）。
+
+### 已核验
+
+- `:apps:desktop:service:test`：**6 个用例全绿**（备忘执行、L2 待确认、错设备拒绝、篡改 BAD_SIG、重复投递只执行一次、不支持意图失败）。
+- 本机端到端（临时目录，`dry_run=true`）：
+  1. `sim install` 写入 hub 公钥 → `sim send save_note --level 1` → `service once` → 回执 `done`，备忘文件落盘，信封移入 `processed/`。
+  2. `sim send save_note --level 2` → `service once` → 回执 `awaiting_confirm`，信封留在 `pending/`。
+  3. `sim send web_search`（dry-run）→ 回执 `done`，没有真的打开浏览器。
+  4. `service run` 常驻 → 弹出「确认执行」窗口（动作/参数可见）→ 点确认 → 回执 `done`，`pending/` 清空，备忘写入。
+- 控制台中文乱码已修（JDK 17 默认 GBK → 分发包加 `-Dsun.stdout.encoding=UTF-8`）。
+
+### 未验证 / 未完成
+
+- **密钥保护不达标**：私钥是 `~/.dpa-desktop/identity-private.der` 明文 PKCS#8，DPAPI/TPM 未做；
+- 本地目录通道不是安全传输，只用于开发联调；WS/FCM、手机扫码配对、设备吊销都未开始。
+- 运行时去重状态只在内存；重启后靠 `pending/` 重放与“处理完即移走文件”兜底，接 WS 前必须持久化。
+- 托盘图标常驻、通知点击、安装包/自启/自动更新、本地模型、相册整理、桌面自动化均未做。
+- 电脑端只在中文 Windows 17 JDK 上跑过；计划要求“系统未定”，Linux/macOS 未验证。

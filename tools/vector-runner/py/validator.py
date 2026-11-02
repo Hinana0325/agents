@@ -493,6 +493,54 @@ def verify_approval(approval, envelope, ctx):
     return Result(True)
 
 
+RECEIPT_FIELDS = {"v", "envelope_id", "device_id", "status", "ts", "error"}
+RECEIPT_REQUIRED = {"v", "envelope_id", "device_id", "status", "ts"}
+RECEIPT_STATUSES = {
+    "accepted", "awaiting_confirm", "executing", "done",
+    "failed", "expired", "rejected", "cancelled",
+}
+RECEIPT_ERROR_FIELDS = {"code", "detail"}
+
+
+def verify_receipt(receipt):
+    """校验 receipt.v1，顺序与 core 的 ReceiptValidator 一致。"""
+    if not isinstance(receipt, dict):
+        return Result(False, code="RECEIPT_INVALID")
+    if any(key not in RECEIPT_FIELDS for key in receipt):
+        return Result(False, code="RECEIPT_INVALID")
+    if not RECEIPT_REQUIRED.issubset(receipt):
+        return Result(False, code="RECEIPT_INVALID")
+    if not _is_int(receipt.get("v")) or receipt["v"] != 1:
+        return Result(False, code="RECEIPT_INVALID")
+    for key in ("envelope_id", "device_id"):
+        value = receipt.get(key)
+        if not isinstance(value, str) or not (1 <= len(value) <= 64):
+            return Result(False, code="RECEIPT_INVALID")
+    if receipt.get("status") not in RECEIPT_STATUSES:
+        return Result(False, code="RECEIPT_INVALID")
+    ts_text = receipt.get("ts")
+    if not isinstance(ts_text, str) or not TS.match(ts_text):
+        return Result(False, code="RECEIPT_INVALID")
+    try:
+        _parse_ts(ts_text)
+    except ValueError:
+        return Result(False, code="RECEIPT_INVALID")
+    if "error" in receipt:
+        error = receipt["error"]
+        if not isinstance(error, dict):
+            return Result(False, code="RECEIPT_INVALID")
+        if any(key not in RECEIPT_ERROR_FIELDS for key in error) or "code" not in error:
+            return Result(False, code="RECEIPT_INVALID")
+        code = error.get("code")
+        if not isinstance(code, str) or not (1 <= len(code) <= 64):
+            return Result(False, code="RECEIPT_INVALID")
+        if "detail" in error:
+            detail = error["detail"]
+            if not isinstance(detail, str) or len(detail) > 500:
+                return Result(False, code="RECEIPT_INVALID")
+    return Result(True)
+
+
 def validate(env, ctx=None):
     """校验一条信封。返回 Result；顺序即 error-codes.md 的优先级。"""
     ctx = ctx or {}

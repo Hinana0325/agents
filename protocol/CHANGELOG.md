@@ -16,6 +16,9 @@
   未生效、角色越权、篡改、未知字段、错误信任根、已吊销、错误签名者。
 - 新增 `vectors/approval`（15 条）：审批证明的有效 L2/L3、降级、越权、过期、重放、
   错哈希、错信封、nonce 篡改、错误签名者、字段/类型错误；Python 侧新增 `verify_approval`。
+- 新增 `vectors/receipt`（12 条）：回执的有效 done/awaiting/failed、未知字段/状态、
+  空 envelope_id、非法时间、error 结构错误、超长 detail、版本类型错误、缺字段；
+  Python 侧新增 `verify_receipt`，core 新增 `ReceiptValidator` 并用于运行时自检。
 
 ### 与旧原型的关系
 

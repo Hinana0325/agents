@@ -751,6 +751,78 @@ APPROVAL.append(
 )
 
 
+def receipt(**over):
+    value = {
+        "v": 1,
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "done",
+        "ts": "2026-11-02T10:00:00Z",
+    }
+    value.update(over)
+    return value
+
+
+def receipt_case(name, receipt_obj, expect):
+    return {"name": name, "receipt": receipt_obj, "expect": expect}
+
+
+RECEIPT = []
+RECEIPT.append(receipt_case("receipt_valid_done", receipt(), _ok()))
+RECEIPT.append(
+    receipt_case(
+        "receipt_valid_awaiting_error",
+        receipt(status="awaiting_confirm", error={"code": "APPROVAL_LEVEL"}),
+        _ok(),
+    )
+)
+RECEIPT.append(
+    receipt_case(
+        "receipt_valid_failed_detail",
+        receipt(status="failed", error={"code": "EXECUTOR_FAILED", "detail": "boom"}),
+        _ok(),
+    )
+)
+
+_unknown_field = receipt()
+_unknown_field["extra"] = 1
+RECEIPT.append(receipt_case("receipt_unknown_field", _unknown_field, _bad("RECEIPT_INVALID")))
+RECEIPT.append(
+    receipt_case("receipt_unknown_status", receipt(status="accepted_by_hub"), _bad("RECEIPT_INVALID"))
+)
+RECEIPT.append(
+    receipt_case("receipt_empty_envelope_id", receipt(envelope_id=""), _bad("RECEIPT_INVALID"))
+)
+RECEIPT.append(
+    receipt_case("receipt_invalid_ts", receipt(ts="2026-13-99T99:99:99Z"), _bad("RECEIPT_INVALID"))
+)
+RECEIPT.append(
+    receipt_case(
+        "receipt_error_without_code",
+        receipt(status="failed", error={"detail": "x"}),
+        _bad("RECEIPT_INVALID"),
+    )
+)
+RECEIPT.append(
+    receipt_case(
+        "receipt_error_unknown_field",
+        receipt(status="failed", error={"code": "X", "extra": 1}),
+        _bad("RECEIPT_INVALID"),
+    )
+)
+RECEIPT.append(
+    receipt_case(
+        "receipt_long_detail",
+        receipt(status="failed", error={"code": "X", "detail": "x" * 501}),
+        _bad("RECEIPT_INVALID"),
+    )
+)
+RECEIPT.append(receipt_case("receipt_version_string", receipt(v="1"), _bad("RECEIPT_INVALID")))
+_missing_ts = receipt()
+del _missing_ts["ts"]
+RECEIPT.append(receipt_case("receipt_missing_ts", _missing_ts, _bad("RECEIPT_INVALID")))
+
+
 def dump(cases, path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
@@ -767,6 +839,7 @@ buckets = {
     "cert": CERT,
     "revocation": REVOCATION,
     "approval": APPROVAL,
+    "receipt": RECEIPT,
 }
 
 total = 0

@@ -2,6 +2,7 @@ package cn.phoneassistant.core.runtime
 
 import cn.phoneassistant.core.EnvelopeValidator
 import cn.phoneassistant.core.Jcs
+import cn.phoneassistant.core.ReceiptValidator
 import java.math.BigInteger
 import java.security.KeyPair
 import java.security.KeyPairGenerator
@@ -20,6 +21,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -287,6 +289,23 @@ class DeviceRuntimeTest {
         val env = signEnvelope(eventEnvelope(level = 2))
 
         assertEquals("UNKNOWN_ENVELOPE", errorCode(rt.approve(idOf(env), approval(env, "phone-1", 3, phone.private, nonce()))))
+    }
+
+    @Test
+    fun runtimeReceiptsMatchTheReceiptContract() {
+        val rt = runtime()
+        val receipts = mutableListOf<JsonObject>()
+        receipts += rt.submit(signEnvelope(envelope("chat", buildJsonObject { put("text", "hi") }, level = 1)))
+        receipts += rt.submit(signEnvelope(eventEnvelope(level = 2)))
+        receipts += rt.submit(
+            signEnvelope(envelope("voice_command", buildJsonObject { put("transcript", "x") }, level = 2)),
+        )
+        // 没有 id 的坏信封也必须给出合法的 envelope_id（unknown）。
+        receipts += rt.submit(buildJsonObject { put("foo", 1) })
+
+        receipts.forEach { receipt ->
+            assertNull("receipt does not match receipt.v1: $receipt", ReceiptValidator.verify(receipt))
+        }
     }
 
     @Test

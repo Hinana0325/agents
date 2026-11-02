@@ -63,6 +63,11 @@ class VectorTest {
                                 else code == expect["code"]?.jsonPrimitive?.content
                             }
                         }
+                        "receipt" -> {
+                            val error = ReceiptValidator.verify(case["receipt"]!!)
+                            if (expectedOk) error == null
+                            else error == expect["code"]?.jsonPrimitive?.content
+                        }
                         "approval" -> {
                             val context = case["context"]!!.jsonObject
                             val approvers = context["approvers"]!!.jsonObject.mapValues { (id, element) ->

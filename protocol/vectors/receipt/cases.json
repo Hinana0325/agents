@@ -1,0 +1,188 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "receipt_valid_done",
+      "receipt": {
+        "v": 1,
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "done",
+        "ts": "2026-11-02T10:00:00Z"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "receipt_valid_awaiting_error",
+      "receipt": {
+        "v": 1,
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "awaiting_confirm",
+        "ts": "2026-11-02T10:00:00Z",
+        "error": {
+          "code": "APPROVAL_LEVEL"
+        }
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "receipt_valid_failed_detail",
+      "receipt": {
+        "v": 1,
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "failed",
+        "ts": "2026-11-02T10:00:00Z",
+        "error": {
+          "code": "EXECUTOR_FAILED",
+          "detail": "boom"
+        }
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "receipt_unknown_field",
+      "receipt": {
+        "v": 1,
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "done",
+        "ts": "2026-11-02T10:00:00Z",
+        "extra": 1
+      },
+      "expect": {
+        "ok": false,
+        "code": "RECEIPT_INVALID"
+      }
+    },
+    {
+      "name": "receipt_unknown_status",
+      "receipt": {
+        "v": 1,
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "accepted_by_hub",
+        "ts": "2026-11-02T10:00:00Z"
+      },
+      "expect": {
+        "ok": false,
+        "code": "RECEIPT_INVALID"
+      }
+    },
+    {
+      "name": "receipt_empty_envelope_id",
+      "receipt": {
+        "v": 1,
+        "envelope_id": "",
+        "device_id": "phone-1",
+        "status": "done",
+        "ts": "2026-11-02T10:00:00Z"
+      },
+      "expect": {
+        "ok": false,
+        "code": "RECEIPT_INVALID"
+      }
+    },
+    {
+      "name": "receipt_invalid_ts",
+      "receipt": {
+        "v": 1,
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "done",
+        "ts": "2026-13-99T99:99:99Z"
+      },
+      "expect": {
+        "ok": false,
+        "code": "RECEIPT_INVALID"
+      }
+    },
+    {
+      "name": "receipt_error_without_code",
+      "receipt": {
+        "v": 1,
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "failed",
+        "ts": "2026-11-02T10:00:00Z",
+        "error": {
+          "detail": "x"
+        }
+      },
+      "expect": {
+        "ok": false,
+        "code": "RECEIPT_INVALID"
+      }
+    },
+    {
+      "name": "receipt_error_unknown_field",
+      "receipt": {
+        "v": 1,
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "failed",
+        "ts": "2026-11-02T10:00:00Z",
+        "error": {
+          "code": "X",
+          "extra": 1
+        }
+      },
+      "expect": {
+        "ok": false,
+        "code": "RECEIPT_INVALID"
+      }
+    },
+    {
+      "name": "receipt_long_detail",
+      "receipt": {
+        "v": 1,
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "failed",
+        "ts": "2026-11-02T10:00:00Z",
+        "error": {
+          "code": "X",
+          "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      },
+      "expect": {
+        "ok": false,
+        "code": "RECEIPT_INVALID"
+      }
+    },
+    {
+      "name": "receipt_version_string",
+      "receipt": {
+        "v": "1",
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "done",
+        "ts": "2026-11-02T10:00:00Z"
+      },
+      "expect": {
+        "ok": false,
+        "code": "RECEIPT_INVALID"
+      }
+    },
+    {
+      "name": "receipt_missing_ts",
+      "receipt": {
+        "v": 1,
+        "envelope_id": "0193f0a8-9c1b-7000-8000-000000000001",
+        "device_id": "phone-1",
+        "status": "done"
+      },
+      "expect": {
+        "ok": false,
+        "code": "RECEIPT_INVALID"
+      }
+    }
+  ]
+}

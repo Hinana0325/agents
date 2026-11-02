@@ -808,3 +808,28 @@
 - mock hub 的 inbox 是“投递即出队”，没有真实 hub 的 at-least-once 重投；跨重启去重
   仍由手机的 `processed.json` 单测/旧联调覆盖。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 31. 回执契约校验与向量 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- core：新增 `ReceiptValidator`（严格字段集、状态枚举、RFC3339 时间、error 结构、
+  长度上限）；`DeviceRuntime` 的坏信封回执不再产生空 `envelope_id`，改用 `unknown`
+  （与电脑端一致），并在单测里遍历 done/awaiting/rejected 回执逐个过校验器。
+- Python：新增 `verify_receipt`，检查顺序与 Kotlin 一致。
+- 向量：`protocol/vectors/receipt` 12 条（有效 done/awaiting/failed、未知字段/状态、
+  空 id、非法时间、error 缺 code/未知字段/超长 detail、版本类型、缺 ts）；两侧 runner 分派。
+
+### 已核验
+
+1. Kotlin：`ReceiptValidatorTest` 10 个 + `runtimeReceiptsMatchTheReceiptContract` 1 个通过。
+2. Python/Kotlin：`TOTAL 230 cases, 0 failed`，`VectorTest > allVectorsPass PASSED`。
+3. 阳性对照：把 `receipt_valid_done` 的期望改成失败后，Python 报
+   `FAIL [receipt] receipt_valid_done`，Kotlin `VectorTest` FAILED；恢复后全绿。
+4. 全量构建通过；core 测试 117 个，桌面 27、手机 6、仪器测试 4（1 交互式跳过）。
+
+### 未完成
+
+- 回执的语义推进（状态机、非法转移丢弃）仍由 hub 实现；本仓库只校验结构。
+- 没有把回执校验接到 mock hub 的 `/v1/device/receipts`（目前只记录）。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。

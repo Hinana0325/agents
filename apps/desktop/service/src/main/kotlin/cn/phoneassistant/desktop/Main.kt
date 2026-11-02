@@ -96,36 +96,38 @@ private fun runOnce(paths: DesktopPaths, config: DesktopConfigFile, identity: De
 }
 
 private fun runWithUi(paths: DesktopPaths, config: DesktopConfigFile, identity: DesktopIdentity) {
-    if (config.hub_pubkey == null) {
-        println("还没配置 hub 公钥，拒绝接收任何信封。先运行 device-sim install（或手工填 config.json）。")
-        return
-    }
     val state = UiState()
-    state.log("已启动：${config.device_id}，监听 ${paths.inbox}")
     val store = DesktopStore(File(paths.home, "desktop.db"))
     try {
-        val agent = InboxAgent(
-            paths = paths,
-            config = config,
-            identity = identity,
-            notifier = state.notifier,
-            confirm = state::ask,
-            store = store,
-        )
-        Thread(
-            {
-                while (true) {
-                    val results = try {
-                        agent.processAll()
-                    } catch (e: Exception) {
-                        listOf("ERROR ${e.message}")
+        if (config.hub_pubkey == null) {
+            // GUI 应用没有控制台；缺公钥时也要把窗口开出来，否则用户只看到“闪一下就没了”。
+            state.log("未配置 hub 公钥：不会接收信封。")
+            state.log("把 config.json 的 hub_pubkey 填好（或用 device-sim install）后重启。")
+        } else {
+            state.log("已启动：${config.device_id}，监听 ${paths.inbox}")
+            val agent = InboxAgent(
+                paths = paths,
+                config = config,
+                identity = identity,
+                notifier = state.notifier,
+                confirm = state::ask,
+                store = store,
+            )
+            Thread(
+                {
+                    while (true) {
+                        val results = try {
+                            agent.processAll()
+                        } catch (e: Exception) {
+                            listOf("ERROR ${e.message}")
+                        }
+                        results.forEach(state::log)
+                        Thread.sleep(1000L)
                     }
-                    results.forEach(state::log)
-                    Thread.sleep(1000L)
-                }
-            },
-            "dpa-inbox",
-        ).apply { isDaemon = true }.start()
+                },
+                "dpa-inbox",
+            ).apply { isDaemon = true }.start()
+        }
         runDesktopUi(state, config, paths, store)
     } finally {
         runCatching { store.close() }

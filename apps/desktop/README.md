@@ -19,13 +19,15 @@
 
 已验证：13 个单元测试全绿（含跨重启去重、DPAPI 往返/迁移、历史查询）；本机端到端跑通
 （device-sim 签发 → 电脑执行 → 回执 done → 重投同一信封返回 DUPLICATE 且不再执行；
-L2 在 Compose 界面点确认后执行，含审批密钥签名；取消则 rejected；篡改/错设备被拒）。
+L2 在 Compose 界面点确认后执行，含审批密钥签名；取消则 rejected；篡改/错设备被拒）；
+打包出的 `DpaDesktop.exe`（自带 JRE）实机启动并完成一次 save_note 执行。
 
 **未实现**（不要当成已完成）：
 
 - WS/FCM 传输、手机扫码配对与设备证书、设备吊销。
 - 密钥保护：Windows 已用 DPAPI；**TPM 未做**，非 Windows 仍是明文文件。
-- 本地模型、相册整理、文件夹分类、桌面自动化、安装包/自启/自动更新。
+- 安装器：没有 MSI（本机缺 WiX）、没有开始菜单/卸载登记/自启/自动更新。
+- 本地模型、相册整理、文件夹分类、桌面自动化。
 - 主界面之外的页面（设置、应用目录编辑）后续再补；已处理记录已接入主界面。
 - SQLite 目前只存“已处理 id + 回执”；收件箱/发件箱的持久化与重试队列还没做。
 
@@ -51,6 +53,17 @@ apps/desktop/service/build/install/service/bin/service.bat run
 ```
 
 `run` 会打开主窗口并常驻托盘；关闭窗口只是最小化，退出用托盘菜单。`once` 不启动界面，供脚本/CI 使用。
+
+## 打包（自带 JRE，不依赖目标机 Java）
+
+```bash
+./gradlew :apps:desktop:service:packageAppImage
+# 产物：apps/desktop/service/build/jpackage/DpaDesktop/DpaDesktop.exe
+```
+
+整个 `DpaDesktop/` 目录可直接拷到别的 Windows 机器运行（jpackage app-image + 内置 runtime）。
+GUI 版没有控制台，`status/pair/once` 继续用 `installDist` 的 `service.bat`。
+没有 MSI：本机缺 WiX，`jpackage --type msi` 无法执行（见 ADR 0010）。
 
 ## 配置（`~/.dpa-desktop/config.json`）
 

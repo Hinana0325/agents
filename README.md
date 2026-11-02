@@ -59,8 +59,9 @@ uv run --with cryptography python tools/vector-runner/py/runner.py
 # 手机 APK
 ./gradlew :apps:phone:app:assembleDebug
 
-# 电脑端服务（测试 + 分发包）
+# 电脑端服务（测试 + 分发包 + 自带 JRE 的 app-image）
 ./gradlew :apps:desktop:service:test :apps:desktop:service:installDist
+./gradlew :apps:desktop:service:packageAppImage
 
 # 电脑端端到端联调（另开终端；见 apps/desktop/README）
 uv run --with cryptography python tools/device-sim/sim.py install --desktop-home ~/.dpa-desktop --dry-run

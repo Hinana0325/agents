@@ -263,3 +263,29 @@
 - TPM（CNG）与跨平台密钥库未做；DPAPI 绑定当前 Windows 用户，换机/重装后需重新配对。
 - SQLite 只存去重与回执；收件箱/发件箱持久化、重试队列、审计历史页未做。
 - WS/FCM、手机扫码配对、设备吊销仍未开始。
+
+## 11. 电脑端打包 — 2026-11-02 晚（续）
+
+计划要求“打包加自启加自动更新”，先做打包。
+
+### 做了什么
+
+- Gradle 任务 `packageAppImage`：`installDist` → `jpackage --type app-image --name DpaDesktop`，
+  输出自带 JRE 的目录式应用（`build/jpackage/DpaDesktop/DpaDesktop.exe`）。
+- 版本 0.2.0；GUI 版不带控制台，`status/once/pair` 继续走 `installDist` 的 `service.bat`。
+- ADR 0010：本机缺 WiX，MSI 暂缓；装好 WiX 后加 `--type msi` 即可。
+
+### 已核验
+
+- `packageAppImage` BUILD SUCCESSFUL，产物 `DpaDesktop/DpaDesktop.exe` + `app/` + `runtime/`。
+- 直接启动打包后的 exe（临时数据目录）：
+  1. 未配置 hub 公钥时窗口正常打开，界面显示“hub 公钥：未配置（不会接收信封）”与指引日志；
+  2. 写入 hub 公钥后重启，device-sim 发 `save_note` → 回执 done、备忘落盘、界面日志出现 `done`、
+     “已处理（1）”页签可查（截图核对）。
+- 打包暴露并修复了一个真实缺陷：GUI 模式缺 hub 公钥时原本直接 `return`，窗口一闪就退出；
+  现在会开窗并给出配置指引。
+
+### 未完成
+
+- 没有 MSI/安装器、开始菜单、卸载登记、自启、自动更新（自启与更新依赖安装器/更新源）。
+- 打包只有 Windows app-image；macOS/Linux 未验证。

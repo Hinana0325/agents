@@ -1,0 +1,4550 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "sync_valid_min_batch",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "sync_valid_cursor_and_next",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 7,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000002",
+            "rev": 8,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "note",
+            "id": "0193f0a8-9c1b-7000-8000-000000000003",
+            "rev": 9,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {
+              "text": "hi"
+            }
+          }
+        ],
+        "next": true,
+        "cursor": "rev-000009"
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "sync_valid_empty_entries",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 3,
+        "entries": [],
+        "next": false
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "sync_valid_tombstone",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 4,
+        "entries": [
+          {
+            "kind": "note",
+            "id": "0193f0a8-9c1b-7000-8000-000000000004",
+            "rev": 5,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "deleted": true
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "sync_valid_all_kinds",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 10,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000010",
+            "rev": 11,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "note",
+            "id": "0193f0a8-9c1b-7000-8000-000000000011",
+            "rev": 12,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "setting",
+            "id": "0193f0a8-9c1b-7000-8000-000000000012",
+            "rev": 13,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "calendar_mirror",
+            "id": "0193f0a8-9c1b-7000-8000-000000000013",
+            "rev": 14,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "scheduled_task",
+            "id": "0193f0a8-9c1b-7000-8000-000000000014",
+            "rev": 15,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "memory",
+            "id": "0193f0a8-9c1b-7000-8000-000000000015",
+            "rev": 16,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "presence",
+            "id": "0193f0a8-9c1b-7000-8000-000000000016",
+            "rev": 17,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "audit_ref",
+            "id": "0193f0a8-9c1b-7000-8000-000000000017",
+            "rev": 18,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false,
+        "cursor": ""
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "sync_invalid_unknown_top_field",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false,
+        "extra": 1
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_UNKNOWN_FIELD"
+      }
+    },
+    {
+      "name": "sync_invalid_unknown_entity_field",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {},
+            "extra": 1
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_UNKNOWN_FIELD"
+      }
+    },
+    {
+      "name": "sync_invalid_kind_not_in_enum",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "calendar",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_BAD_KIND"
+      }
+    },
+    {
+      "name": "sync_invalid_id_not_uuidv7",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "not-a-uuid",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_BAD_ID"
+      }
+    },
+    {
+      "name": "sync_invalid_rev_zero",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 0,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_BAD_REV"
+      }
+    },
+    {
+      "name": "sync_invalid_rev_string",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": "1",
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_BAD_REV"
+      }
+    },
+    {
+      "name": "sync_invalid_base_rev_missing",
+      "batch": {
+        "device_id": "phone-1",
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_MISSING_FIELD"
+      }
+    },
+    {
+      "name": "sync_invalid_base_rev_negative",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": -1,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_BAD_BASE_REV"
+      }
+    },
+    {
+      "name": "sync_invalid_entries_over_500",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 1,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000002",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000003",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000004",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000005",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000006",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000007",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000008",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000009",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000010",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000011",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000012",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000013",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000014",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000015",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000016",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000017",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000018",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000019",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000020",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000021",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000022",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000023",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000024",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000025",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000026",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000027",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000028",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000029",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000030",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000031",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000032",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000033",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000034",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000035",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000036",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000037",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000038",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000039",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000040",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000041",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000042",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000043",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000044",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000045",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000046",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000047",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000048",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000049",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000050",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000051",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000052",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000053",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000054",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000055",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000056",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000057",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000058",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000059",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000060",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000061",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000062",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000063",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000064",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000065",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000066",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000067",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000068",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000069",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000070",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000071",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000072",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000073",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000074",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000075",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000076",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000077",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000078",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000079",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000080",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000081",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000082",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000083",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000084",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000085",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000086",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000087",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000088",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000089",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000090",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000091",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000092",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000093",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000094",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000095",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000096",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000097",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000098",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000099",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000100",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000101",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000102",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000103",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000104",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000105",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000106",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000107",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000108",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000109",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000110",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000111",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000112",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000113",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000114",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000115",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000116",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000117",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000118",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000119",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000120",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000121",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000122",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000123",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000124",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000125",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000126",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000127",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000128",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000129",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000130",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000131",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000132",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000133",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000134",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000135",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000136",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000137",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000138",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000139",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000140",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000141",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000142",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000143",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000144",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000145",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000146",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000147",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000148",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000149",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000150",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000151",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000152",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000153",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000154",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000155",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000156",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000157",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000158",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000159",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000160",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000161",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000162",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000163",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000164",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000165",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000166",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000167",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000168",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000169",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000170",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000171",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000172",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000173",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000174",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000175",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000176",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000177",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000178",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000179",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000180",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000181",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000182",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000183",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000184",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000185",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000186",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000187",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000188",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000189",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000190",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000191",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000192",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000193",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000194",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000195",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000196",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000197",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000198",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000199",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000200",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000201",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000202",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000203",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000204",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000205",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000206",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000207",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000208",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000209",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000210",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000211",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000212",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000213",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000214",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000215",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000216",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000217",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000218",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000219",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000220",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000221",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000222",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000223",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000224",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000225",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000226",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000227",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000228",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000229",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000230",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000231",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000232",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000233",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000234",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000235",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000236",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000237",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000238",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000239",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000240",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000241",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000242",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000243",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000244",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000245",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000246",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000247",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000248",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000249",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000250",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000251",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000252",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000253",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000254",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000255",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000256",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000257",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000258",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000259",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000260",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000261",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000262",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000263",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000264",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000265",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000266",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000267",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000268",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000269",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000270",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000271",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000272",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000273",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000274",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000275",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000276",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000277",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000278",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000279",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000280",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000281",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000282",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000283",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000284",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000285",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000286",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000287",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000288",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000289",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000290",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000291",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000292",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000293",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000294",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000295",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000296",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000297",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000298",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000299",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000300",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000301",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000302",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000303",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000304",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000305",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000306",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000307",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000308",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000309",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000310",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000311",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000312",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000313",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000314",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000315",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000316",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000317",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000318",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000319",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000320",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000321",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000322",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000323",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000324",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000325",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000326",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000327",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000328",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000329",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000330",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000331",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000332",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000333",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000334",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000335",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000336",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000337",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000338",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000339",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000340",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000341",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000342",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000343",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000344",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000345",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000346",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000347",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000348",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000349",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000350",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000351",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000352",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000353",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000354",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000355",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000356",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000357",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000358",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000359",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000360",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000361",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000362",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000363",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000364",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000365",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000366",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000367",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000368",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000369",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000370",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000371",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000372",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000373",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000374",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000375",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000376",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000377",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000378",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000379",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000380",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000381",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000382",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000383",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000384",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000385",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000386",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000387",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000388",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000389",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000390",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000391",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000392",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000393",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000394",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000395",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000396",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000397",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000398",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000399",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000400",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000401",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000402",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000403",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000404",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000405",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000406",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000407",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000408",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000409",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000410",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000411",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000412",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000413",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000414",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000415",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000416",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000417",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000418",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000419",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000420",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000421",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000422",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000423",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000424",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000425",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000426",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000427",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000428",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000429",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000430",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000431",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000432",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000433",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000434",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000435",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000436",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000437",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000438",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000439",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000440",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000441",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000442",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000443",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000444",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000445",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000446",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000447",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000448",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000449",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000450",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000451",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000452",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000453",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000454",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000455",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000456",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000457",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000458",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000459",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000460",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000461",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000462",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000463",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000464",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000465",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000466",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000467",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000468",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000469",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000470",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000471",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000472",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000473",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000474",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000475",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000476",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000477",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000478",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000479",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000480",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000481",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000482",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000483",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000484",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000485",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000486",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000487",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000488",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000489",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000490",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000491",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000492",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000493",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000494",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000495",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000496",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000497",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000498",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000499",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000500",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000501",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_BAD_ENTRIES"
+      }
+    },
+    {
+      "name": "sync_invalid_ts_bad",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_BAD_TS"
+      }
+    },
+    {
+      "name": "sync_invalid_payload_not_object",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": "hi"
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_BAD_PAYLOAD"
+      }
+    },
+    {
+      "name": "sync_invalid_payload_missing",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z"
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_BAD_PAYLOAD"
+      }
+    },
+    {
+      "name": "sync_invalid_dup_id",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          },
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 2,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_DUP_ID"
+      }
+    },
+    {
+      "name": "sync_invalid_tombstone_with_payload",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "deleted": true,
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_TOMBSTONE_PAYLOAD"
+      }
+    },
+    {
+      "name": "sync_invalid_entity_missing_rev",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_MISSING_FIELD"
+      }
+    },
+    {
+      "name": "sync_invalid_next_missing",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "phone-1",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ]
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_MISSING_FIELD"
+      }
+    },
+    {
+      "name": "sync_invalid_device_id_empty",
+      "batch": {
+        "device_id": "phone-1",
+        "base_rev": 0,
+        "entries": [
+          {
+            "kind": "chat_message",
+            "id": "0193f0a8-9c1b-7000-8000-000000000001",
+            "rev": 1,
+            "device_id": "",
+            "ts": "2026-11-02T10:00:00Z",
+            "payload": {}
+          }
+        ],
+        "next": false
+      },
+      "expect": {
+        "ok": false,
+        "code": "SYNC_BAD_DEVICE_ID"
+      }
+    }
+  ]
+}

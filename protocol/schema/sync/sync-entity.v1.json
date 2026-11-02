@@ -1,0 +1,55 @@
+{
+  "$id": "https://assistant.local/protocol/schema/sync/sync-entity.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SyncEntity v1",
+  "description": "同步实体：8 类数据的单一载体。rev 是服务端分配的单调递增整数（server seq），全序排序不依赖设备时钟；设备 ts 仅作展示。墓碑（deleted=true）表示删除，不携带 payload。信封里不放浮点数的硬规则同样适用。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind", "id", "rev", "device_id", "ts"],
+  "allOf": [
+    {
+      "if": { "properties": { "deleted": { "const": true } }, "required": ["deleted"] },
+      "then": { "not": { "required": ["payload"] } }
+    },
+    {
+      "if": { "not": { "properties": { "deleted": { "const": true } }, "required": ["deleted"] } },
+      "then": { "required": ["payload"] }
+    }
+  ],
+  "properties": {
+    "kind": {
+      "enum": ["chat_message", "note", "setting", "calendar_mirror", "scheduled_task", "memory", "presence", "audit_ref"],
+      "description": "8 类同步数据；每类的单写者权威方见 spec/sync.md 与 docs/adr/0004-single-writer-sync.md。"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "UUIDv7，由产生者设备生成，同一 batch 内不得重复；重复 push 同一 id 幂等。"
+    },
+    "rev": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "服务端分配的单调递增版本（server seq），排序只看它，不看设备时钟。"
+    },
+    "deleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "墓碑标记。true 表示实体已删除，此时不得携带 payload；缺省视为 false。"
+    },
+    "payload": {
+      "type": "object",
+      "description": "TODO(v1.1): 按 kind 展开子 schema（chat_message/note/setting/calendar_mirror/scheduled_task/memory/presence/audit_ref 各自的字段约束），当前 v1 为宽松对象；展开时必须同时改 schema、spec、向量与两侧校验器，未知字段一律拒绝。"
+    },
+    "device_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "产生者设备。"
+    },
+    "ts": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
+      "description": "RFC 3339 UTC 秒级时间，产生者本地时间，仅作展示；排序与冲突判定都不依赖它。"
+    }
+  }
+}

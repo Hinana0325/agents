@@ -68,6 +68,11 @@ class VectorTest {
                             if (expectedOk) error == null
                             else error == expect["code"]?.jsonPrimitive?.content
                         }
+                        "sync" -> {
+                            val error = SyncValidator.validate(case["batch"]!!)
+                            if (expectedOk) error == null
+                            else error == expect["code"]?.jsonPrimitive?.content
+                        }
                         "approval" -> {
                             val context = case["context"]!!.jsonObject
                             val approvers = context["approvers"]!!.jsonObject.mapValues { (id, element) ->

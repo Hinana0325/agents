@@ -541,6 +541,110 @@ def verify_receipt(receipt):
     return Result(True)
 
 
+SYNC_KINDS = [
+    "chat_message", "note", "setting", "calendar_mirror",
+    "scheduled_task", "memory", "presence", "audit_ref",
+]
+SYNC_BATCH_FIELDS = {"device_id", "base_rev", "entries", "cursor", "next"}
+SYNC_BATCH_REQUIRED = ["device_id", "base_rev", "entries", "next"]
+SYNC_ENTITY_FIELDS = {"kind", "id", "rev", "deleted", "payload", "device_id", "ts"}
+SYNC_ENTITY_REQUIRED = ["kind", "id", "rev", "device_id", "ts"]
+SYNC_MAX_ENTRIES = 500
+SYNC_MAX_CURSOR = 512
+
+
+def _sync_device_id(value):
+    if not isinstance(value, str) or len(value) < 1 or len(value) > 64:
+        return "SYNC_BAD_DEVICE_ID"
+    return None
+
+
+def _validate_sync_entity(entry):
+    """校验一条同步实体；顺序与 core 的 SyncValidator.validateEntity 一致。"""
+    if not isinstance(entry, dict):
+        return "SYNC_BAD_TYPE"
+    err = _check_keys(entry, SYNC_ENTITY_FIELDS, SYNC_ENTITY_REQUIRED)
+    if err:
+        return "SYNC_" + err
+
+    kind = entry["kind"]
+    if not isinstance(kind, str):
+        return "SYNC_BAD_TYPE"
+    if kind not in SYNC_KINDS:
+        return "SYNC_BAD_KIND"
+
+    entry_id = entry["id"]
+    if not isinstance(entry_id, str) or not UUID7.match(entry_id):
+        return "SYNC_BAD_ID"
+    rev = entry["rev"]
+    if not _is_int(rev) or rev < 1:
+        return "SYNC_BAD_REV"
+    err = _sync_device_id(entry["device_id"])
+    if err:
+        return err
+    ts = entry["ts"]
+    if not isinstance(ts, str) or not TS.match(ts):
+        return "SYNC_BAD_TS"
+
+    if "deleted" in entry and not isinstance(entry["deleted"], bool):
+        return "SYNC_BAD_TYPE"
+    deleted = entry.get("deleted") is True
+
+    if deleted:
+        if "payload" in entry:
+            return "SYNC_TOMBSTONE_PAYLOAD"
+    else:
+        if not isinstance(entry.get("payload"), dict):
+            return "SYNC_BAD_PAYLOAD"
+    return None
+
+
+def validate_sync(batch):
+    """校验一个同步增量批（sync-batch.v1）；顺序与 core 的 SyncValidator 一致。"""
+    if not isinstance(batch, dict):
+        return _fail("SYNC_BAD_TYPE")
+
+    err = _check_keys(batch, SYNC_BATCH_FIELDS, SYNC_BATCH_REQUIRED)
+    if err:
+        return _fail("SYNC_" + err)
+
+    err = _sync_device_id(batch["device_id"])
+    if err:
+        return _fail(err)
+
+    base_rev = batch["base_rev"]
+    if not _is_int(base_rev) or base_rev < 0:
+        return _fail("SYNC_BAD_BASE_REV")
+
+    entries = batch["entries"]
+    if not isinstance(entries, list):
+        return _fail("SYNC_BAD_TYPE")
+    if len(entries) > SYNC_MAX_ENTRIES:
+        return _fail("SYNC_BAD_ENTRIES")
+    for entry in entries:
+        err = _validate_sync_entity(entry)
+        if err:
+            return _fail(err)
+
+    if "cursor" in batch:
+        cursor = batch["cursor"]
+        if not isinstance(cursor, str):
+            return _fail("SYNC_BAD_TYPE")
+        if len(cursor) > SYNC_MAX_CURSOR:
+            return _fail("SYNC_BAD_CURSOR")
+
+    if not isinstance(batch["next"], bool):
+        return _fail("SYNC_BAD_TYPE")
+
+    seen = set()
+    for entry in entries:
+        if entry["id"] in seen:
+            return _fail("SYNC_DUP_ID")
+        seen.add(entry["id"])
+
+    return Result(True)
+
+
 def validate(env, ctx=None):
     """校验一条信封。返回 Result；顺序即 error-codes.md 的优先级。"""
     ctx = ctx or {}

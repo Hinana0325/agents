@@ -107,17 +107,20 @@ service.bat status               # 显示“登录自启：已启用/未启用�
 - 私钥：Windows 上由 DPAPI 保护为 `identity-private.dpapi`（旧明文 `.der` 会自动加密并删除）；
   非 Windows 暂时明文，`status` 会明确标注。
 
-## 配对（v1 手工交换 JSON）
+## 配对（二维码 / JSON）
 
 ```bash
-service.bat pair > request.json          # 输出配对请求（device_id/role/max_level/公钥）
+service.bat pair > request.json           # 输出配对请求（device_id/role/max_level/公钥）
+service.bat pair-qr request.png           # 把配对请求导出成二维码 PNG
 service.bat trust-phone phone_pubkey.json # 记录手机公钥（信任根）
 service.bat verify-cert cert.json         # 验证手机签发的设备证书并保存
 service.bat status                        # 查看“信任根 / 设备证书”
 ```
 
-证书规则见 `protocol/spec/pairing.md`；签名用手机身份密钥，电脑只认信任根。
-**手机端签名 UI 尚未实现**，目前可以用测试密钥完成链路验证；扫码配对后续补。
+主界面“配对”页同时显示二维码与请求 JSON。手机端在“配对”页可以“从相册扫描”二维码
+（把桌面导出的 PNG 传过去），或直接粘贴 JSON；手机用 Keystore 身份密钥签名后，
+把证书交回电脑 `verify-cert`。证书规则见 `protocol/spec/pairing.md`。
+相机实时扫码与证书吊销/轮换仍未做。
 
 ## 安全边界
 

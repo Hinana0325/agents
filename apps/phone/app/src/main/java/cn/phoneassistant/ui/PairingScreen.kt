@@ -1,5 +1,10 @@
 package cn.phoneassistant.ui
 
+import android.content.Context
+import android.graphics.BitmapFactory
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,10 +37,12 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import cn.phoneassistant.core.PairingRequests
+import cn.phoneassistant.core.QrCode
 import cn.phoneassistant.data.DeviceIdentity
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
 /**
@@ -54,6 +61,22 @@ fun PairingScreen(identity: DeviceIdentity, modifier: Modifier = Modifier) {
     var certText by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
+
+    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            scope.launch {
+                val decoded = withContext(Dispatchers.IO) { decodeQr(context, uri) }
+                if (decoded == null) {
+                    isError = true
+                    message = "没有从图片里识别到二维码。"
+                } else {
+                    requestText = decoded
+                    isError = false
+                    message = "已从二维码读取配对请求。"
+                }
+            }
+        }
+    }
 
     // 把本机公钥留一份在应用私有目录，便于排障/分享；不含私钥。
     LaunchedEffect(Unit) {
@@ -126,8 +149,9 @@ fun PairingScreen(identity: DeviceIdentity, modifier: Modifier = Modifier) {
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = { signRequest() }) { Text("签发设备证书") }
-            OutlinedButton(onClick = { runSelfTest() }) { Text("签名自检") }
+            OutlinedButton(onClick = { imagePicker.launch("image/*") }) { Text("从相册扫描") }
         }
+        TextButton(onClick = { runSelfTest() }) { Text("签名自检") }
         if (message.isNotEmpty()) {
             Text(
                 message,
@@ -157,3 +181,15 @@ fun PairingScreen(identity: DeviceIdentity, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(4.dp))
     }
 }
+
+/** 从相册图片里识别二维码；只在 IO 线程调用。 */
+private fun decodeQr(context: Context, uri: Uri): String? = runCatching {
+    val bitmap = context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it) }
+        ?: return null
+    val width = bitmap.width
+    val height = bitmap.height
+    val pixels = IntArray(width * height)
+    bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+    bitmap.recycle()
+    QrCode.decodeLuminance(width, height, pixels)
+}.getOrNull()

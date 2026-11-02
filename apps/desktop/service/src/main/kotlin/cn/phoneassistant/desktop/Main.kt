@@ -25,6 +25,7 @@ fun main(args: Array<String>) {
     when (command) {
         "status" -> printStatus(paths, config, identity)
         "pair", "pair-request" -> printPairRequest(config, identity)
+        "pair-qr" -> writePairingQr(config, identity, argument)
         "trust-phone" -> trustPhone(paths, config, argument)
         "verify-cert" -> verifyCertificate(paths, config, argument)
         "once" -> runOnce(paths, config, identity)
@@ -41,6 +42,7 @@ private fun printUsage() {
         用法：service <命令>
           status   查看设备配置、公钥、配对状态与收件箱
           pair     输出配对请求 JSON（交给手机签发设备证书）
+          pair-qr <输出.png>            把配对请求导出成二维码 PNG
           trust-phone <手机公钥.json>   记录信任根（手机公钥）
           verify-cert <证书.json>       验证手机签发的设备证书并保存
           once     处理 inbox/ 与 pending/ 里的全部信封，然后退出
@@ -81,6 +83,20 @@ private fun printStatus(paths: DesktopPaths, config: DesktopConfigFile, identity
 private fun printPairRequest(config: DesktopConfigFile, identity: DesktopIdentity) {
     val pretty = Json { prettyPrint = true }
     println(pretty.encodeToString(Pairing.request(config, identity)))
+}
+
+private fun writePairingQr(config: DesktopConfigFile, identity: DesktopIdentity, filePath: String?) {
+    if (filePath == null) {
+        println("用法：service pair-qr <输出.png>")
+        return
+    }
+    try {
+        val request = Pairing.request(config, identity)
+        PairingQr.writePng(Json.encodeToString(request), File(filePath))
+        println("已写入配对二维码：$filePath")
+    } catch (e: Exception) {
+        println("生成失败：${e.message}")
+    }
 }
 
 private fun trustPhone(paths: DesktopPaths, config: DesktopConfigFile, filePath: String?) {
@@ -184,7 +200,7 @@ private fun runWithUi(paths: DesktopPaths, config: DesktopConfigFile, identity: 
                 "dpa-inbox",
             ).apply { isDaemon = true }.start()
         }
-        runDesktopUi(state, config, paths, store)
+        runDesktopUi(state, config, paths, store, identity)
     } finally {
         runCatching { store.close() }
     }

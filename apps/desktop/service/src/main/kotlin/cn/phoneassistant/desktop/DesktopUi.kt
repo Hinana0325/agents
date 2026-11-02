@@ -1,5 +1,6 @@
 package cn.phoneassistant.desktop
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -55,11 +58,18 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.imageio.ImageIO
 import kotlinx.coroutines.launch
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 
 /** Compose Desktop 入口：主窗口 + 系统托盘。服务线程在 Main 里独立运行。 */
-fun runDesktopUi(state: UiState, config: DesktopConfigFile, paths: DesktopPaths, store: DesktopStore) = application {
+fun runDesktopUi(
+    state: UiState,
+    config: DesktopConfigFile,
+    paths: DesktopPaths,
+    store: DesktopStore,
+    identity: DesktopIdentity,
+) = application {
     val scope = rememberCoroutineScope()
     val trayState = rememberTrayState()
     val windowState = rememberWindowState(width = 780.dp, height = 580.dp)
@@ -91,14 +101,20 @@ fun runDesktopUi(state: UiState, config: DesktopConfigFile, paths: DesktopPaths,
     ) {
         MaterialTheme {
             Surface(modifier = Modifier.fillMaxSize()) {
-                DesktopApp(state, config, paths, store)
+                DesktopApp(state, config, paths, store, identity)
             }
         }
     }
 }
 
 @Composable
-private fun DesktopApp(state: UiState, config: DesktopConfigFile, paths: DesktopPaths, store: DesktopStore) {
+private fun DesktopApp(
+    state: UiState,
+    config: DesktopConfigFile,
+    paths: DesktopPaths,
+    store: DesktopStore,
+    identity: DesktopIdentity,
+) {
     val logs by state.logs.collectAsState()
     val prompt by state.prompt.collectAsState()
     var tab by remember { mutableStateOf(0) }
@@ -140,8 +156,11 @@ private fun DesktopApp(state: UiState, config: DesktopConfigFile, paths: Desktop
                 text = { Text("已处理（${processed.size}）") },
             )
             Tab(selected = tab == 2, onClick = { tab = 2 }, text = { Text("设置") })
+            Tab(selected = tab == 3, onClick = { tab = 3 }, text = { Text("配对") })
         }
-        if (tab == 2) {
+        if (tab == 3) {
+            PairingPane(config, identity, modifier = Modifier.weight(1f).fillMaxWidth())
+        } else if (tab == 2) {
             SettingsPane(config, paths, modifier = Modifier.weight(1f).fillMaxWidth())
         } else if (tab == 0) {
             if (logs.isEmpty()) {
@@ -201,6 +220,53 @@ private fun DesktopApp(state: UiState, config: DesktopConfigFile, paths: Desktop
 
 private fun count(dir: File): Int =
     dir.listFiles { file -> file.isFile && file.name.endsWith(".json") }?.size ?: 0
+
+@Composable
+private fun PairingPane(config: DesktopConfigFile, identity: DesktopIdentity, modifier: Modifier = Modifier) {
+    val pretty = remember { Json { prettyPrint = true } }
+    val request = remember { Pairing.request(config, identity) }
+    val requestText = remember { pretty.encodeToString(request) }
+    val qr = remember { PairingQr.toComposeBitmap(Json.encodeToString(request), 420) }
+
+    Column(
+        modifier = modifier.verticalScroll(rememberScrollState()).padding(end = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text("配对", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "信任根（手机公钥）：" + if (config.phone_pubkey == null) "未配置" else "已配置",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Text("设备证书：${Pairing.describeCertificate(config.device_cert)}", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            "让手机打开「配对」页扫描下面的二维码，或在配对页粘贴请求 JSON：",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        Image(
+            bitmap = qr,
+            contentDescription = "配对二维码",
+            modifier = Modifier.size(240.dp),
+        )
+        Text("请求 JSON", style = MaterialTheme.typography.bodySmall)
+        Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(12.dp)) {
+            Text(
+                requestText,
+                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                modifier = Modifier.padding(10.dp),
+            )
+        }
+        Text(
+            "手机签发后，把证书交给电脑：service.bat verify-cert <证书.json>",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            "也可以导出 PNG：service.bat pair-qr <输出.png>",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
 
 @Composable
 private fun SettingsPane(config: DesktopConfigFile, paths: DesktopPaths, modifier: Modifier = Modifier) {

@@ -3,6 +3,7 @@ package cn.phoneassistant.agent
 import android.content.Context
 import cn.phoneassistant.core.IntentType
 import cn.phoneassistant.core.ProtocolMapping
+import cn.phoneassistant.core.RateWindowStore
 import cn.phoneassistant.core.runtime.DeviceRuntime
 import cn.phoneassistant.core.runtime.EnvelopeState
 import cn.phoneassistant.core.runtime.ExecutionOutcome
@@ -25,6 +26,7 @@ class PhoneAgent(
     hubKid: String,
     private val appCatalog: Map<String, String> = emptyMap(),
     approvalPubkey: JsonObject? = null,
+    rateWindow: RateWindowStore? = null,
 ) {
 
     private val runtime = DeviceRuntime(
@@ -40,6 +42,7 @@ class PhoneAgent(
                 put(approvalId, TrustedApprover(approvalId, 3, approvalPubkey))
             }
         },
+        rateWindow = rateWindow,
     )
 
     fun submit(envelope: JsonObject): JsonObject = runtime.submit(envelope)

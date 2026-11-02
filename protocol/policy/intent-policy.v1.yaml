@@ -63,6 +63,6 @@ intents:
 global:
   - { when: "origin.tainted", rule: "level += 1，上限 3" }
   - { when: "origin.kind == scheduled", rule: "level >= 2 时只能进入待确认，不得静默执行" }
-  - { when: "envelopes_per_min > 10", rule: "暂停该设备投递并把 level 升到 3（运行时执行，纯校验器不处理；设备侧实现为同一运行时实例 60 秒窗口内第 11 条起升 L3，hub 侧仍需暂停投递）" }
+  - { when: "envelopes_per_min > 10", rule: "暂停该设备投递并把 level 升到 3（运行时执行，纯校验器不处理；设备侧用持久化 60 秒窗口，第 11 条起升 L3，hub 侧仍需暂停投递）" }
   - { rule: "L2+ 的口头确认无效，必须在界面上点" }
   - { rule: "用户设置可调高级别；调低仅限 relaxable 项，且永不低于硬下限" }

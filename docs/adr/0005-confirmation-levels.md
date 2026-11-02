@@ -10,8 +10,9 @@
 
 - L1 自动执行；L2 任一受信界面确认；L3 仅手机界面 + 生物识别。
 - 级数由**策略引擎**算：基础级 + 意图特定升级（如 open_app 的 app_class/URL、create_event 的 attendees、set_alarm 的 repeat）+ 污点加 1（上限 3）。
-- 设备运行时另有一条速率规则：同一运行时实例 60 秒内第 11 条及以后的信封强制升到 L3（`DeviceRuntime.overRateLimit`），
-  不丢弃、不自动执行；没有可用 L3 审批方时等到 TTL 过期。跨同步的持久化窗口与 hub 侧“暂停投递”仍需云端实现。
+- 设备运行时另有一条速率规则：60 秒内第 11 条及以后的信封强制升到 L3，
+  不丢弃、不自动执行；没有可用 L3 审批方时等到 TTL 过期。
+  手机用 `RateWindowStore` 把窗口落盘，跨同步/重启也生效；hub 侧“暂停投递”仍需云端实现。
 - 设备收到信封后**独立重算**，取 `max(信封.level, 本机.level)`；若信封 level **低于**重算结果，整条拒绝（`LEVEL_BELOW_POLICY`），不是"提升后执行"。
 - `app_class`、URL 允许清单来自端上目录，不来自 params——发送方无法自证清白。
 - `voice_command` 不是可执行意图（`executable=false`），必须先解析成具体意图。

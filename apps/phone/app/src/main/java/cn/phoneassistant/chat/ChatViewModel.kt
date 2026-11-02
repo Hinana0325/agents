@@ -20,6 +20,7 @@ import cn.phoneassistant.core.Outbox
 import cn.phoneassistant.core.PendingApproval
 import cn.phoneassistant.core.PendingApprovalStore
 import cn.phoneassistant.core.ProcessedStore
+import cn.phoneassistant.core.RateWindowStore
 import cn.phoneassistant.core.ValidationResult
 import cn.phoneassistant.core.runtime.EnvelopeState
 import cn.phoneassistant.data.ChatHistoryStore
@@ -81,6 +82,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val auditLog = AuditLog(File(application.filesDir, "audit.json"))
     private val processedStore = ProcessedStore(File(application.filesDir, "processed.json"))
     private val pendingApprovals = PendingApprovalStore(File(application.filesDir, "pending_approvals.json"))
+    private val rateWindow = RateWindowStore(File(application.filesDir, "rate_window.json"))
     private val outbox = Outbox(File(application.filesDir, "outbox.json"))
 
     private val _syncing = MutableStateFlow(false)
@@ -202,7 +204,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         },
                     )
                     val agent = PhoneAgent(
-                        getApplication(), identity, pubkey, kid, appCatalog, approvalPubkey,
+                        getApplication(), identity, pubkey, kid, appCatalog, approvalPubkey, rateWindow,
                     )
                     val resent = flushOutbox(client)
                     val pull = client.pull()
@@ -359,7 +361,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 val lines = withContext(Dispatchers.IO) {
                     val agent = PhoneAgent(
                         getApplication(), identity, hub.pubkey, hub.kid, hub.catalog,
-                        identity.approvalPublicJwk(),
+                        identity.approvalPublicJwk(), rateWindow,
                     )
                     val results = mutableListOf<String>()
                     for (item in pending) {

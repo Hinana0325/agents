@@ -8,6 +8,7 @@ import cn.phoneassistant.core.Es256
 import cn.phoneassistant.core.Outbox
 import cn.phoneassistant.core.PendingApproval
 import cn.phoneassistant.core.PendingApprovalStore
+import cn.phoneassistant.core.RateWindowStore
 import cn.phoneassistant.data.DeviceIdentity
 import cn.phoneassistant.data.SettingsStore
 import java.io.File
@@ -60,6 +61,7 @@ class PendingApprovalResumeTest {
         try {
             outbox.list().forEach { outbox.markSent(it.key) }
             pendingFile.delete()
+            RateWindowStore(File(context.filesDir, "rate_window.json")).clear()
 
             val hub = keyPair()
             val hubJwk = jwk(hub)

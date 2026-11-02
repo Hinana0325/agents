@@ -1,6 +1,7 @@
 package cn.phoneassistant.core.runtime
 
 import cn.phoneassistant.core.EnvelopeValidator
+import cn.phoneassistant.core.RateWindowStore
 import cn.phoneassistant.core.ValidationContext
 import java.time.Instant
 import java.time.ZoneOffset
@@ -44,6 +45,7 @@ class DeviceRuntime(
     private val recentAlarms24h: Int = 0,
     private val clock: () -> Instant = { Instant.now() },
     private val approvalWindowSeconds: Long = 120,
+    private val rateWindow: RateWindowStore? = null,
 ) {
 
     private data class Record(
@@ -105,7 +107,10 @@ class DeviceRuntime(
             return receipt(id!!, "rejected", "TARGET_NOT_ALLOWED")
         }
 
-        val level = if (overRateLimit(clock())) maxOf(result.level!!, 3) else result.level!!
+        val now = clock()
+        // 有持久窗口时跨同步/重启生效；没有时用运行时内存窗口（单测/轻量场景）。
+        val escalated = rateWindow?.checkAndRecord(now.toEpochMilli()) ?: overRateLimit(now)
+        val level = if (escalated) maxOf(result.level!!, 3) else result.level!!
         if (!result.executable) {
             return store(id!!, envelope, level, EnvelopeState.REJECTED, "rejected", "VOICE_NOT_EXECUTABLE")
         }

@@ -960,3 +960,28 @@
 - 手机端“已签发证书”台账不会随电脑轮换自动更新；旧证书需要用户在手机上单独吊销/归档。
 - 还没有到期前提醒（只有 `status` 被动显示）；相机实时扫码仍未做。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 37. 持久化速率窗口 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- core：新增 `RateWindowStore`（JSON 落盘时间戳、60 秒窗口、上限 10、坏文件按空、
+  只保留最近 20 条），5 个单测。
+- `DeviceRuntime` 增加可选 `rateWindow`：有持久窗口时用它判定第 11 条，升到 L3；
+  没有时退回原来的运行时内存窗口（单测/轻量场景）。
+- 手机：`ChatViewModel` 持有一个 `rate_window.json` 的 `RateWindowStore`，
+  同步与恢复流程创建的 `PhoneAgent` 共用它，因此把洪水拆成多次同步或重启也不能绕过升 L3。
+
+### 已核验
+
+1. `RateWindowStoreTest`：10 条放过、第 11 条触发；61 秒后窗口滑动；跨实例持久；
+   坏文件按空；clear 复位。
+2. `DeviceRuntimeTest.sharedPersistentRateWindowEscalatesAcrossRuntimes`：
+   运行时 A 投 10 条，运行时 B 共用同一文件投第 11 条 → `awaiting_confirm`、`requiredLevel=3`。
+3. core 131 个测试全绿；桌面 29、手机 6、仪器测试 9（1 交互式跳过）不受影响。
+
+### 未完成
+
+- hub 侧的“暂停投递”仍未实现（设备侧只是升 L3 的兜底）。
+- 窗口是单文件的进程内锁；未来若引入多进程 worker 同时投递，需要文件锁或 DB。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。

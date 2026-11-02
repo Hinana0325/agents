@@ -2,6 +2,7 @@ package cn.phoneassistant.core.runtime
 
 import cn.phoneassistant.core.EnvelopeValidator
 import cn.phoneassistant.core.Jcs
+import cn.phoneassistant.core.RateWindowStore
 import cn.phoneassistant.core.ReceiptValidator
 import java.math.BigInteger
 import java.security.KeyPair
@@ -36,7 +37,7 @@ class DeviceRuntimeTest {
 
     private var idCounter = 0
 
-    private fun runtime(): DeviceRuntime = DeviceRuntime(
+    private fun runtime(rateWindow: RateWindowStore? = null): DeviceRuntime = DeviceRuntime(
         deviceId = "phone-1",
         deviceRole = "phone",
         executor = IntentExecutor { intent, _ ->
@@ -49,6 +50,7 @@ class DeviceRuntimeTest {
             "watch-1" to TrustedApprover("watch-1", 2, jwk(watch)),
         ),
         clock = { clockNow },
+        rateWindow = rateWindow,
     )
 
     // ---------------------------------------------------------------- tests
@@ -341,6 +343,23 @@ class DeviceRuntimeTest {
             status(rt.approve(idOf(eleventh), approval(eleventh, "phone-1", 3, phone.private, nonce()))),
         )
         assertEquals(11, calls.size)
+    }
+
+    @Test
+    fun sharedPersistentRateWindowEscalatesAcrossRuntimes() {
+        val file = java.nio.file.Files.createTempDirectory("rate-shared").toFile().resolve("rate.json")
+        val first = runtime(RateWindowStore(file))
+        repeat(10) {
+            assertEquals(
+                "done",
+                status(first.submit(signEnvelope(envelope("chat", buildJsonObject { put("text", "m") }, level = 1)))),
+            )
+        }
+
+        val second = runtime(RateWindowStore(file))
+        val eleventh = signEnvelope(envelope("chat", buildJsonObject { put("text", "m10") }, level = 1))
+        assertEquals("awaiting_confirm", status(second.submit(eleventh)))
+        assertEquals(3, second.requiredLevelOf(idOf(eleventh)))
     }
 
     @Test

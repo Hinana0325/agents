@@ -130,3 +130,27 @@
 - schema 与两份手写实现靠向量对齐，**没有**引入通用 JSON Schema 校验器做三方交叉验证。
 - ADR 0006（电脑文件搜索是否接入）仍待用户拍板，默认不接入。
 - Phase 0 剩余：`spec/` 可继续补协议升级演练、`tools/codegen`、夜跑评测目录；这些不影响当前向量门禁。
+
+## 7. Phase 1 设备侧运行时 — 2026-11-02 晚（续）
+
+云端部署、大模型服务商、托管方式都还没定，所以先做不依赖云端的一半：设备收到信封之后怎么处理。
+
+### 实现了什么
+
+- `core/kotlin/.../runtime/DeviceRuntime.kt`：收信封 → 校验/验签 → 按 `id` 幂等去重 → L1 直接执行、L2+ 进入 `awaiting_confirm` → 回执；`sweepExpired()` 定期把过期信封标成 `expired`；`reject()` 处理用户拒绝。
+- `core/kotlin/.../runtime/ApprovalValidator.kt`：审批证明（`approval.v1`）校验——字段严格、审批方受信、级别不低于要求且不超过审批方权限（手表/电脑上限 L2）、绑定信封哈希、时间窗口、nonce 防重放、ES256 验签。
+- `core/kotlin/.../Es256.kt`：把验签与 SHA-256 抽出来，信封与审批共用；`EnvelopeValidator` 改为调用它。
+- `protocol/spec/error-codes.md` 增补运行时/审批错误码。
+
+### 已核验
+
+- `./gradlew :core:kotlin:test`：**26 个测试全绿**（11 个模型输出解析 + 1 个 183 条向量 + 14 个运行时）。
+- 运行时用例覆盖：重复投递 3 次只执行 1 次且回执一致；L2 不执行等审批；审批后执行；手表批 L3 被拒（`APPROVAL_LEVEL`）；审批绑定别的信封被拒（`APPROVAL_HASH`）；审批签名被篡改（`APPROVAL_SIGNATURE`）；nonce 重放被拒（`APPROVAL_REPLAY`）；过期信封被拒；`voice_command` 不执行；信封参数被篡改（`BAD_SIG`）；级别低于策略（`LEVEL_BELOW_POLICY`）；用户拒绝后不能再审批；sweep 标过期；审批不存在的信封。
+- 手机 APK 仍可构建（运行时是纯 JVM，未改 Android 依赖）。
+
+### 明确没做
+
+- **手机还没接传输层**：没有 WS/FCM 收信封、没有本地持久化（Room）——运行时目前只在单元测试里被驱动。
+- **没有把协议意图接到系统 Intent**：协议参数（`app_id`、`begin_ms`）与现有模型输出参数（`appName`、`date/startTime`）不同，需要端上应用目录与映射层，属下一步。
+- 审批的 L3 生物识别没做：纯 JVM 层只校验"审批方有 L3 权限"，真正调用 `BiometricPrompt` 是手机 UI 的事。
+- 云端与 device-sim 仍未开始。

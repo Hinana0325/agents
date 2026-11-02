@@ -24,20 +24,22 @@ docs/legacy/     # 被 v1 取代的旧原型定义
 
 ## 当前阶段
 
-**Phase 0（契约与脚手架）已落地核心部分**，Phase 1（手机竖切）尚未开始。
+**Phase 0（契约与脚手架）已完成**；**Phase 1（手机竖切）只完成了设备侧运行时**，传输层与云端 hub 尚未开始。
 
 已核验：
 
 - `protocol/vectors` 共 **183 条**（valid 35 / invalid 92 / policy 26 / injection 15 / signing 15）。
 - 同一份向量，Kotlin（`./gradlew :core:kotlin:test`）与 Python（`uv run --with cryptography python tools/vector-runner/py/runner.py`）**均 0 失败**。
 - 阳性对照：故意改坏一条向量后，Python 退出码 1、Kotlin 测试 FAILED。
-- 手机 App 编译通过，core 的 11 个模型输出解析用例 + 向量用例全绿，debug APK 可打包。
+- 设备运行时（`core/kotlin/.../runtime/`）：按 id 幂等去重、状态机、TTL 过期、回执、L2 待确认、L3 审批（绑定信封哈希 + nonce 防重放 + 级别权限），14 个单元测试全绿。
+- 手机 App 编译通过，core 的 26 个测试全绿，debug APK 可打包。
 
 未验证 / 未完成（不要当成已完成）：
 
 - **没有真机**：手机 App 的界面、7 种意图跳转、Keystore 存储只在静态层面成立。
-- CI 工作流已写（`.github/workflows/ci.yml`），但**从未在 GitHub 上跑过**；本地用同样命令验证过。
-- 没有云端 hub、没有 device-sim、没有传输层；信封由谁签发、如何唤醒拉取都还是设计。
+- **没有传输层**：手机还没有 WS/FCM 收信封的代码，运行时目前只被单元测试驱动。
+- **没有云端 hub**、没有 device-sim；`signing/` 向量验证的是设备侧验签，不是"云真的签了"。
+- CI 工作流已写（两侧向量 + Android 构建 + lint + gitleaks），但**从未在 GitHub 上跑过**。
 - schema 与两份手写实现靠向量对齐，没有引入通用 JSON Schema 校验器做交叉检查。
 - 手表/电脑/耳机仍只有设计文档和存根；电脑文件搜索默认不接入（ADR 0006 待拍板）。
 

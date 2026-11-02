@@ -1,17 +1,7 @@
 package cn.phoneassistant.core
 
-import java.math.BigInteger
 import java.net.URI
-import java.security.AlgorithmParameters
-import java.security.KeyFactory
-import java.security.MessageDigest
-import java.security.Signature
-import java.security.spec.ECGenParameterSpec
-import java.security.spec.ECParameterSpec
-import java.security.spec.ECPoint
-import java.security.spec.ECPublicKeySpec
 import java.time.Instant
-import java.util.Base64
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -284,32 +274,13 @@ object EnvelopeValidator {
 
     fun envelopeHash(envelope: JsonObject): String {
         val payload = JsonObject(envelope.filterKeys { it != "sig" })
-        val digest = MessageDigest.getInstance("SHA-256").digest(Jcs.canonicalize(payload).toByteArray(Charsets.UTF_8))
-        return digest.joinToString("") { "%02x".format(it) }
+        return Es256.sha256Hex(payload)
     }
 
     fun verifyEs256(envelope: JsonObject, jwk: JsonObject): Boolean {
-        return try {
-            val sigText = str(envelope["sig"]) ?: return false
-            val raw = Base64.getUrlDecoder().decode(sigText)
-            if (raw.size != 64) return false
-            val x = Base64.getUrlDecoder().decode(str(jwk["x"]) ?: return false)
-            val y = Base64.getUrlDecoder().decode(str(jwk["y"]) ?: return false)
-            val params = AlgorithmParameters.getInstance("EC").apply {
-                init(ECGenParameterSpec("secp256r1"))
-            }.getParameterSpec(ECParameterSpec::class.java)
-            val publicKey = KeyFactory.getInstance("EC").generatePublic(
-                ECPublicKeySpec(ECPoint(BigInteger(1, x), BigInteger(1, y)), params),
-            )
-            val payload = JsonObject(envelope.filterKeys { it != "sig" })
-            val data = Jcs.canonicalize(payload).toByteArray(Charsets.UTF_8)
-            val verifier = Signature.getInstance("SHA256withECDSAinP1363Format")
-            verifier.initVerify(publicKey)
-            verifier.update(data)
-            verifier.verify(raw)
-        } catch (e: Exception) {
-            false
-        }
+        val sig = str(envelope["sig"]) ?: return false
+        val payload = JsonObject(envelope.filterKeys { it != "sig" })
+        return Es256.verify(payload, sig, jwk)
     }
 
     // ---- 基础类型判定（与 Python 侧语义保持一致） ----

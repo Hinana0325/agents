@@ -23,3 +23,23 @@
 | `BAD_SIG` | ES256 验签失败（含被篡改） |
 
 优先级（同时命中多个时返回第一个）：版本 → 结构/类型 → 意图 → 参数 → 策略级别 → 目标 → 过期 → 时钟 → 重放 → 签名。
+
+## 设备运行时的回执错误码
+
+审批与状态机的错误码不参与信封校验，出现在回执的 `error.code` 里：
+
+| code | 含义 |
+| --- | --- |
+| `UNKNOWN_ENVELOPE` | 本地没有这条信封 |
+| `NOT_AWAITING_CONFIRM` | 当前状态不接受审批或拒绝 |
+| `APPROVAL_INVALID` | 审批证明结构/字段非法 |
+| `APPROVAL_UNKNOWN_APPROVER` | 审批方不在受信列表 |
+| `APPROVAL_LEVEL` | 审批级别低于要求，或超出审批方权限（手表/电脑上限 L2） |
+| `APPROVAL_HASH` | 审批绑定的信封哈希不匹配 |
+| `APPROVAL_EXPIRED` | 审批超出时间窗口 |
+| `APPROVAL_REPLAY` | 审批 nonce 已用过 |
+| `APPROVAL_SIGNATURE` | 审批签名验不过 |
+| `EXECUTOR_FAILED` | 执行器返回失败 |
+| `USER_REJECTED` | 用户在界面上拒绝 |
+
+非法状态转移不产生回执，直接丢弃并写审计（见 `spec/state-machine.md`）。

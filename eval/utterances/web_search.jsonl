@@ -1,0 +1,33 @@
+{"id": "u_web_search_001", "text": "帮我搜一下最近的演唱会", "expect_intent": "web_search", "expect_params": {"query": "最近的演唱会"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_002", "text": "查查 OAuth2 和 JWT 的区别", "expect_intent": "web_search", "expect_params": {"query": "OAuth2 和 JWT 的区别"}, "tags": ["formal"], "origin": "user_text"}
+{"id": "u_web_search_003", "text": "上海明天会下雨吗", "expect_intent": "web_search", "expect_params": {"query": "上海明天天气"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_004", "text": "搜下 iPhone 17 的续航评测", "expect_intent": "web_search", "expect_params": {"query": "iPhone 17 续航评测"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_005", "text": "最近有什么好看的悬疑电影", "expect_intent": "web_search", "expect_params": {"query": "最近的悬疑电影推荐"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_006", "text": "帮我查一下从苏州到杭州的高铁时刻表", "expect_intent": "web_search", "expect_params": {"query": "苏州到杭州高铁时刻表"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_web_search_007", "text": "三体电视剧什么时候上映", "expect_intent": "web_search", "expect_params": {"query": "三体电视剧上映时间"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_008", "text": "查一下比特币今天多少钱", "expect_intent": "web_search", "expect_params": {"query": "比特币今日价格"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_009", "text": "帮我搜搜怎么去掉衣服上的火锅味", "expect_intent": "web_search", "expect_params": {"query": "衣服火锅味怎么去除"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_010", "text": "周杰伦演唱会 2027 有哪些场次", "expect_intent": "web_search", "expect_params": {"query": "周杰伦演唱会 2027 场次"}, "tags": ["formal"], "origin": "user_text"}
+{"id": "u_web_search_011", "text": "这是什么梗：city不city", "expect_intent": "web_search", "expect_params": {"query": "city不city 梗"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_012", "text": "搜一下附近哪里有好吃的酸菜鱼", "expect_intent": "web_search", "expect_params": {"query": "附近好吃的酸菜鱼"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_013", "text": "帮我看看机票，五一北京飞成都多少钱", "expect_intent": "web_search", "expect_params": {"query": "五一北京飞成都机票价格"}, "tags": ["long", "colloquial"], "origin": "user_text"}
+{"id": "u_web_search_014", "text": "普罗旺斯的薰衣草几月份开得最好", "expect_intent": "web_search", "expect_params": {"query": "普罗旺斯薰衣草最佳季节"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_015", "text": "帮我查查这个报错怎么解决：ERR_CONNECTION_RESET", "expect_intent": "web_search", "expect_params": {"query": "ERR_CONNECTION_RESET 解决方法"}, "tags": ["long", "formal"], "origin": "user_text"}
+{"id": "u_web_search_016", "text": "gpt-5 和 claude 哪个写代码强", "expect_intent": "web_search", "expect_params": {"query": "GPT-5 和 Claude 写代码对比"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_017", "text": "帮我搜下小区门口那家海底捞的营业时间", "expect_intent": "web_search", "expect_params": {"query": "海底捞 营业时间"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_web_search_018", "text": "双十一手机有什么推荐的", "expect_intent": "web_search", "expect_params": {"query": "双十一手机推荐"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_019", "text": "查查公司注销流程", "expect_intent": "web_search", "expect_params": {"query": "公司注销流程"}, "tags": ["formal"], "origin": "user_text"}
+{"id": "u_web_search_020", "text": "帮我搜搜领结婚证要带什么材料", "expect_intent": "web_search", "expect_params": {"query": "领结婚证需要什么材料"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_021", "text": "英语四六级成绩什么时候出", "expect_intent": "web_search", "expect_params": {"query": "四六级成绩查询时间"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_022", "text": "长津湖的导演还拍过什么", "expect_intent": "web_search", "expect_params": {"query": "长津湖导演其他作品"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_023", "text": "查一下最近的油价，95号的", "expect_intent": "web_search", "expect_params": {"query": "今日95号汽油价格"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_024", "text": "搜搜怎么把猫的尿味去掉，救命", "expect_intent": "web_search", "expect_params": {"query": "猫尿味怎么去除"}, "tags": ["colloquial"], "origin": "user_voice"}
+{"id": "u_web_search_025", "text": "查查 Kubernetes 是什么，一句话解释就行", "expect_intent": "web_search", "expect_params": {"query": "Kubernetes 是什么"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_web_search_026", "text": "北京大学研究生招生简章今年有啥变化", "expect_intent": "web_search", "expect_params": {"query": "北京大学研究生招生简章 变化"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_027", "text": "查一下最近的马拉松比赛哪个还能报名", "expect_intent": "web_search", "expect_params": {"query": "近期马拉松报名"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_web_search_028", "text": "搜搜租房合同违约金一般是多少", "expect_intent": "web_search", "expect_params": {"query": "租房合同违约金标准"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_029", "text": "帮我查查 switch 2 值不值得买", "expect_intent": "web_search", "expect_params": {"query": "Switch 2 值得买吗"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_030", "text": "word 文档怎么转 pdf，帮我搜搜", "expect_intent": "web_search", "expect_params": {"query": "Word 文档怎么转 PDF"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_031", "text": "搜一下双向奔赴这个流行语是啥意思", "expect_intent": "web_search", "expect_params": {"query": "双向奔赴 什么意思"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_web_search_032", "text": "帮我查查维生素D什么时候吃吸收好", "expect_intent": "web_search", "expect_params": {"query": "维生素D 什么时候吃"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_web_search_033", "text": "帮我查查这个报错咋回事：CWE 栈溢出", "expect_intent": "web_search", "expect_params": {"query": "CWE 栈溢出"}, "tags": ["typo"], "origin": "user_voice"}

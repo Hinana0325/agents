@@ -1,0 +1,33 @@
+{"id": "u_set_alarm_001", "text": "明早七点叫我起床", "expect_intent": "set_alarm", "expect_params": {"hour": 7, "minute": 0, "label": "起床"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_002", "text": "设个闹钟，六点半的", "expect_intent": "set_alarm", "expect_params": {"hour": 6, "minute": 30}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_003", "text": "每天早上六点四十提醒我晨跑", "expect_intent": "set_alarm", "expect_params": {"hour": 6, "minute": 40, "repeat": "daily", "label": "晨跑"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_set_alarm_004", "text": "工作日八点叫我起床", "expect_intent": "set_alarm", "expect_params": {"hour": 8, "minute": 0, "repeat": "weekdays", "label": "起床"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_005", "text": "周一三五早上七点提醒我去游泳", "expect_intent": "set_alarm", "expect_params": {"hour": 7, "minute": 0, "days": [1, 3, 5], "label": "游泳"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_set_alarm_006", "text": "周日晚上九点提醒我给爸妈打电话", "expect_intent": "set_alarm", "expect_params": {"hour": 21, "minute": 0, "days": [7], "label": "给爸妈打电话"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_set_alarm_007", "text": "闹钟定到 5:50", "expect_intent": "set_alarm", "expect_params": {"hour": 5, "minute": 50}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_008", "text": "凌晨四点半叫我起来赶飞机", "expect_intent": "set_alarm", "expect_params": {"hour": 4, "minute": 30, "label": "赶飞机"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_009", "text": "帮我设个闹钟，晚上十一点半的，提醒我吃药", "expect_intent": "set_alarm", "expect_params": {"hour": 23, "minute": 30, "label": "吃药"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_set_alarm_010", "text": "晚上九点提醒我敷面膜", "expect_intent": "set_alarm", "expect_params": {"hour": 21, "minute": 0, "label": "敷面膜"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_011", "text": "定个明早六点的闹钟去晨读", "expect_intent": "set_alarm", "expect_params": {"hour": 6, "minute": 0, "label": "晨读"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_012", "text": "十二点整叫我", "expect_intent": "set_alarm", "expect_params": {"hour": 12, "minute": 0}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_013", "text": "中午十二点半提醒我吃降压药", "expect_intent": "set_alarm", "expect_params": {"hour": 12, "minute": 30, "label": "吃降压药"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_014", "text": "下午四点五十提醒我接娃放学", "expect_intent": "set_alarm", "expect_params": {"hour": 16, "minute": 50, "label": "接娃"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_015", "text": "帮我安个闹钟明早七点的", "expect_intent": "set_alarm", "expect_params": {"hour": 7, "minute": 0}, "tags": ["dialect"], "origin": "user_voice"}
+{"id": "u_set_alarm_016", "text": "记得到点叫我，晚上八点的闹钟", "expect_intent": "set_alarm", "expect_params": {"hour": 20, "minute": 0}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_017", "text": "定闹钟，明天早上 6:30 起床去早市", "expect_intent": "set_alarm", "expect_params": {"hour": 6, "minute": 30, "label": "早市"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_set_alarm_018", "text": "今晚十一点提醒我关洗衣机", "expect_intent": "set_alarm", "expect_params": {"hour": 23, "minute": 0, "label": "关洗衣机"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_019", "text": "帮我设个每天晚上十点的闹钟，提醒我刷牙", "expect_intent": "set_alarm", "expect_params": {"hour": 22, "minute": 0, "repeat": "daily", "label": "刷牙"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_set_alarm_020", "text": "周末也七点叫我，别让我睡懒觉", "expect_intent": "set_alarm", "expect_params": {"hour": 7, "minute": 0, "days": [6, 7], "label": "起床"}, "tags": ["long", "colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_021", "text": "闹肿定在六点一刻", "expect_intent": "set_alarm", "expect_params": {"hour": 6, "minute": 15}, "tags": ["typo"], "origin": "user_voice"}
+{"id": "u_set_alarm_022", "text": "明天五点五十叫我起床赶高铁", "expect_intent": "set_alarm", "expect_params": {"hour": 5, "minute": 50, "label": "赶高铁"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_023", "text": "明早七点半闹钟设一个", "expect_intent": "set_alarm", "expect_params": {"hour": 7, "minute": 30}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_024", "text": "早自习六点二十叫我", "expect_intent": "set_alarm", "expect_params": {"hour": 6, "minute": 20, "label": "早自习"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_025", "text": "晚上十点提醒我给手机充电，不然明天闹钟要罢工", "expect_intent": "set_alarm", "expect_params": {"hour": 22, "minute": 0, "label": "充电"}, "tags": ["long", "colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_026", "text": "提醒我明早六点起来背单词", "expect_intent": "set_alarm", "expect_params": {"hour": 6, "minute": 0, "label": "背单词"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_027", "text": "那个，闹钟早上七点二十的帮我设一个", "expect_intent": "set_alarm", "expect_params": {"hour": 7, "minute": 20}, "tags": ["colloquial"], "origin": "user_voice"}
+{"id": "u_set_alarm_028", "text": "上班别迟到，定个八点的闹钟", "expect_intent": "set_alarm", "expect_params": {"hour": 8, "minute": 0, "label": "上班"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_029", "text": "帮我设个 repeating 的闹钟，周一到周五七点半响", "expect_intent": "set_alarm", "expect_params": {"hour": 7, "minute": 30, "repeat": "weekdays"}, "tags": ["colloquial", "long"], "origin": "user_text"}
+{"id": "u_set_alarm_030", "text": "十一点五十九给我个闹钟，卡点交作业", "expect_intent": "set_alarm", "expect_params": {"hour": 23, "minute": 59, "label": "交作业"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_alarm_031", "text": "帮我设个闹钟，明天六点，我要去看日出", "expect_intent": "set_alarm", "expect_params": {"hour": 6, "minute": 0, "label": "看日出"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_set_alarm_032", "text": "凌晨一点叫我起来看球", "expect_intent": "set_alarm", "expect_params": {"hour": 1, "minute": 0, "label": "看球"}, "tags": ["colloquial"], "origin": "user_voice"}
+{"id": "u_set_alarm_033", "text": "晚上七点提醒我给花浇水", "expect_intent": "set_alarm", "expect_params": {"hour": 19, "minute": 0, "label": "浇花"}, "tags": ["colloquial"], "origin": "user_text"}

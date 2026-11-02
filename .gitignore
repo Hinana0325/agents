@@ -19,3 +19,6 @@ __pycache__/
 *.keystore
 signing.properties
 .env
+
+# Eval reports（runner 输出，不入库）
+eval/reports/

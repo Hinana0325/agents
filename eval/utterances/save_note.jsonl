@@ -1,0 +1,33 @@
+{"id": "u_save_note_001", "text": "记一下：周三要还信用卡", "expect_intent": "save_note", "expect_params": {"text": "周三要还信用卡"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_002", "text": "帮我记个备忘，晚上给房东转房租三千二", "expect_intent": "save_note", "expect_params": {"text": "晚上给房东转房租三千二"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_003", "text": "记一下，周五之前把体检报告取回来", "expect_intent": "save_note", "expect_params": {"text": "周五之前把体检报告取回来"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_004", "text": "帮我记下煤气表读数，今天抄表 3276", "expect_intent": "save_note", "expect_params": {"text": "煤气表读数 3276"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_005", "text": "备忘录记一笔：买牛奶、鸡蛋、纸巾、垃圾袋", "expect_intent": "save_note", "expect_params": {"text": "买牛奶、鸡蛋、纸巾、垃圾袋"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_006", "text": "帮我存个笔记，标题写健身计划，内容是：周一胸、周三背、周五腿", "expect_intent": "save_note", "expect_params": {"text": "周一胸、周三背、周五腿", "title": "健身计划"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_save_note_007", "text": "记一下阿姨的生日是农历九月十九", "expect_intent": "save_note", "expect_params": {"text": "阿姨生日：农历九月十九"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_008", "text": "帮我把这个链接存下来，回头细看：https://en.wikipedia.org/wiki/Zettelkasten", "expect_intent": "save_note", "expect_params": {"text": "https://en.wikipedia.org/wiki/Zettelkasten"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_save_note_009", "text": "我想到个点子先记下来：把外卖红包自动汇总到一个小程序", "expect_intent": "save_note", "expect_params": {"text": "点子：把外卖红包自动汇总到一个小程序"}, "tags": ["long", "colloquial"], "origin": "user_voice"}
+{"id": "u_save_note_010", "text": "记一下动车票信息，G102 明早 7:18 苏州北到虹桥，13车12F", "expect_intent": "save_note", "expect_params": {"text": "G102 明早 7:18 苏州北到虹桥，13车12F", "title": "车票"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_save_note_011", "text": "帮我记下会议纪要点：下周三前交 Q4 预算表，预算砍百分之十", "expect_intent": "save_note", "expect_params": {"text": "会议纪要：下周三前交Q4预算表，预算砍10%", "title": "纪要"}, "tags": ["long", "formal"], "origin": "user_text"}
+{"id": "u_save_note_012", "text": "记个事，快递取件码是 8-2-3006", "expect_intent": "save_note", "expect_params": {"text": "快递取件码 8-2-3006"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_013", "text": "把我的血型记下来，O 型，万一要用", "expect_intent": "save_note", "expect_params": {"text": "血型 O 型"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_014", "text": "帮我记一下，《思考，快与慢》读到 37 页了", "expect_intent": "save_note", "expect_params": {"text": "《思考，快与慢》读到 37 页"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_015", "text": "备忘：热水器维修师傅周六上午来，提前把阳台清出来", "expect_intent": "save_note", "expect_params": {"text": "热水器维修师傅周六上午来，提前把阳台清出来"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_save_note_016", "text": "记一下歌词灵感：晚风把路灯吹成了和弦", "expect_intent": "save_note", "expect_params": {"text": "歌词灵感：晚风把路灯吹成了和弦"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_017", "text": "帮我记个事：月底前把护照换新", "expect_intent": "save_note", "expect_params": {"text": "月底前把护照换新"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_018", "text": "存一下这个菜谱：番茄牛腩，牛腩焯水后炖九十分钟再放番茄", "expect_intent": "save_note", "expect_params": {"text": "番茄牛腩：牛腩焯水后炖90分钟再放番茄", "title": "番茄牛腩菜谱"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_save_note_019", "text": "记下我妹新学校的地址：海淀区中关村大街1号", "expect_intent": "save_note", "expect_params": {"text": "妹妹学校地址：海淀区中关村大街1号"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_020", "text": "帮我记着点儿，双十一前把购物车清了", "expect_intent": "save_note", "expect_params": {"text": "双十一前清购物车"}, "tags": ["dialect"], "origin": "user_text"}
+{"id": "u_save_note_021", "text": "记一下今天的快递单号 SF1368888888888", "expect_intent": "save_note", "expect_params": {"text": "快递单号 SF1368888888888"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_022", "text": "帮我把这个想法记到备忘录：明年的 flag 是跑一次半马", "expect_intent": "save_note", "expect_params": {"text": "明年 flag：跑一次半马"}, "tags": ["long", "colloquial"], "origin": "user_text"}
+{"id": "u_save_note_023", "text": "记一下，欠老王两百块，还完这笔心理债才算完", "expect_intent": "save_note", "expect_params": {"text": "欠老王200元"}, "tags": ["long", "colloquial"], "origin": "user_text"}
+{"id": "u_save_note_024", "text": "帮我记一下宽带账号，bj_link_8823", "expect_intent": "save_note", "expect_params": {"text": "宽带账号 bj_link_8823"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_025", "text": "备忘录加一条：小区停水通知，周四上午九点到下午四点", "expect_intent": "save_note", "expect_params": {"text": "周四 9:00-16:00 停水", "title": "停水通知"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_save_note_026", "text": "帮我记下博客后台的登录名：midnight_reader", "expect_intent": "save_note", "expect_params": {"text": "博客后台登录名：midnight_reader"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_027", "text": "帮我记下这句话，写材料要用：行稳致远，进而有为", "expect_intent": "save_note", "expect_params": {"text": "行稳致远，进而有为"}, "tags": ["long", "formal"], "origin": "user_text"}
+{"id": "u_save_note_028", "text": "记一下：给猫买的冻干还剩两袋，吃完了记得补", "expect_intent": "save_note", "expect_params": {"text": "猫冻干还剩两袋，记得补"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_save_note_029", "text": "把我工号记一下，CN-20471，报销要用", "expect_intent": "save_note", "expect_params": {"text": "工号 CN-20471，报销用"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_030", "text": "帮我记下这周要还的花呗金额，388块8", "expect_intent": "save_note", "expect_params": {"text": "花呗 388.8 元，本周还"}, "tags": ["colloquial"], "origin": "user_voice"}
+{"id": "u_save_note_031", "text": "记一下今天跟房东说好了，明年房租涨两百", "expect_intent": "save_note", "expect_params": {"text": "明年房租涨200，今天和房东口头说定的"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_save_note_032", "text": "备忘一下：书架第三层放的是还没看过的书", "expect_intent": "save_note", "expect_params": {"text": "书架第三层：未读的书"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_save_note_033", "text": "把这个存成备忘，标题叫购物清单：牛奶两箱、猫条、洗手液", "expect_intent": "save_note", "expect_params": {"text": "牛奶两箱、猫条、洗手液", "title": "购物清单"}, "tags": ["long", "colloquial"], "origin": "user_text"}

@@ -24,7 +24,9 @@
   应用目录（JSON：`app_id` → 包名，远端 `open_app` 只认这里的映射）；保存前校验，
   另有「测试连接」（只请求 `/models`，不消耗对话额度）与版本号显示。
 - 编排服务（可选）：Hub 地址、设备令牌、Hub 公钥（JWK）与 kid；顶栏“同步”会拉取一次信封，
-  经 core 的 `DeviceRuntime` 验签/策略/去重后执行：L2 在本机弹确认并用 Keystore 审批密钥签名，
+  经 core 的 `DeviceRuntime` 验签/策略/去重后执行：L2 在本机弹确认并用身份密钥签名；
+  L3 必须用单独的生物识别审批密钥（Keystore，auth-per-use）+ 平台 BiometricPrompt 解锁后签名，
+  没有锁屏/未录入生物识别时直接拒绝（fail closed）；
   终态回执回传 hub。协议意图通过 `ProtocolMapping` 映射到现有执行器（open_app 的 app_id 只作逻辑名，
   执行前必须用设置里的本机应用目录映射到包名，目录里没有就拒绝；voice_command / task_handoff 不执行）。
   未配置时只用本机对话与本地能力。

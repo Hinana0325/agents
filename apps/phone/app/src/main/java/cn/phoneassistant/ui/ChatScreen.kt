@@ -48,6 +48,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
+import android.hardware.biometrics.BiometricManager
+import android.hardware.biometrics.BiometricPrompt
+import android.os.Build
+import android.os.CancellationSignal
+import android.widget.Toast
+import cn.phoneassistant.agent.RemoteApproval
 import cn.phoneassistant.chat.ChatViewModel
 import cn.phoneassistant.core.AppCatalog
 import cn.phoneassistant.core.AssistantIntent
@@ -122,20 +131,109 @@ fun ChatScreen(viewModel: ChatViewModel) {
     }
 
     remote?.let { approval ->
+        val context = LocalContext.current
+        val biometricReady = remember(context) { canUseBiometrics(context) }
         AlertDialog(
             onDismissRequest = { viewModel.answerRemote(false) },
             title = { Text("远端任务待确认") },
             text = {
-                Text("动作：${approval.intent}（L${approval.level}）\n${approval.summary}")
+                Column {
+                    Text("动作：${approval.intent}（L${approval.level}）\n${approval.summary}")
+                    if (approval.level >= 3) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            "L3 必须用本机生物识别批准；未设置锁屏或未录入指纹/面容时无法批准。",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MutedGrey,
+                        )
+                    }
+                }
             },
             confirmButton = {
-                Button(onClick = { viewModel.answerRemote(true) }) { Text("确认执行") }
+                if (approval.level >= 3) {
+                    Button(
+                        enabled = biometricReady,
+                        onClick = {
+                            val activity = context.findActivity()
+                            val signature = viewModel.approvalSignature()
+                            when {
+                                activity == null -> Toast.makeText(
+                                    context, "找不到宿主界面，无法发起生物识别。", Toast.LENGTH_LONG,
+                                ).show()
+                                signature == null -> Toast.makeText(
+                                    context, "审批密钥不可用，请先设置锁屏并录入生物识别。", Toast.LENGTH_LONG,
+                                ).show()
+                                else -> showL3Prompt(context, activity, approval, signature, viewModel)
+                            }
+                        },
+                    ) {
+                        Text(if (biometricReady) "生物识别确认" else "无可用生物识别")
+                    }
+                } else {
+                    Button(onClick = { viewModel.answerRemote(true) }) { Text("确认执行") }
+                }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.answerRemote(false) }) { Text("取消") }
             },
         )
     }
+}
+
+private fun canUseBiometrics(context: Context): Boolean = runCatching {
+    val manager = context.getSystemService(BiometricManager::class.java) ?: return false
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        manager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) ==
+            BiometricManager.BIOMETRIC_SUCCESS
+    } else {
+        @Suppress("DEPRECATION")
+        manager.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS
+    }
+}.getOrDefault(false)
+
+private fun showL3Prompt(
+    context: Context,
+    activity: Activity,
+    approval: RemoteApproval,
+    signature: java.security.Signature,
+    viewModel: ChatViewModel,
+) {
+    val executor = activity.mainExecutor
+    val builder = BiometricPrompt.Builder(activity)
+        .setTitle("批准 L3 任务")
+        .setSubtitle(approval.intent)
+        .setNegativeButton("取消", executor) { _, _ -> }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        builder.setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+    }
+    runCatching {
+        builder.build().authenticate(
+            CancellationSignal(),
+            executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    val unlocked = result.cryptoObject?.signature
+                    if (unlocked == null) {
+                        Toast.makeText(context, "生物识别结果没有签名器，已取消。", Toast.LENGTH_LONG).show()
+                    } else {
+                        viewModel.submitRemoteApproval(approval.level, unlocked)
+                    }
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    Toast.makeText(context, "生物识别失败：$errString", Toast.LENGTH_LONG).show()
+                }
+            },
+        )
+    }.onFailure {
+        Toast.makeText(context, "无法发起生物识别：${it.message ?: "未知错误"}", Toast.LENGTH_LONG).show()
+    }
+}
+
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }
 
 @Composable

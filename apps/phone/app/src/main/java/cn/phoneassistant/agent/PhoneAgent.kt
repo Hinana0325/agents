@@ -15,7 +15,8 @@ import kotlinx.serialization.json.contentOrNull
 
 /**
  * 手机端的协议运行时装配：信封 → core.DeviceRuntime（验签/策略/去重）→ 现有 Android 执行器。
- * 审批用 Keystore 身份密钥签 approval.v1；回执由调用方回传 hub。
+ * L2 用 Keystore 身份密钥签 approval.v1；L3 必须用生物识别保护的审批密钥（单独受信条目）。
+ * 回执由调用方回传 hub。
  */
 class PhoneAgent(
     private val context: Context,
@@ -23,6 +24,7 @@ class PhoneAgent(
     hubPubkey: JsonObject,
     hubKid: String,
     private val appCatalog: Map<String, String> = emptyMap(),
+    approvalPubkey: JsonObject? = null,
 ) {
 
     private val runtime = DeviceRuntime(
@@ -30,9 +32,14 @@ class PhoneAgent(
         deviceRole = "phone",
         executor = { intent, params -> execute(intent, params) },
         hubPublicKeys = mapOf(hubKid to hubPubkey),
-        approvers = mapOf(
-            identity.deviceId to TrustedApprover(identity.deviceId, 3, identity.publicJwk()),
-        ),
+        approvers = buildMap {
+            // 身份密钥只能批 L2；L3 必须走单独的、生物识别保护的审批密钥。
+            put(identity.deviceId, TrustedApprover(identity.deviceId, 2, identity.publicJwk()))
+            if (approvalPubkey != null) {
+                val approvalId = "${identity.deviceId}:approval"
+                put(approvalId, TrustedApprover(approvalId, 3, approvalPubkey))
+            }
+        },
     )
 
     fun submit(envelope: JsonObject): JsonObject = runtime.submit(envelope)
@@ -43,6 +50,9 @@ class PhoneAgent(
 
     fun approve(id: String, envelope: JsonObject, level: Int): JsonObject =
         runtime.approve(id, identity.createApproval(envelope, level))
+
+    /** 传入生物识别解锁后生成的 L3 审批证明。 */
+    fun approveWith(id: String, approval: JsonObject): JsonObject = runtime.approve(id, approval)
 
     fun reject(id: String): JsonObject = runtime.reject(id)
 
@@ -83,6 +93,7 @@ data class RemoteApproval(
     val intent: String,
     val summary: String,
     val level: Int,
+    val envelope: JsonObject,
 )
 
 fun describeEnvelope(envelope: JsonObject): String {

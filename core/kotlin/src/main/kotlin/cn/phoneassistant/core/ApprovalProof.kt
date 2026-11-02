@@ -22,6 +22,18 @@ object ApprovalProof {
         nonce: String,
         now: Instant,
         signingKey: PrivateKey,
+    ): JsonObject = createSigned(envelope, level, approverDevice, nonce, now) { payload ->
+        Es256.signRaw(payload, signingKey)
+    }
+
+    /** 由调用方提供签名函数（例如生物识别解锁的 Signature）。 */
+    fun createSigned(
+        envelope: JsonObject,
+        level: Int,
+        approverDevice: String,
+        nonce: String,
+        now: Instant,
+        sign: (JsonObject) -> String,
     ): JsonObject {
         val payload = buildJsonObject {
             put("v", 1)
@@ -32,6 +44,6 @@ object ApprovalProof {
             put("ts", FORMAT.format(now))
             put("nonce", nonce)
         }
-        return JsonObject(payload.toMutableMap().apply { put("sig", JsonPrimitive(Es256.signRaw(payload, signingKey))) })
+        return JsonObject(payload.toMutableMap().apply { put("sig", JsonPrimitive(sign(payload))) })
     }
 }

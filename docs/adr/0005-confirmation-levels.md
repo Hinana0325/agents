@@ -18,3 +18,16 @@
 ## 后果
 
 策略规则同时存在于 `protocol/policy/intent-policy.v1.yaml`（人类可读权威）与两份校验器（可执行）。三者靠 `policy/` 与 `injection/` 向量对齐；改规则必须同时改向量。
+
+## 实现（2026-11-02 晚）
+
+- 手机身份密钥（`dpa-identity`）在运行时只登记为 L2 审批方，**不能**批准 L3。
+- L3 使用单独的审批密钥（`dpa-approval`）：Android Keystore、P-256、
+  `setUserAuthenticationRequired(true)` + `AUTH_BIOMETRIC_STRONG`，每次使用都要认证，
+  生物识别重新录入后旧密钥作废。
+- UI 用平台 `BiometricPrompt` + `CryptoObject` 解锁该密钥并签名；审批证明的
+  `approver_device` 为 `<deviceId>:approval`，运行时只信任这个单独条目（最高 L3）。
+- 设备没有安全锁屏或未录入生物识别时，审批密钥建不出来，L3 一律拒绝（fail closed）。
+- Manifest 增加 `USE_BIOMETRIC`（普通权限，安装即授予）。
+- 验证：`L3ApprovalBiometricTest` 是交互式仪器测试，默认跳过；
+  用 `-e interactiveBiometric true` 显式启用并在提示期间按指纹（模拟器 `adb emu finger touch 1`）。

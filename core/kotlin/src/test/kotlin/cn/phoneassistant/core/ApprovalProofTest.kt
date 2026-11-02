@@ -5,6 +5,7 @@ import cn.phoneassistant.core.runtime.TrustedApprover
 import java.math.BigInteger
 import java.security.KeyPair
 import java.security.KeyPairGenerator
+import java.security.Signature
 import java.security.interfaces.ECPublicKey
 import java.security.spec.ECGenParameterSpec
 import java.time.Instant
@@ -38,6 +39,16 @@ class ApprovalProofTest {
         val error = ApprovalValidator.verify(proof, envelope, 2, approvers(), emptySet(), now, 120)
 
         assertNull(error)
+    }
+
+    @Test
+    fun proofSignedThroughUnlockedSignatureVerifies() {
+        val signature = Signature.getInstance("SHA256withECDSA").apply { initSign(phone.private) }
+        val proof = ApprovalProof.createSigned(
+            envelope, 2, "phone-1", "nonce-dddddddddddddddd", now,
+        ) { payload -> Es256.signRawWith(payload, signature) }
+
+        assertNull(ApprovalValidator.verify(proof, envelope, 2, approvers(), emptySet(), now, 120))
     }
 
     @Test

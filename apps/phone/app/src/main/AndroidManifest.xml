@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- v0.1 只需要联网访问用户自己配置的大模型服务；其余动作全部走公开 Intent，不需要任何危险权限。 -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- L3 审批必须走生物识别；这是普通权限，安装即授予、无弹窗。 -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <!-- AOSP 时钟的 ACTION_SET_ALARM / ACTION_SET_TIMER 接收方要求调用方持有该普通权限
          （安装即授予、无弹窗）。不声明时在 AOSP/部分厂商机型上会被 Permission Denial 拒绝。
          这不是危险权限，应用仍然不写闹钟数据库、不使用 AlarmManager 静默设置。 -->

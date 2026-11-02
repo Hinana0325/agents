@@ -119,6 +119,51 @@ class DeviceRuntimeTest {
     }
 
     @Test
+    fun l3RequiresTheSeparateApprovalKey() {
+        val approvalKey = keyPair()
+        val rt = DeviceRuntime(
+            deviceId = "phone-1",
+            deviceRole = "phone",
+            executor = IntentExecutor { intent, _ ->
+                calls += intent
+                ExecutionOutcome(true)
+            },
+            hubPublicKeys = mapOf("hub-test-1" to jwk(hub)),
+            approvers = mapOf(
+                "phone-1" to TrustedApprover("phone-1", 2, jwk(phone)),
+                "phone-1:approval" to TrustedApprover("phone-1:approval", 3, jwk(approvalKey)),
+            ),
+            clock = { clockNow },
+        )
+        val env = signEnvelope(
+            envelope(
+                "create_event",
+                buildJsonObject {
+                    put("title", "x")
+                    put("begin_ms", 1)
+                    put("end_ms", 2)
+                    put(
+                        "attendees",
+                        kotlinx.serialization.json.JsonArray(listOf(JsonPrimitive("a@b.c"))),
+                    )
+                },
+                level = 3,
+            ),
+        )
+        rt.submit(env)
+
+        val identityTry = rt.approve(idOf(env), approval(env, "phone-1", 3, phone.private, nonce()))
+        assertEquals("APPROVAL_LEVEL", errorCode(identityTry))
+        assertTrue(calls.isEmpty())
+
+        val approvalTry = rt.approve(
+            idOf(env), approval(env, "phone-1:approval", 3, approvalKey.private, nonce()),
+        )
+        assertEquals("done", status(approvalTry))
+        assertEquals(listOf("create_event"), calls)
+    }
+
+    @Test
     fun approvalBoundToAnotherEnvelopeIsRejected() {
         val rt = runtime()
         val env = signEnvelope(eventEnvelope(level = 2))

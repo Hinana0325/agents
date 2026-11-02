@@ -693,3 +693,35 @@
 - 手机端 `open_app` 暂不支持协议里的可选 `url` 深链；目前只按包名启动。
 - 应用目录需要用户手工填包名；没有“从已安装应用里选”的图形界面。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 27. L3 生物识别审批密钥 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- core：`Es256.signRawWith`（用已初始化的 Signature 签名）、`ApprovalProof.createSigned`
+  （由调用方提供签名函数），原有 API 保持兼容。
+- 手机：身份密钥在运行时只登记为 L2 审批方；新增独立的 `dpa-approval` 审批密钥
+  （Keystore P-256，`setUserAuthenticationRequired(true)` + `AUTH_BIOMETRIC_STRONG`，
+  每次使用都要认证，生物识别重新录入后失效）。审批证明的 `approver_device`
+  为 `<deviceId>:approval`，运行时只信任这个最高 L3 的单独条目。
+- 界面：L3 弹窗不再提供普通“确认执行”，改为平台 `BiometricPrompt` + `CryptoObject`；
+  没有锁屏/未录入生物识别时按钮禁用，且 ViewModel 对任何非签名审批直接拒绝。
+- 修了一个真机崩溃：Manifest 缺少 `USE_BIOMETRIC`，`canAuthenticate` 会抛
+  `SecurityException`；这是交互式仪器测试第一次运行时发现的。
+
+### 已核验（Android 16 模拟器 + 已录入指纹）
+
+1. core：`l3RequiresTheSeparateApprovalKey`（身份密钥批 L3 → `APPROVAL_LEVEL`，
+   单独审批密钥 → `done`）、`proofSignedThroughUnlockedSignatureVerifies` 通过。
+2. 无锁屏时 App 日志：`approval key unavailable ... L3 will be refused`（fail closed）。
+3. 设置 PIN 并录入指纹后，同一次同步日志变为 `approval key ready (biometric-gated)`。
+4. 交互式仪器测试（`-e interactiveBiometric true`，期间 `adb emu finger touch 1`）：
+   BiometricPrompt 解锁密钥 → 生成 L3 证明 → `ApprovalValidator` 校验通过，`OK (1 test)`。
+5. 全量仪器测试：4 个用例，1 个交互式默认跳过，0 失败。
+
+### 未完成
+
+- 还没有用真实 L3 信封走完整 UI 弹窗（真实 hub 未就绪）；交互测试覆盖了密码学主链路。
+- 审批密钥的生物识别失效/重新录入后的恢复流程未做（目前表现为签名失败）。
+- 电脑端转发/验证手机 L3 证明的链路未接（没有 handoff 传输）。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。

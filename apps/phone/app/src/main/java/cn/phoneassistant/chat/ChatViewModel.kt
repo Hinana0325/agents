@@ -30,6 +30,7 @@ import cn.phoneassistant.model.ChatMessage
 import cn.phoneassistant.model.PendingIntent
 import cn.phoneassistant.transport.HttpHubClient
 import cn.phoneassistant.transport.flushDue
+import java.security.Signature
 import cn.phoneassistant.work.OutboxScheduler
 import java.io.File
 import java.util.UUID
@@ -85,8 +86,13 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val _remoteApproval = MutableStateFlow<RemoteApproval?>(null)
     val remoteApproval: StateFlow<RemoteApproval?> = _remoteApproval.asStateFlow()
 
+    private sealed interface RemoteAnswer {
+        data class Plain(val approved: Boolean) : RemoteAnswer
+        data class Signed(val approval: JsonObject) : RemoteAnswer
+    }
+
     @Volatile
-    private var remoteDecision: CompletableDeferred<Boolean>? = null
+    private var remoteDecision: CompletableDeferred<RemoteAnswer>? = null
 
     private var nextId = 1L
 
@@ -181,7 +187,18 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val lines = withContext(Dispatchers.IO) {
                     val client = HttpHubClient(hubUrl, identity.deviceId, token)
-                    val agent = PhoneAgent(getApplication(), identity, pubkey, kid, appCatalog)
+                    val approvalPubkey = identity.approvalPublicJwk()
+                    android.util.Log.i(
+                        "PhoneAgent",
+                        if (approvalPubkey == null) {
+                            "approval key unavailable (no secure lock / enrolled biometric); L3 will be refused"
+                        } else {
+                            "approval key ready (biometric-gated)"
+                        },
+                    )
+                    val agent = PhoneAgent(
+                        getApplication(), identity, pubkey, kid, appCatalog, approvalPubkey,
+                    )
                     val resent = flushOutbox(client)
                     val pull = client.pull()
                     val results = mutableListOf<String>()
@@ -198,8 +215,17 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         val receipt = agent.submit(envelope)
                         val finalReceipt = if (agent.stateOf(id) == EnvelopeState.AWAITING_CONFIRM) {
                             val level = agent.requiredLevelOf(id) ?: 2
-                            val approved = askRemote(envelope, level)
-                            if (approved) agent.approve(id, envelope, level) else agent.reject(id)
+                            val decision = askRemote(envelope, level)
+                            when {
+                                decision is RemoteAnswer.Signed -> agent.approveWith(id, decision.approval)
+                                level >= 3 -> {
+                                    appendAssistant("L3 审批必须通过生物识别签名，已拒绝。", isError = true)
+                                    agent.reject(id)
+                                }
+                                (decision as RemoteAnswer.Plain).approved ->
+                                    agent.approve(id, envelope, level)
+                                else -> agent.reject(id)
+                            }
                         } else {
                             receipt
                         }
@@ -234,17 +260,41 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    /** 用户在界面上对远端任务点确认/取消。 */
+    /** 用户在界面上对远端任务点确认/取消（L2）。 */
     fun answerRemote(approved: Boolean) {
-        remoteDecision?.complete(approved)
+        remoteDecision?.complete(RemoteAnswer.Plain(approved))
     }
 
-    private suspend fun askRemote(envelope: JsonObject, level: Int): Boolean {
+    private fun answerRemoteWithApproval(approval: JsonObject) {
+        remoteDecision?.complete(RemoteAnswer.Signed(approval))
+    }
+
+    /** 生物识别成功后的调用：初始化签名器交给 BiometricPrompt 解锁。 */
+    fun approvalSignature(): Signature? = identity.createApprovalSignature()
+
+    /** 用生物识别解锁过的 Signature 生成 L3 证明并提交。 */
+    fun submitRemoteApproval(level: Int, signature: Signature) {
+        val current = _remoteApproval.value ?: return
+        viewModelScope.launch {
+            val proof = withContext(Dispatchers.IO) {
+                runCatching {
+                    identity.createApprovalWithSignature(current.envelope, level, signature)
+                }.getOrNull()
+            }
+            if (proof == null) {
+                appendAssistant("生物识别已通过，但审批签名失败。", isError = true)
+            } else {
+                answerRemoteWithApproval(proof)
+            }
+        }
+    }
+
+    private suspend fun askRemote(envelope: JsonObject, level: Int): RemoteAnswer {
         val id = (envelope["id"] as? JsonPrimitive)?.contentOrNull.orEmpty()
         val intent = (envelope["intent"] as? JsonPrimitive)?.contentOrNull.orEmpty()
-        val decision = CompletableDeferred<Boolean>()
+        val decision = CompletableDeferred<RemoteAnswer>()
         remoteDecision = decision
-        _remoteApproval.value = RemoteApproval(id, intent, describeEnvelope(envelope), level)
+        _remoteApproval.value = RemoteApproval(id, intent, describeEnvelope(envelope), level, envelope)
         return try {
             decision.await()
         } finally {

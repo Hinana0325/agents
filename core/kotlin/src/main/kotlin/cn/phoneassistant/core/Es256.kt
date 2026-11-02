@@ -21,6 +21,11 @@ object Es256 {
     fun signRaw(payload: JsonObject, privateKey: PrivateKey): String {
         val signer = Signature.getInstance("SHA256withECDSA")
         signer.initSign(privateKey)
+        return signRawWith(payload, signer)
+    }
+
+    /** 用已经 initSign 的 Signature 签名；生物识别解锁的 Keystore 密钥走这条路径。 */
+    fun signRawWith(payload: JsonObject, signer: Signature): String {
         signer.update(Jcs.canonicalize(payload).toByteArray(Charsets.UTF_8))
         val (r, s) = decodeDerSignature(signer.sign())
         val raw = ByteArray(64)

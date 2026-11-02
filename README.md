@@ -51,6 +51,9 @@ docs/legacy/     # 被 v1 取代的旧原型定义
 - eval 评测基线（阶段 3 前置）：`eval/` 话术集 327 条（9 意图每意图 ≥30 + clarify/refuse 33）+ 注入集 104 条（note/web_text/calendar_title/filename/app_name 五载体、六种手法，auto_exec 一律 false）；`eval/runners/rule_runner.py`（纯标准库）做数据质量门禁并按 `protocol/schema/intents/*.json` 动态校验 params 键名，`--strict` 通过；`eval/nightly.sh` 与 CI 数据门禁 workflow 就绪。打分后端待云端大模型网关落地后接入。
 - 属性测试（第 10 节）：JVM 侧 kotest-property 5 条不变量（taint 单调/签名任一位变异必败/handoff 深度≤1/同 id N 投递副作用 1 次/未知字段拒绝），test 已切 JUnitPlatform 并挂 vintage 引擎保住既有 JUnit4 测试；Python 侧 Hypothesis 10 条性质镜像同套不变量（`uv run --with hypothesis --with cryptography python tools/vector-runner/py/property_test.py`）。core 测试合计 165 全绿。
 
+- 手机端本地模型接入（阶段 1 交付物）：`apps/phone/agent/PhoneAssistantRouter.kt` 组装 core 的 LocalModelRouter（规则分类兜底、高优先级本地分类器位预留），ChatViewModel 离线快路径改经 router，18 样本对拍行为等价；手机单测 15 全绿。
+- sync 同步契约 v1.1：`protocol/schema/sync/`（实体壳 + 增量批）、`protocol/spec/sync.md`（API/墓碑/单写者表/14 错误码）、22 条金标准向量，Kotlin SyncValidator 与 Python validate_sync 两侧同过；向量总数 230 → 252。
+
 未验证 / 未完成（不要当成已完成）：
 
 - **手机未在物理真机验证**（不同厂商时钟/日历实现、省电策略、Keystore 行为可能不同）。
@@ -61,7 +64,7 @@ docs/legacy/     # 被 v1 取代的旧原型定义
 - schema 与两份手写实现靠向量对齐，没有引入通用 JSON Schema 校验器做交叉检查。
 - 配对已支持二维码（桌面生成、手机从相册扫描）、复制 JSON、设备证书吊销与轮换；相机实时扫码未做。
 - 手表/耳机仍只有设计文档；电脑文件搜索默认不接入（ADR 0006 待拍板）；本地模型仅完成规则层骨架（localmodel 接口/路由/降级，ONNX/LLM 分类器未接入），MSI 安装包、自动更新都未开始。
-- 本轮新增（2026-11-02）：eval 数据门禁与属性测试只在沙箱验证，未在 GitHub CI 上跑过；本地模型层未接入任何真实模型，未过真机。
+- 本轮新增（2026-11-03）：手机端本地模型接入未过模拟器/真机；sync 只有设备侧校验无服务端实现（云端 hub 待拍板）；eval 数据门禁与 sync 向量首次进 CI（结果见 docs/round-report-2026-11-03.md）。
 
 ## 怎么跑
 

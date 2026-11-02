@@ -36,6 +36,18 @@ object IntentExecutor {
     fun resolveAppCandidates(context: Context, appName: String): List<AppCandidate> {
         val query = appName.trim()
         if (query.isEmpty()) return emptyList()
+        val labeled = launchableApps(context)
+        val exact = labeled.filter { it.label.equals(query, ignoreCase = true) }
+        if (exact.isNotEmpty()) return exact.sortedBy { it.label }.take(5)
+        return labeled.filter { it.label.contains(query, ignoreCase = true) }
+            .sortedBy { it.label }.take(5)
+    }
+
+    /** 全部可启动应用，按名称排序；供应用目录选择器使用。 */
+    fun listLaunchableApps(context: Context): List<AppCandidate> =
+        launchableApps(context).sortedBy { it.label }
+
+    private fun launchableApps(context: Context): List<AppCandidate> {
         val packageManager = context.packageManager
         val mainIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER)
         val activities = try {
@@ -43,14 +55,10 @@ object IntentExecutor {
         } catch (e: Exception) {
             return emptyList()
         }
-        val labeled = activities.mapNotNull { info ->
+        return activities.mapNotNull { info ->
             val label = info.loadLabel(packageManager)?.toString()?.trim().orEmpty()
             if (label.isEmpty()) null else AppCandidate(info.activityInfo.packageName, label)
         }.distinctBy { it.packageName }
-        val exact = labeled.filter { it.label.equals(query, ignoreCase = true) }
-        if (exact.isNotEmpty()) return exact.sortedBy { it.label }.take(5)
-        return labeled.filter { it.label.contains(query, ignoreCase = true) }
-            .sortedBy { it.label }.take(5)
     }
 
     /** 执行一条已确认的意图。OPEN_APP 要求 [confirmedPackage] 非空。 */

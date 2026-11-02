@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,6 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -62,7 +64,9 @@ import cn.phoneassistant.core.AppCatalog
 import cn.phoneassistant.core.AssistantIntent
 import cn.phoneassistant.core.IntentType
 import cn.phoneassistant.core.Jwk
+import cn.phoneassistant.intent.IntentExecutor
 import cn.phoneassistant.llm.LlmClient
+import cn.phoneassistant.model.AppCandidate
 import cn.phoneassistant.model.ChatMessage
 import cn.phoneassistant.model.PendingIntent
 import kotlinx.coroutines.Dispatchers
@@ -428,6 +432,21 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
     var hubPubkey by remember { mutableStateOf(store.hubPubkey) }
     var hubKid by remember { mutableStateOf(store.hubKid) }
     var appCatalog by remember { mutableStateOf(store.appCatalogJson) }
+    var appPickerOpen by remember { mutableStateOf(false) }
+    var pickerApps by remember { mutableStateOf<List<AppCandidate>>(emptyList()) }
+    var pickerSelected by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var pickerError by remember { mutableStateOf("") }
+    var pickerLoading by remember { mutableStateOf(false) }
+
+    LaunchedEffect(appPickerOpen) {
+        if (appPickerOpen) {
+            pickerLoading = true
+            pickerError = ""
+            pickerSelected = emptySet()
+            pickerApps = withContext(Dispatchers.IO) { IntentExecutor.listLaunchableApps(context) }
+            pickerLoading = false
+        }
+    }
     var hubState by remember { mutableStateOf(store.hasHubToken to store.isHubConfigured) }
     var hubMessage by remember { mutableStateOf("") }
     var hubIsError by remember { mutableStateOf(false) }
@@ -627,6 +646,79 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
             placeholder = { Text("{\"wechat\":\"com.tencent.mm\"}") },
             textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
         )
+        OutlinedButton(onClick = { appPickerOpen = true }) {
+            Text("从已安装应用添加")
+        }
+        if (appPickerOpen) {
+            AlertDialog(
+                onDismissRequest = { appPickerOpen = false },
+                title = { Text("从已安装应用添加") },
+                text = {
+                    Column {
+                        when {
+                            pickerLoading -> Text("正在读取应用列表…")
+                            pickerApps.isEmpty() -> Text("没有找到可启动的应用。")
+                            else -> LazyColumn(modifier = Modifier.heightIn(max = 320.dp)) {
+                                items(pickerApps, key = { it.packageName }) { app ->
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Checkbox(
+                                            checked = app.packageName in pickerSelected,
+                                            onCheckedChange = { checked ->
+                                                pickerSelected = if (checked) {
+                                                    pickerSelected + app.packageName
+                                                } else {
+                                                    pickerSelected - app.packageName
+                                                }
+                                            },
+                                        )
+                                        Column(modifier = Modifier.padding(start = 4.dp)) {
+                                            Text(app.label, style = MaterialTheme.typography.bodyMedium)
+                                            Text(
+                                                app.packageName,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MutedGrey,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (pickerError.isNotEmpty()) {
+                            Text(pickerError, style = MaterialTheme.typography.bodySmall, color = DangerRed)
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        enabled = pickerSelected.isNotEmpty(),
+                        onClick = {
+                            val baseResult = if (appCatalog.isBlank()) {
+                                Result.success(emptyMap<String, String>())
+                            } else {
+                                runCatching {
+                                    AppCatalog.parse(Json.parseToJsonElement(appCatalog)).getOrThrow()
+                                }
+                            }
+                            baseResult.onSuccess { base ->
+                                val merged = AppCatalog.addPackages(base, pickerSelected.sorted())
+                                appCatalog = merged.entries.sortedBy { it.key }
+                                    .joinToString(prefix = "{", postfix = "}", separator = ",") { (id, pkg) ->
+                                        "\"$id\":\"$pkg\""
+                                    }
+                                appPickerOpen = false
+                            }.onFailure {
+                                pickerError = "当前应用目录不是合法 JSON，请先修正。"
+                            }
+                        },
+                    ) {
+                        Text("添加 ${pickerSelected.size} 项")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { appPickerOpen = false }) { Text("取消") }
+                },
+            )
+        }
         Text(
             "编排服务：" + if (hubState.second) "已配置" else "未配置",
             style = MaterialTheme.typography.bodyMedium,
@@ -634,7 +726,8 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
         Row {
             Button(
                 onClick = {
-                    val urlError = validateBaseUrl(hubUrl)
+                    // Hub 是可选的：留空表示只用本机能力，不能因此挡住应用目录等设置的保存。
+                    val urlError = if (hubUrl.isBlank()) null else validateBaseUrl(hubUrl)
                     val pubkeyError = validateHubPubkey(hubPubkey)
                     val catalogError = if (appCatalog.isBlank()) null else runCatching {
                         AppCatalog.validate(Json.parseToJsonElement(appCatalog))

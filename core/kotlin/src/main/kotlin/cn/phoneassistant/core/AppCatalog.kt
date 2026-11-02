@@ -36,4 +36,23 @@ object AppCatalog {
             },
         )
     }
+
+    /**
+     * 把新包并入目录，自动生成未被占用的 app1/app2… 逻辑 id。
+     * 已存在的包不会重复添加；调用方负责最终校验。
+     */
+    fun addPackages(existing: Map<String, String>, packages: List<String>): Map<String, String> {
+        val result = existing.toMutableMap()
+        val usedIds = result.keys.toMutableSet()
+        var nextId = 1
+        for (packageName in packages.distinct()) {
+            if (result.containsValue(packageName)) continue
+            while (usedIds.contains("app$nextId")) nextId++
+            val id = "app$nextId"
+            result[id] = packageName
+            usedIds += id
+            nextId++
+        }
+        return result
+    }
 }

@@ -51,6 +51,36 @@ class AppCatalogTest {
     }
 
     @Test
+    fun addsPackagesWithGeneratedIds() {
+        val merged = AppCatalog.addPackages(emptyMap(), listOf("com.a", "com.b"))
+        assertEquals("com.a", merged["app1"])
+        assertEquals("com.b", merged["app2"])
+    }
+
+    @Test
+    fun skipsPackagesAlreadyPresent() {
+        val existing = mapOf("wechat" to "com.tencent.mm")
+        val merged = AppCatalog.addPackages(existing, listOf("com.tencent.mm", "com.b"))
+        assertEquals("com.b", merged["app1"])
+        assertEquals(2, merged.size)
+    }
+
+    @Test
+    fun fillsUnusedGeneratedIds() {
+        val existing = mapOf("app1" to "com.a", "app3" to "com.c")
+        val merged = AppCatalog.addPackages(existing, listOf("com.b"))
+        assertEquals("com.b", merged["app2"])
+        assertEquals(3, merged.size)
+    }
+
+    @Test
+    fun deduplicatesInputAndKeepsCustomIds() {
+        val existing = mapOf("wechat" to "com.tencent.mm")
+        val merged = AppCatalog.addPackages(existing, listOf("com.b", "com.b"))
+        assertEquals(mapOf("wechat" to "com.tencent.mm", "app1" to "com.b"), merged)
+    }
+
+    @Test
     fun tooManyEntriesIsRejected() {
         val obj = buildJsonObject {
             repeat(AppCatalog.MAX_ENTRIES + 1) { index ->

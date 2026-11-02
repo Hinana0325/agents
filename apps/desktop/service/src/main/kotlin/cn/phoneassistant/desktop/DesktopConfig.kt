@@ -56,7 +56,7 @@ class DesktopConfigLoadError(message: String) : Exception(message)
 /** 读取 config.json；不存在时生成一份最小配置（hub 公钥留空，配好之前拒绝接收信封）。 */
 object DesktopConfig {
 
-    private val json = Json { prettyPrint = true; ignoreUnknownKeys = true }
+    private val json = Json { prettyPrint = true; ignoreUnknownKeys = true; encodeDefaults = true }
 
     fun loadOrCreate(paths: DesktopPaths): DesktopConfigFile {
         if (!paths.configFile.exists()) {
@@ -71,5 +71,9 @@ object DesktopConfig {
         } catch (e: Exception) {
             throw DesktopConfigLoadError("config.json 解析失败：${e.message}")
         }
+    }
+
+    fun save(paths: DesktopPaths, config: DesktopConfigFile) {
+        paths.configFile.writeText(json.encodeToString(DesktopConfigFile.serializer(), config))
     }
 }

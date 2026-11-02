@@ -10,12 +10,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -29,9 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Notification
@@ -49,6 +55,8 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import javax.imageio.ImageIO
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 /** Compose Desktop 入口：主窗口 + 系统托盘。服务线程在 Main 里独立运行。 */
 fun runDesktopUi(state: UiState, config: DesktopConfigFile, paths: DesktopPaths, store: DesktopStore) = application {
@@ -131,8 +139,11 @@ private fun DesktopApp(state: UiState, config: DesktopConfigFile, paths: Desktop
                 onClick = { tab = 1 },
                 text = { Text("已处理（${processed.size}）") },
             )
+            Tab(selected = tab == 2, onClick = { tab = 2 }, text = { Text("设置") })
         }
-        if (tab == 0) {
+        if (tab == 2) {
+            SettingsPane(config, paths, modifier = Modifier.weight(1f).fillMaxWidth())
+        } else if (tab == 0) {
             if (logs.isEmpty()) {
                 Text(
                     "还没有收到信封。",
@@ -190,6 +201,103 @@ private fun DesktopApp(state: UiState, config: DesktopConfigFile, paths: Desktop
 
 private fun count(dir: File): Int =
     dir.listFiles { file -> file.isFile && file.name.endsWith(".json") }?.size ?: 0
+
+@Composable
+private fun SettingsPane(config: DesktopConfigFile, paths: DesktopPaths, modifier: Modifier = Modifier) {
+    val pretty = remember { Json { prettyPrint = true } }
+    var catalog by remember { mutableStateOf(pretty.encodeToString(JsonObject.serializer(), config.app_catalog)) }
+    var allowlist by remember { mutableStateOf(config.url_allowlist.joinToString("\n")) }
+    var template by remember { mutableStateOf(config.web_search_template) }
+    var dryRun by remember { mutableStateOf(config.dry_run) }
+    var message by remember { mutableStateOf("") }
+    var isError by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = modifier.verticalScroll(rememberScrollState()).padding(end = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text("设备：${config.device_id}（role=${config.role}）", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            "hub 公钥：" + if (config.hub_pubkey == null) {
+                "未配置（不会接收信封）"
+            } else {
+                "已配置（kid=${config.hub_kid}）"
+            },
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Switch(checked = dryRun, onCheckedChange = { dryRun = it })
+            Text(
+                "dry_run：只返回将要执行的命令，不真的开浏览器或起进程",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        Text(
+            "应用目录（JSON：app_id → {\"url\": ...} 或 {\"command\": [...]}）",
+            style = MaterialTheme.typography.bodySmall,
+        )
+        OutlinedTextField(
+            value = catalog,
+            onValueChange = { catalog = it },
+            modifier = Modifier.fillMaxWidth().height(170.dp),
+            textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+        )
+        Text("URL 允许清单（每行一个 host）", style = MaterialTheme.typography.bodySmall)
+        OutlinedTextField(
+            value = allowlist,
+            onValueChange = { allowlist = it },
+            modifier = Modifier.fillMaxWidth().height(90.dp),
+            textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+        )
+        Text("搜索 URL 模板（必须含 {q}）", style = MaterialTheme.typography.bodySmall)
+        OutlinedTextField(
+            value = template,
+            onValueChange = { template = it },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+        )
+        Button(
+            onClick = {
+                ConfigEditor.validate(catalog, allowlist, template, dryRun, config).fold(
+                    onSuccess = { updated ->
+                        runCatching { DesktopConfig.save(paths, updated) }.fold(
+                            onSuccess = {
+                                isError = false
+                                message = "已保存，重启服务后生效。"
+                            },
+                            onFailure = {
+                                isError = true
+                                message = "写入失败：${it.message}"
+                            },
+                        )
+                    },
+                    onFailure = {
+                        isError = true
+                        message = it.message ?: "校验失败"
+                    },
+                )
+            },
+        ) {
+            Text("保存设置")
+        }
+        if (message.isNotEmpty()) {
+            Text(
+                message,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+            )
+        }
+        Text(
+            "应用目录用于 open_app 的 app_id 映射；保存后需重启服务。",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
 
 private fun openDataDir(dir: File) {
     runCatching {

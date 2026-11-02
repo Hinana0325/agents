@@ -299,3 +299,30 @@
 - 修了一个真实缺陷：最初用 `ProcessHandle.arguments()` 拼命令，Windows 上拿不到参数，
   生成的 .cmd 只有 `java.exe run`；改为从 JVM 属性拼。
 - 未做自动更新（需要更新源与签名策略，等云端/发布方式定了再说）。
+
+## 12. 电脑端设置页 — 2026-11-02 晚（续）
+
+补上计划里电脑端 UI 的“设置”：
+
+### 做了什么
+
+- Compose 主窗口新增“设置”页签：设备信息、hub 公钥状态、dry_run 开关、
+  应用目录（JSON：app_id → url 或 command）、URL 允许清单、搜索 URL 模板。
+- 保存前由 `ConfigEditor` 校验：app_id 命名、每个应用必须有 url（https）或 command（1–8 个非空参数）、
+  允许清单 host 格式、搜索模板必须 https + 含 `{q}`；失败给中文原因，不写文件。
+- 保存写入 `config.json`，界面提示“已保存，重启服务后生效”（运行中的运行时不会热加载）。
+
+### 已核验
+
+- `ConfigEditorTest` 7 个用例（合法往返、默认字段显式落盘、非法 app id、缺 url/command、http url、
+  模板缺占位符、非法 host）；桌面端合计 **20 个测试全绿**。
+- 界面实测：切到“设置”页截图核对；点击“保存设置”后显示成功提示；
+  `config.json` 包含 `role/hub_pubkey/hub_kid/app_catalog/url_allowlist/web_search_template/dry_run` 全部字段。
+- 修了一个实现问题：kotlinx.serialization 默认 `encodeDefaults=false`，只改默认值以外的字段会“看起来没写入”；
+  改为显式写出全部字段，便于用户直接查看和手改配置。
+
+### 未完成
+
+- 应用目录还是 JSON 文本编辑，不是逐项表单；没有“新增应用”的可视化交互。
+- 设置改动需要重启服务才生效（没有热重载/运行时重建）。
+- 设置页没有编辑 hub 公钥（配对流程还没做，目前用 device-sim/手工写）。

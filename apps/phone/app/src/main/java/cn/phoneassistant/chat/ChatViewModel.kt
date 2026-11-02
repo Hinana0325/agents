@@ -13,6 +13,7 @@ import cn.phoneassistant.core.AuditEntry
 import cn.phoneassistant.core.AuditLog
 import cn.phoneassistant.core.IntentType
 import cn.phoneassistant.core.Jwk
+import cn.phoneassistant.core.LocalIntentParser
 import cn.phoneassistant.core.ModelIntentParser
 import cn.phoneassistant.core.Outbox
 import cn.phoneassistant.core.ProcessedStore
@@ -119,10 +120,12 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val configured = withContext(Dispatchers.IO) { settings.isConfigured }
                 if (!configured) {
+                    if (runLocalFallback(input, "还没配置大模型，先用本地规则处理。")) return@launch
                     appendAssistant(
                         settings.storageFailure
                             ?: "还没配好：服务地址、模型、密钥有一项是空的，" +
-                            "请先在右上角“设置”里填好，我现在不会调用任何接口。",
+                            "请先在右上角“设置”里填好，我现在不会调用任何接口。" +
+                            "（离线可用：计时、闹钟、备忘、打开应用、搜索）",
                         isError = true,
                     )
                     return@launch
@@ -135,6 +138,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     is ValidationResult.Valid -> handleValidIntent(result.intent)
                 }
             } catch (e: Exception) {
+                if (runLocalFallback(input, "网络请求失败，已用本地规则处理。")) return@launch
                 appendAssistant(e.message ?: "请求失败，请稍后再试。", isError = true)
             } finally {
                 _thinking.value = false
@@ -279,6 +283,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         _pending.update { current ->
             current?.copy(selectedPackage = packageName)
         }
+    }
+
+    /** 本地规则兜底：认出来就按正常意图卡片处理，认不出返回 false。 */
+    private suspend fun runLocalFallback(input: String, notice: String): Boolean {
+        val intent = LocalIntentParser.parse(input) ?: return false
+        appendAssistant(notice)
+        handleValidIntent(intent)
+        return true
     }
 
     private suspend fun handleValidIntent(intent: AssistantIntent) {

@@ -71,7 +71,7 @@ fun ChatScreen(viewModel: ChatViewModel) {
                         when (screen) {
                             Screen.CHAT -> "手机助理"
                             Screen.SETTINGS -> "设置"
-                            Screen.NOTES -> "备忘"
+                            Screen.NOTES -> "记录"
                             Screen.PAIRING -> "配对"
                         },
                     )
@@ -83,7 +83,7 @@ fun ChatScreen(viewModel: ChatViewModel) {
                 },
                 actions = {
                     if (screen == Screen.CHAT) {
-                        TextButton(onClick = { screen = Screen.NOTES }) { Text("备忘") }
+                        TextButton(onClick = { screen = Screen.NOTES }) { Text("记录") }
                         TextButton(onClick = { screen = Screen.PAIRING }) { Text("配对") }
                         TextButton(onClick = { screen = Screen.SETTINGS }) { Text("设置") }
                     }
@@ -100,7 +100,10 @@ fun ChatScreen(viewModel: ChatViewModel) {
                 viewModel = viewModel,
                 modifier = Modifier.padding(padding),
             )
-            Screen.NOTES -> NotesScreen(modifier = Modifier.padding(padding))
+            Screen.NOTES -> RecordsScreen(
+                viewModel = viewModel,
+                modifier = Modifier.padding(padding),
+            )
             Screen.PAIRING -> PairingScreen(
                 identity = viewModel.identity,
                 modifier = Modifier.padding(padding),

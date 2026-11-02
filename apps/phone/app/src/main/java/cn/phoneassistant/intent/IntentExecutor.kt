@@ -24,7 +24,7 @@ object IntentExecutor {
 
     /** 执行结果：成功时携带中文说明，失败时携带中文原因。 */
     sealed class ExecutionResult {
-        data class Success(val message: String) : ExecutionResult()
+        data class Success(val message: String, val artifact: String? = null) : ExecutionResult()
         data class Failure(val message: String) : ExecutionResult()
     }
 
@@ -119,7 +119,7 @@ object IntentExecutor {
                 IntentType.SAVE_NOTE -> {
                     val title = intent.params["title"] ?: "助理备忘"
                     val fileName = NoteStore.save(context, title, intent.params.getValue("content"))
-                    ExecutionResult.Success("已保存备忘“$title”（$fileName），只存在本机应用内。")
+                    ExecutionResult.Success("已保存备忘“$title”（$fileName），只存在本机应用内。", artifact = fileName)
                 }
             }
         } catch (e: Exception) {

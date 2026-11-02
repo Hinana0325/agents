@@ -33,7 +33,7 @@ docs/legacy/     # 被 v1 取代的旧原型定义
 - 同一份向量，Kotlin（`./gradlew :core:kotlin:test`）与 Python（`uv run --with cryptography python tools/vector-runner/py/runner.py`）**均 0 失败**。
 - 阳性对照：故意改坏一条向量后，Python 退出码 1、Kotlin 测试 FAILED。
 - 设备运行时（`core/kotlin/.../runtime/`）：按 id 幂等去重、状态机、TTL 过期、回执、L2 待确认、L3 审批（绑定信封哈希 + nonce 防重放 + 级别权限），14 个单元测试全绿。
-- 手机 App v0.2.0：对话历史持久化、备忘页、地址校验、连接测试；**签名 release APK 已在 Android 16 模拟器上端到端跑通**（设置→测试连接→发消息→确认卡→拉起系统闹钟→重启后历史仍在）。
+- 手机 App v0.2.0：对话历史持久化、记录页（备忘 + 动作历史 + 备忘撤销）、Keystore 设备身份与二维码配对、地址校验、连接测试；**签名 release APK 已在 Android 16 模拟器上端到端跑通**（设置→测试连接→发消息→确认卡→拉起系统闹钟→重启后历史仍在；保存备忘→动作历史→撤销）。
 - 电脑端 v1：**可独立运行的无头服务 + Compose Desktop 主界面/托盘**（本地信封通道 + SQLite 跨重启去重与处理历史 + DPAPI 保护私钥 + 设置页 + save_note/web_search/open_app/set_timer 执行器 + L2 界面确认与本机审批密钥签名 + jpackage 自带 JRE 打包 + Windows 登录自启 + 设备证书手工配对）；桌面 25 个单元测试全绿，并用 device-sim 在本机端到端跑通（含 Compose 弹窗批准与重复投递去重）。
 - 信任链：手机（Keystore P-256）给电脑签发设备证书，电脑“配对”页显示二维码，手机从相册扫码/粘贴 JSON 后签名，电脑 `trust-phone` + `verify-cert` 验签；已在模拟器与电脑之间完成真实跨设备配对。相机实时扫码、吊销/轮换未做。
 - core 共 26 个测试全绿，debug/release APK 均可打包。

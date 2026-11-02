@@ -18,10 +18,14 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import cn.phoneassistant.chat.ChatViewModel
+import cn.phoneassistant.core.AuditEntry
 import cn.phoneassistant.data.NoteEntry
 import cn.phoneassistant.data.NoteStore
 import java.text.SimpleDateFormat
@@ -41,9 +47,25 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** 备忘列表：只展示本机 notes 目录下的 .txt，支持查看与删除。 */
+/** “记录”页：备忘与动作历史两个页签。 */
 @Composable
-fun NotesScreen(modifier: Modifier = Modifier) {
+fun RecordsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifier) {
+    var tab by remember { mutableStateOf(0) }
+    Column(modifier.fillMaxSize()) {
+        TabRow(selectedTabIndex = tab) {
+            Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text("备忘") })
+            Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text("动作历史") })
+        }
+        if (tab == 0) {
+            NotesTab(modifier = Modifier.fillMaxSize())
+        } else {
+            HistoryTab(viewModel = viewModel, modifier = Modifier.fillMaxSize())
+        }
+    }
+}
+
+@Composable
+private fun NotesTab(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var notes by remember { mutableStateOf<List<NoteEntry>>(emptyList()) }
@@ -158,3 +180,84 @@ fun NotesScreen(modifier: Modifier = Modifier) {
 
 private fun formatDate(millis: Long): String =
     SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(millis))
+
+@Composable
+private fun HistoryTab(viewModel: ChatViewModel, modifier: Modifier = Modifier) {
+    val entries by viewModel.audit.collectAsState()
+    Column(modifier = modifier.padding(16.dp)) {
+        Text(
+            "只记录本机的执行结果，不保存密钥或完整聊天内容。",
+            style = MaterialTheme.typography.bodySmall,
+            color = MutedGrey,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        if (entries.isEmpty()) {
+            Text(
+                "还没有动作记录。在对话里执行过一次操作后，这里会出现。",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MutedGrey,
+            )
+        } else {
+            val undone = entries
+                .filter { it.intent == "UNDO_SAVE_NOTE" && it.outcome == "success" }
+                .mapNotNull { it.artifact }
+                .toSet()
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(entries.asReversed(), key = { it.id }) { entry ->
+                    HistoryRow(
+                        entry = entry,
+                        undone = entry.artifact != null && entry.artifact in undone,
+                        onUndo = { viewModel.undoNote(entry) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HistoryRow(entry: AuditEntry, undone: Boolean, onUndo: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = ShapeCard,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(auditIntentLabel(entry.intent), style = MaterialTheme.typography.titleMedium)
+                if (entry.summary.isNotBlank()) {
+                    Text(
+                        entry.summary,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                Text(
+                    "${formatDate(entry.tsMillis)} · ${if (entry.outcome == "success") "成功" else "失败"}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MutedGrey,
+                )
+            }
+            if (entry.intent == "SAVE_NOTE" && entry.outcome == "success" && entry.artifact != null && !undone) {
+                TextButton(onClick = onUndo) { Text("撤销", color = DangerRed) }
+            }
+        }
+    }
+}
+
+private fun auditIntentLabel(name: String): String = when (name) {
+    "OPEN_APP" -> "打开应用"
+    "SET_ALARM" -> "设置闹钟"
+    "CREATE_CALENDAR_EVENT" -> "创建日程"
+    "SET_TIMER" -> "设置计时"
+    "WEB_SEARCH" -> "网络搜索"
+    "SAVE_NOTE" -> "保存备忘"
+    "CHAT_ONLY" -> "纯聊天"
+    "UNDO_SAVE_NOTE" -> "撤销备忘"
+    else -> name
+}

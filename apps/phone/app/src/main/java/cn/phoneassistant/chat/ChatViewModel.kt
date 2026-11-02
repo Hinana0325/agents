@@ -6,16 +6,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import cn.phoneassistant.core.AssistantIntent
+import cn.phoneassistant.core.AuditEntry
+import cn.phoneassistant.core.AuditLog
 import cn.phoneassistant.core.IntentType
 import cn.phoneassistant.core.ModelIntentParser
 import cn.phoneassistant.core.ValidationResult
 import cn.phoneassistant.data.ChatHistoryStore
 import cn.phoneassistant.data.DeviceIdentity
+import cn.phoneassistant.data.NoteStore
 import cn.phoneassistant.data.SettingsStore
 import cn.phoneassistant.intent.IntentExecutor
 import cn.phoneassistant.llm.LlmClient
 import cn.phoneassistant.model.ChatMessage
 import cn.phoneassistant.model.PendingIntent
+import java.io.File
+import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -49,11 +54,16 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val _thinking = MutableStateFlow(false)
     val thinking: StateFlow<Boolean> = _thinking.asStateFlow()
 
+    private val _audit = MutableStateFlow<List<AuditEntry>>(emptyList())
+    val audit: StateFlow<List<AuditEntry>> = _audit.asStateFlow()
+    private val auditLog = AuditLog(File(application.filesDir, "audit.json"))
+
     private var nextId = 1L
 
     init {
         // 在 IO 线程第一次触碰加密存储，界面之后读设置就不会在主线程做 Keystore I/O。
         viewModelScope.launch(Dispatchers.IO) { settings.isConfigured }
+        viewModelScope.launch(Dispatchers.IO) { _audit.value = auditLog.list() }
         viewModelScope.launch {
             val loaded = withContext(Dispatchers.IO) { ChatHistoryStore.load(getApplication()) }
             if (loaded.isEmpty()) {
@@ -115,8 +125,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
             when (result) {
-                is IntentExecutor.ExecutionResult.Success -> appendAssistant(result.message)
-                is IntentExecutor.ExecutionResult.Failure -> appendAssistant(result.message, isError = true)
+                is IntentExecutor.ExecutionResult.Success -> {
+                    appendAssistant(result.message)
+                    recordAudit(pendingIntent.intent, "success", result.artifact)
+                }
+                is IntentExecutor.ExecutionResult.Failure -> {
+                    appendAssistant(result.message, isError = true)
+                    recordAudit(pendingIntent.intent, "failure")
+                }
             }
         }
     }
@@ -144,10 +160,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     IntentExecutor.execute(getApplication(), intent)
                 }
                 when (result) {
-                    is IntentExecutor.ExecutionResult.Success ->
+                    is IntentExecutor.ExecutionResult.Success -> {
                         appendAssistant("已为你搜索“${intent.params.getValue("query")}”。")
-                    is IntentExecutor.ExecutionResult.Failure ->
+                        recordAudit(intent, "success")
+                    }
+                    is IntentExecutor.ExecutionResult.Failure -> {
                         appendAssistant(result.message, isError = true)
+                        recordAudit(intent, "failure")
+                    }
                 }
             }
             IntentType.OPEN_APP -> {
@@ -179,6 +199,54 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 _pending.value = PendingIntent(intent = intent)
             }
         }
+    }
+
+    /** 从“动作历史”里撤销一条备忘；文件删除成功才记成功。 */
+    fun undoNote(entry: AuditEntry) {
+        val artifact = entry.artifact ?: return
+        viewModelScope.launch {
+            val deleted = withContext(Dispatchers.IO) { NoteStore.delete(getApplication(), artifact) }
+            appendAssistant(
+                if (deleted) "已删除备忘“$artifact”。" else "删除失败：备忘可能已经不存在。",
+                isError = !deleted,
+            )
+            val undo = AuditEntry(
+                id = UUID.randomUUID().toString(),
+                tsMillis = System.currentTimeMillis(),
+                intent = "UNDO_SAVE_NOTE",
+                summary = "删除备忘 $artifact",
+                outcome = if (deleted) "success" else "failure",
+                artifact = if (deleted) artifact else null,
+            )
+            withContext(Dispatchers.IO) {
+                auditLog.append(undo)
+                _audit.value = auditLog.list()
+            }
+        }
+    }
+
+    private fun recordAudit(intent: AssistantIntent, outcome: String, artifact: String? = null) {
+        val entry = AuditEntry(
+            id = UUID.randomUUID().toString(),
+            tsMillis = System.currentTimeMillis(),
+            intent = intent.type.name,
+            summary = summarize(intent),
+            outcome = outcome,
+            artifact = artifact,
+        )
+        viewModelScope.launch(Dispatchers.IO) {
+            auditLog.append(entry)
+            _audit.value = auditLog.list()
+        }
+    }
+
+    private fun summarize(intent: AssistantIntent): String {
+        val internal = setOf("beginMillis", "endMillis")
+        return intent.params.entries
+            .filter { it.key !in internal }
+            .take(4)
+            .joinToString("，") { "${it.key}=${it.value.take(40)}" }
+            .ifBlank { intent.type.name }
     }
 
     private fun appendUser(text: String) {

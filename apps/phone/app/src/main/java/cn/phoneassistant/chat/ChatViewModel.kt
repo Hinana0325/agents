@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import cn.phoneassistant.agent.PhoneAgent
+import cn.phoneassistant.agent.PhoneAssistantRouter
 import cn.phoneassistant.agent.RemoteApproval
 import cn.phoneassistant.agent.describeEnvelope
 import cn.phoneassistant.core.AppCatalog
@@ -14,7 +15,6 @@ import cn.phoneassistant.core.AuditEntry
 import cn.phoneassistant.core.AuditLog
 import cn.phoneassistant.core.IntentType
 import cn.phoneassistant.core.Jwk
-import cn.phoneassistant.core.LocalIntentParser
 import cn.phoneassistant.core.ModelIntentParser
 import cn.phoneassistant.core.Outbox
 import cn.phoneassistant.core.PendingApproval
@@ -466,9 +466,12 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /** 本地模型路由组装点：离线快路径经降级链分类（当前链上只有规则兜底）。 */
+    private val localModelRouter = PhoneAssistantRouter()
+
     /** 本地规则兜底：认出来就按正常意图卡片处理，认不出返回 false。 */
     private suspend fun runLocalFallback(input: String, notice: String): Boolean {
-        val intent = LocalIntentParser.parse(input) ?: return false
+        val intent = localModelRouter.parse(input) ?: return false
         appendAssistant(notice)
         handleValidIntent(intent)
         return true

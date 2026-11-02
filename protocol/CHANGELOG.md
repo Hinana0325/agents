@@ -1,5 +1,15 @@
 # Protocol CHANGELOG
 
+## v1.1 — 2026-11-03
+
+sync（数据同步）契约层。遵循"小版本只增不改"：只新增 `schema/sync/`、`spec/sync.md`、`vectors/sync/`，未修改任何既有 schema、意图或错误码语义；sync 使用独立的 `SYNC_*` 错误码，不与信封错误码混用。
+
+- 新增 `schema/sync/sync-entity.v1.json`：同步实体壳 `kind, id, rev, deleted?, payload, device_id, ts`。`kind` 为 8 类数据枚举；墓碑（`deleted=true`）不携带 payload；`payload` v1 为宽松对象（按 kind 展开子 schema 留 TODO）。
+- 新增 `schema/sync/sync-batch.v1.json`：增量批 `device_id, base_rev, entries(≤500), cursor?, next`，经 `$defs/$ref` 引用实体 schema；push 请求带 `base_rev` 做冲突检测，pull 响应带 `cursor`。
+- 新增 `spec/sync.md`：API 形状（`POST /v1/sync/push`、`GET /v1/sync/pull?cursor=`）、409 冲突语义、server seq 单调排序不依赖设备时钟、墓碑语义与保留期（TODO）、8 类单写者表、`SYNC_*` 错误码表、proto_minor 兼容（小版本只增可选字段、未知字段拒绝）。
+- 新增 `vectors/sync` 金标准向量 22 条（valid 5 / invalid 17）：最小合法批、cursor+next、空 entries、墓碑合法批、8 kind 全覆盖；未知顶层/实体字段、kind 越界、id 非 UUIDv7、rev 非正整数、base_rev 缺失/为负、entries 超 500（501 条）、ts 非法、payload 非对象/缺失、重复 id、墓碑带 payload、缺 next、device_id 为空。Kotlin `SyncValidator` 与 Python `validate_sync` 同跑同过（总计 252 条）。
+- 闹钟/计时器不经同步实体传输（权威方为执行设备，真实状态以回执为准，ADR 0004），故 kind 枚举不含 alarm/timer。
+
 ## v1 — 2026-11-02
 
 首个冻结版本（Phase 0 起点）。

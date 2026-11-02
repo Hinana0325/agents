@@ -1,0 +1,41 @@
+{
+  "$id": "https://assistant.local/protocol/schema/sync/sync-batch.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SyncBatch v1",
+  "description": "同步增量批，push 请求与 pull 响应共用同一结构：push 带 base_rev 做冲突检测（落后即 409），pull 响应带 cursor 游标；排序只看实体 rev，不依赖设备时钟。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["device_id", "base_rev", "entries", "next"],
+  "properties": {
+    "device_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "发起本次同步的设备。"
+    },
+    "base_rev": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "push：客户端所基于的服务端 rev，服务端据此做冲突检测；pull 响应：本批增量之前的服务端基线 rev。新设备从 0 起。"
+    },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/syncEntity" },
+      "maxItems": 500,
+      "description": "本批同步实体（含墓碑），按 rev 升序。"
+    },
+    "cursor": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 512,
+      "description": "pull 响应的下次拉取游标；缺省或空串表示没有更多。push 请求不得携带。"
+    },
+    "next": {
+      "type": "boolean",
+      "description": "pull 响应：是否还有更多增量。push 请求恒为 false。"
+    }
+  },
+  "$defs": {
+    "syncEntity": { "$ref": "sync-entity.v1.json" }
+  }
+}

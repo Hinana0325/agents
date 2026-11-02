@@ -8,6 +8,8 @@ composeBom = "2024.10.01"
 composeMultiplatform = "1.7.3"
 serializationJson = "1.7.3"
 junit = "4.13.2"
+junitVintage = "5.11.4"
+kotest = "5.9.1"
 sqliteJdbc = "3.47.1.0"
 jna = "5.15.0"
 zxing = "3.5.3"
@@ -28,6 +30,10 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serializationJson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
+junit-vintage-engine = { group = "org.junit.vintage", name = "junit-vintage-engine", version.ref = "junitVintage" }
+kotest-runner-junit5 = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest" }
+kotest-property = { group = "io.kotest", name = "kotest-property", version.ref = "kotest" }
+kotest-assertions-core = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest" }
 sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqliteJdbc" }
 jna-platform = { group = "net.java.dev.jna", name = "jna-platform", version.ref = "jna" }
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }

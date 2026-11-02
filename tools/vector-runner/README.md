@@ -33,3 +33,29 @@ VECTORS_DIR=/tmp/vectors-mutated ./gradlew :core:kotlin:test             # 必�
 ```
 
 两边都红才说明向量真的在起作用；任一侧仍然绿，说明那条用例没有被校验器覆盖。
+
+## 属性测试（DEVELOPMENT.md 第 10 节不变量）
+
+向量只覆盖固定样例；属性测试用随机生成大量变体，验证跨实现的通用不变量。
+两侧镜像同一份不变量清单：
+
+1. 接受则 schema 合法、意图在白名单、无未知字段；
+2. 加 taint 或换成语音来源，级别只升不降（上限 3）；
+3. 任何一位变异则验签失败（自生成 P-256 密钥做阳性对照）；
+4. handoff 提案深度不超过 1（proposal 不得是 task_handoff / voice_command）；
+5. 同一 id 投递 N 次，副作用恰好 1 次（仅 JVM 侧，走 DeviceRuntime）。
+
+**JVM（kotest-property，JUnit4 旧测试由 vintage 引擎继续执行）**：
+
+```bash
+gradle :core:kotlin:test    # 测试在 core/kotlin/src/test/kotlin/.../property/
+```
+
+**Python（Hypothesis，max_examples=150，deadline=None）**：
+
+```bash
+uv run --with hypothesis --with cryptography python tools/vector-runner/py/property_test.py
+```
+
+任一侧属性测试失败即阻断合并；失败输出里会带 hypothesis 的 falsifying example，可直接复现。
+

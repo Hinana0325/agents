@@ -1024,3 +1024,40 @@
 - 电脑端审计记录只覆盖“信封处理”，不覆盖 UI 里的设置修改。
 - 审计文件与回执库是两套存储，没有交叉校验。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 40. 最终状态与文档同步 — 2026-11-02 深夜
+
+> 本节是最终快照；第 1-39 节里的测试数字/“未做”是当时的历史记录，以本节为准。
+
+### 设备侧预发布状态
+
+- 手机：v0.2.0 签名 release APK；本地对话/备忘/审计、离线规则快路径、
+  Keystore 身份与设备证书配对/吊销/轮换、L2/L3（L3 单独生物识别审批密钥）、
+  `HttpHubClient` 拉取、回执发件箱 + WorkManager、待确认信封重启恢复、
+  持久化速率窗口、应用目录选择器、Keystore AES-GCM 设置存储。
+- 电脑：可独立运行的无头服务 + Compose Desktop + 托盘；本地目录信封通道、
+  SQLite 去重/历史、DPAPI、L2 本机审批、执行器、证书配对/吊销/轮换/到期提示、
+  jpackage app-image、Windows 登录自启、持久速率窗口、审计哈希链。
+- 协议：230 条金标准向量（信封/策略/签名/证书/吊销/审批/回执），Kotlin 与 Python 双侧全过；
+  `mock_hub.py` 在模拟器跑通签名信封 → 拉取 → L1/L3 → 回执。
+
+### 最终验证
+
+- core 131、桌面 30、手机 6、仪器测试 9（1 个交互式 L3 测试默认跳过），全绿。
+- `apps/phone/app/build/outputs/apk/release/app-release.apk` 已构建并发送到用户手机。
+- `apps/desktop/service/build/jpackage/DpaDesktop/DpaDesktop.exe` 已用最新代码重新打包并启动。
+
+### 仍未完成（需要用户决策或后续阶段）
+
+- 真实云端 hub、注册/令牌签发、FCM/WS：受云托管方式与 hub 仓库归属未决阻塞；
+  云端代码按约束不放进本仓库。
+- 相机实时扫码（需 CAMERA 危险权限，与“仅联网”硬规则冲突，待拍板）。
+- 物理真机验证；手表端（系统未定）；本地小模型；MSI 安装包与自动更新。
+- CI 工作流尚未在 GitHub Actions 上实际跑过（本次推送后可按 workflow 验证）。
+
+### 本次推送
+
+- 远端：`https://github.com/Hinana0325/agents`，分支 `main`。
+- 本地 `main` 领先 `origin/main` 42 个提交，远端无新提交（fast-forward）。
+- 仓库内无签名材料：APK 签名 keystore、测试私钥、`local.properties` 均被 gitignore；
+  推送前已用 `git status` 确认没有密钥/构建产物进入提交。

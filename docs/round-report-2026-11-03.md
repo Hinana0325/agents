@@ -30,6 +30,12 @@
 - sync 契约只有设备侧校验与向量，无服务端实现（云端 hub 待拍板）；payload 按 kind 的子 schema、墓碑保留期为 TODO
 - sync 向量与 eval-data workflow 首次进 CI，结果见下节补记
 
-## CI 补记
+## CI 补记（2026-11-03 实测回填）
 
-（推送后回填：GitHub Actions 运行结果）
+推送 `3d0603d` 后 GitHub Actions 实际运行结果：
+
+- **ci run 7：success** —— 四个 job 全绿，本轮新增的 kotest 属性测试（core 166）、SyncValidatorTest、PhoneAssistantRouterTest（phone 15）与 Android 构建/lint 均在真实 CI 通过
+- **eval-data run 1：success** —— eval 数据门禁 workflow 首跑即绿
+- 遗留：Node 20 / setup-java v4 弃用告警（非阻塞，后续升级）
+
+至此 README 未完成清单里"CI 从未在 GitHub 上跑过"已消除；本轮全部新增内容（属性测试 / sync 契约 / 手机接入 / eval 门禁）均已过真实 CI。仍未验证的只剩：真机/模拟器端到端、真实云端 hub、真实本地模型推理。

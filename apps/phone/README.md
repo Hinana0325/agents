@@ -24,7 +24,8 @@
   应用目录（JSON：`app_id` → 包名，远端 `open_app` 只认这里的映射）；保存前校验，
   另有「测试连接」（只请求 `/models`，不消耗对话额度）与版本号显示。
 - 编排服务（可选）：Hub 地址、设备令牌、Hub 公钥（JWK）与 kid；顶栏“同步”会拉取一次信封，
-  经 core 的 `DeviceRuntime` 验签/策略/去重后执行：L2 在本机弹确认并用身份密钥签名；
+  经 core 的 `DeviceRuntime` 验签/策略/去重后执行（只执行 `to.device` 是本机的信封，
+  目标不符返回 `TARGET_NOT_ALLOWED`）：L2 在本机弹确认并用身份密钥签名；
   L3 必须用单独的生物识别审批密钥（Keystore，auth-per-use）+ 平台 BiometricPrompt 解锁后签名，
   没有锁屏/未录入生物识别时直接拒绝（fail closed）；同一轮同步中 60 秒内第 11 条起
   自动升到 L3（策略的速率规则），不会静默执行；

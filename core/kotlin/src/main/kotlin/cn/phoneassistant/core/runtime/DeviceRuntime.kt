@@ -100,6 +100,10 @@ class DeviceRuntime(
         if (!result.ok || envelope == null) {
             return receipt(id.orEmpty(), "rejected", result.code ?: "BAD_TYPE")
         }
+        val target = str((envelope["to"] as? JsonObject)?.get("device"))
+        if (target != null && target != deviceId) {
+            return receipt(id!!, "rejected", "TARGET_NOT_ALLOWED")
+        }
 
         val level = if (overRateLimit(clock())) maxOf(result.level!!, 3) else result.level!!
         if (!result.executable) {

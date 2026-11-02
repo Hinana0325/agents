@@ -290,6 +290,20 @@ class DeviceRuntimeTest {
     }
 
     @Test
+    fun envelopeForAnotherDeviceIsRejected() {
+        val rt = runtime()
+        val env = signEnvelope(
+            envelope("chat", buildJsonObject { put("text", "hi") }, level = 1, toDevice = "phone-2"),
+        )
+
+        val receipt = rt.submit(env)
+
+        assertEquals("rejected", status(receipt))
+        assertEquals("TARGET_NOT_ALLOWED", errorCode(receipt))
+        assertTrue(calls.isEmpty())
+    }
+
+    @Test
     fun eleventhEnvelopeWithinAMinuteIsEscalatedToL3() {
         val rt = runtime()
         repeat(10) { index ->
@@ -336,7 +350,13 @@ class DeviceRuntimeTest {
         level = level,
     )
 
-    private fun envelope(intent: String, params: JsonObject, level: Int, ttl: Long = 300): JsonObject {
+    private fun envelope(
+        intent: String,
+        params: JsonObject,
+        level: Int,
+        ttl: Long = 300,
+        toDevice: String = "phone-1",
+    ): JsonObject {
         idCounter++
         val id = "0193f0a8-9c1b-7%03x-8%03x-%012x".format(idCounter, idCounter, idCounter)
         return buildJsonObject {
@@ -348,7 +368,7 @@ class DeviceRuntimeTest {
                 put("role", "hub")
                 put("kid", "hub-test-1")
             }
-            putJsonObject("to") { put("device", "phone-1") }
+            putJsonObject("to") { put("device", toDevice) }
             put("intent", intent)
             put("params", params)
             putJsonObject("origin") {

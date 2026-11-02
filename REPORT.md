@@ -1053,11 +1053,11 @@
   云端代码按约束不放进本仓库。
 - 相机实时扫码（需 CAMERA 危险权限，与“仅联网”硬规则冲突，待拍板）。
 - 物理真机验证；手表端（系统未定）；本地小模型；MSI 安装包与自动更新。
-- CI 工作流尚未在 GitHub Actions 上实际跑过（本次推送后可按 workflow 验证）。
+- CI 工作流已在 GitHub Actions 跑通：重生成官方 Gradle wrapper jar、恢复 `gradlew` 可执行位后，四个 job 全绿（run `41469215906`）；仅有 Node 20 / setup-java v4 弃用告警。
 
 ### 本次推送
 
 - 远端：`https://github.com/Hinana0325/agents`，分支 `main`。
-- 本地 `main` 领先 `origin/main` 43 个提交，远端无新提交（fast-forward）；推送范围 `f609421..d290876`，随后的文档修正提交再推进一次。
+- 远端 `main` 已包含本轮全部提交（推送后继续修正了 wrapper 与文档）；最新 CI run `41469215906` 四个 job 全绿。
 - 仓库内无签名材料：APK 签名 keystore、测试私钥、`local.properties` 均被 gitignore；
   推送前已用 `git status` 确认没有密钥/构建产物进入提交。

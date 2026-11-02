@@ -54,7 +54,7 @@ docs/legacy/     # 被 v1 取代的旧原型定义
 - **电脑端密钥在 Windows 上由 DPAPI 保护**（TPM 未做；非 Windows 仍是明文文件）；本地目录通道不是安全传输。
 - **没有真实传输层**：手机有拉取式 `HttpHubClient` 与 mock hub 联调，但没有 WS/FCM/唤醒；电脑用本地目录通道替代。
 - **没有云端 hub**（`signing/` 向量验证的是设备侧验签，不是"云真的签了"）。
-- CI 工作流已写（两侧向量 + Android 构建/lint + 桌面测试 + gitleaks），但**从未在 GitHub 上跑过**。
+- CI 工作流已在 GitHub Actions 跑通（两侧向量 + Android 构建/lint + 桌面测试 + gitleaks 四个 job 全绿；最新 run `41469215906`）。仍有 Node 20 / setup-java v4 的弃用告警，非阻塞。
 - schema 与两份手写实现靠向量对齐，没有引入通用 JSON Schema 校验器做交叉检查。
 - 配对已支持二维码（桌面生成、手机从相册扫描）、复制 JSON、设备证书吊销与轮换；相机实时扫码未做。
 - 手表/耳机仍只有设计文档；电脑文件搜索默认不接入（ADR 0006 待拍板）；本地模型、MSI 安装包、自动更新都未开始。

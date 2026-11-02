@@ -57,7 +57,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private enum class Screen { CHAT, SETTINGS, NOTES }
+private enum class Screen { CHAT, SETTINGS, NOTES, PAIRING }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,6 +72,7 @@ fun ChatScreen(viewModel: ChatViewModel) {
                             Screen.CHAT -> "手机助理"
                             Screen.SETTINGS -> "设置"
                             Screen.NOTES -> "备忘"
+                            Screen.PAIRING -> "配对"
                         },
                     )
                 },
@@ -83,6 +84,7 @@ fun ChatScreen(viewModel: ChatViewModel) {
                 actions = {
                     if (screen == Screen.CHAT) {
                         TextButton(onClick = { screen = Screen.NOTES }) { Text("备忘") }
+                        TextButton(onClick = { screen = Screen.PAIRING }) { Text("配对") }
                         TextButton(onClick = { screen = Screen.SETTINGS }) { Text("设置") }
                     }
                 },
@@ -99,6 +101,10 @@ fun ChatScreen(viewModel: ChatViewModel) {
                 modifier = Modifier.padding(padding),
             )
             Screen.NOTES -> NotesScreen(modifier = Modifier.padding(padding))
+            Screen.PAIRING -> PairingScreen(
+                identity = viewModel.identity,
+                modifier = Modifier.padding(padding),
+            )
         }
     }
 }

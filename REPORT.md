@@ -354,3 +354,34 @@
 
 - **手机端签名 UI 未做**：手机还没有 Keystore 身份密钥与配对页，链路目前只能用测试密钥验证。
 - 二维码展示/扫描、吊销列表、证书轮换、配对时的人工核对界面都未做。
+
+## 14. 手机端配对 UI 与跨设备验证 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- `data/DeviceIdentity.kt`：Android Keystore P-256 签名密钥 + 稳定 `device_id`（存在普通 prefs，非密钥）；
+  私钥不可导出，只在 Keystore 内签名。
+- “配对”页：展示设备 id 与公钥 JWK，可复制；粘贴电脑配对请求 → 校验（只接受 pc/watch、max_level ≤ 2）→
+  用 Keystore 签发一年期设备证书；“签名自检”验证签名/验签一致；公钥与最近证书导出到 `files/pairing/`。
+- 公共逻辑抽到 core：`Jwk.validate`、`PairingRequests.parse`（手机/电脑共用）。
+- ADR 0012：ES256 验签统一走 DER（见下）。
+
+### 发现并修复的真机兼容问题
+
+- 首次“签名自检”在 Android 16 上失败（`CERT_SIGNATURE`），桌面 JVM 同样代码通过。
+  根因：验签用了 `SHA256withECDSAinP1363Format`，Android 的 Conscrypt 不提供，异常被吞成验签失败。
+- 修复：协议仍是 raw `r||s`，验签时把 raw 编回 DER 再用 `SHA256withECDSA`；签名方向同样统一 DER→raw。
+  **只有真机自检能暴露这个问题**，JVM 单测与编译都不会报。
+
+### 已核验（真实跨设备）
+
+1. 桌面 `pair` 生成请求（`pc-b8ad5540`）。
+2. 模拟器上把请求粘进配对页 → 手机用 Keystore 密钥签发证书（界面显示“已为 pc-b8ad5540（pc，最高 L2）签发证书”）。
+3. `adb pull` 出手机公钥与证书 → 桌面 `trust-phone`、`verify-cert` →
+   “证书有效：pc-b8ad5540（role=pc，max_level=2，到期 2027-11-02T12:52:28Z）”，`status` 同步显示。
+4. 签名自检在设备上通过；core 测试 39 个、desktop 25 个全绿。
+
+### 未完成
+
+- 二维码展示/扫描（当前复制 JSON）；证书吊销、轮换、有效期续期；配对时人工核对设备信息的界面。
+- 手机端导出的证书在应用私有目录，需要 root/调试方式取出；正式版应加“分享/发送到电脑”。

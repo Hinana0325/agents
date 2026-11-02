@@ -10,6 +10,7 @@ import cn.phoneassistant.core.IntentType
 import cn.phoneassistant.core.ModelIntentParser
 import cn.phoneassistant.core.ValidationResult
 import cn.phoneassistant.data.ChatHistoryStore
+import cn.phoneassistant.data.DeviceIdentity
 import cn.phoneassistant.data.SettingsStore
 import cn.phoneassistant.intent.IntentExecutor
 import cn.phoneassistant.llm.LlmClient
@@ -35,6 +36,9 @@ import kotlinx.coroutines.withContext
 class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     val settings = SettingsStore(application)
+
+    /** 设备身份（Keystore 密钥）首次打开配对页时才初始化。 */
+    val identity: DeviceIdentity by lazy { DeviceIdentity(application) }
 
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()

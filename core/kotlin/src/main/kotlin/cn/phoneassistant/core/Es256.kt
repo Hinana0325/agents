@@ -42,10 +42,16 @@ object Es256 {
             val key = KeyFactory.getInstance("EC").generatePublic(
                 ECPublicKeySpec(ECPoint(BigInteger(1, x), BigInteger(1, y)), params),
             )
-            val verifier = Signature.getInstance("SHA256withECDSAinP1363Format")
+            // Android 的 Conscrypt 不支持 SHA256withECDSAinP1363Format，
+            // 所以统一把 raw r||s 编回 DER 再验，JVM 与 Android 都能跑。
+            val der = encodeDerSignature(
+                BigInteger(1, raw.copyOfRange(0, 32)),
+                BigInteger(1, raw.copyOfRange(32, 64)),
+            )
+            val verifier = Signature.getInstance("SHA256withECDSA")
             verifier.initVerify(key)
             verifier.update(Jcs.canonicalize(payload).toByteArray(Charsets.UTF_8))
-            verifier.verify(raw)
+            verifier.verify(der)
         } catch (e: Exception) {
             false
         }
@@ -100,4 +106,20 @@ object Es256 {
         val trimmed = if (bytes.size > 32) bytes.copyOfRange(bytes.size - 32, bytes.size) else bytes
         System.arraycopy(trimmed, 0, out, offset + 32 - trimmed.size, trimmed.size)
     }
+
+    /** DER: SEQUENCE { INTEGER r, INTEGER s }。 */
+    private fun encodeDerSignature(r: BigInteger, s: BigInteger): ByteArray {
+        val rBytes = encodeInteger(r)
+        val sBytes = encodeInteger(s)
+        val content = rBytes + sBytes
+        return byteArrayOf(0x30) + encodeLength(content.size) + content
+    }
+
+    private fun encodeInteger(value: BigInteger): ByteArray {
+        val bytes = value.toByteArray()
+        return byteArrayOf(0x02) + encodeLength(bytes.size) + bytes
+    }
+
+    private fun encodeLength(length: Int): ByteArray =
+        if (length < 0x80) byteArrayOf(length.toByte()) else byteArrayOf(0x81.toByte(), length.toByte())
 }

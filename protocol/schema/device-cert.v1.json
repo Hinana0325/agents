@@ -1,0 +1,39 @@
+{
+  "$id": "https://assistant.local/protocol/schema/device-cert.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DeviceCertificate v1",
+  "description": "手机给电脑/手表签发的设备证书。手机是信任根；证书把设备公钥、角色与最高确认级绑定在一起。签名对象是除 sig 外全部字段的 JCS 编码，用手机身份密钥验签。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["v", "device_id", "role", "max_level", "pubkey", "issued_by", "issued_at", "expires_at", "sig"],
+  "properties": {
+    "v": { "const": 1 },
+    "device_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "role": { "enum": ["phone", "watch", "pc"] },
+    "max_level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3,
+      "description": "该设备可批准的最高确认级。电脑/手表只能是 1 或 2；3 只属于手机。"
+    },
+    "pubkey": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kty", "crv", "x", "y"],
+      "properties": {
+        "kty": { "const": "EC" },
+        "crv": { "const": "P-256" },
+        "x": { "type": "string", "pattern": "^[A-Za-z0-9_-]{43}$" },
+        "y": { "type": "string", "pattern": "^[A-Za-z0-9_-]{43}$" }
+      }
+    },
+    "issued_by": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "issued_at": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$" },
+    "expires_at": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$" },
+    "sig": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{86,88}$",
+      "description": "手机身份密钥对 JCS(cert minus sig) 的 ES256 签名，raw r||s 的 base64url。"
+    }
+  }
+}

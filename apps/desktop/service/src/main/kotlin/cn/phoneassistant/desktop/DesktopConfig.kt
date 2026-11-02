@@ -49,6 +49,10 @@ data class DesktopConfigFile(
     val url_allowlist: List<String> = emptyList(),
     val web_search_template: String = "https://www.bing.com/search?q={q}",
     val dry_run: Boolean = false,
+    /** 手机（信任根）公钥，用于验设备证书。 */
+    val phone_pubkey: JsonObject? = null,
+    /** 手机签发给本机的设备证书。 */
+    val device_cert: JsonObject? = null,
 )
 
 class DesktopConfigLoadError(message: String) : Exception(message)

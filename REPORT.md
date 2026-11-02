@@ -326,3 +326,31 @@
 - 应用目录还是 JSON 文本编辑，不是逐项表单；没有“新增应用”的可视化交互。
 - 设置改动需要重启服务才生效（没有热重载/运行时重建）。
 - 设置页没有编辑 hub 公钥（配对流程还没做，目前用 device-sim/手工写）。
+
+## 13. 设备证书与手工配对（电脑端）— 2026-11-02 晚（续）
+
+按计划“手机是信任根，给电脑签发设备证书”，先落契约与电脑端验证，扫码后补。
+
+### 做了什么
+
+- `protocol/schema/device-cert.v1.json` + `protocol/spec/pairing.md`：
+  证书绑定 `device_id/role/max_level/pubkey/issued_by/issued_at/expires_at`，
+  手机身份密钥对 JCS 签名；电脑/手表 `max_level ≤ 2`。
+- `core/kotlin`：`DeviceCert.create/verify`；`Es256.signRaw`（DER→raw，兼容 Android Keystore 的签名格式）。
+- 电脑端命令：`pair`（配对请求）、`trust-phone <公钥.json>`（信任根）、
+  `verify-cert <证书.json>`（验签并保存到 config）；`status` 显示信任根与证书。
+- ADR 0011 记录“先手工 JSON、扫码稍后”的取舍。
+
+### 已核验
+
+- 核心 `DeviceCertTest` 7 例：有效、篡改签名、电脑 max_level=3、过期、签发时间在未来、错误信任根、缺字段。
+- 桌面 `PairingTest` 5 例：信任根与证书持久化、无信任根失败、篡改证书 `CERT_SIGNATURE`、换密钥签名被拒、非法公钥被拒。
+- 真实 CLI 端到端（临时目录）：`pair` 输出请求 → Python 用测试手机密钥签发证书 →
+  `trust-phone` → `verify-cert` 输出“证书有效：pc-xxxx（role=pc，max_level=2，到期 …）”；
+  篡改 `max_level` 后验证输出“验证失败：CERT_SIGNATURE”；配置里 `phone_pubkey` 与 `device_cert` 均已写入。
+- 当前测试总数：core 33、desktop 25。
+
+### 未完成
+
+- **手机端签名 UI 未做**：手机还没有 Keystore 身份密钥与配对页，链路目前只能用测试密钥验证。
+- 二维码展示/扫描、吊销列表、证书轮换、配对时的人工核对界面都未做。

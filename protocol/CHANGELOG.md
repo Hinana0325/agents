@@ -9,6 +9,8 @@
 - 回执 `schema/receipt.v1.json`、审批证明 `schema/approval.v1.json`、能力声明 `schema/capability.v1.json`。
 - 策略 `policy/intent-policy.v1.yaml`；规范 `spec/`。
 - 金标准向量 `vectors/`，Kotlin 与 Python 两份实现必须 100% 通过。
+- 新增 `schema/device-cert.v1.json`：手机签发的设备证书（`spec/pairing.md`），
+  `core/kotlin` 提供 `DeviceCert.create/verify`；当前手工交换 JSON，扫码后续补。
 
 ### 与旧原型的关系
 

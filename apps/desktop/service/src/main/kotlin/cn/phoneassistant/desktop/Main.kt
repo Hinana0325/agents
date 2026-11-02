@@ -1,14 +1,13 @@
 package cn.phoneassistant.desktop
 
 import java.io.File
-import java.time.Instant
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
+import kotlinx.serialization.json.JsonObject
 
 fun main(args: Array<String>) {
     val command = args.firstOrNull() ?: "run"
+    val argument = args.getOrNull(1)
     val paths = DesktopPaths.resolve()
     val config = try {
         DesktopConfig.loadOrCreate(paths)
@@ -25,7 +24,9 @@ fun main(args: Array<String>) {
 
     when (command) {
         "status" -> printStatus(paths, config, identity)
-        "pair" -> printPair(config, identity)
+        "pair", "pair-request" -> printPairRequest(config, identity)
+        "trust-phone" -> trustPhone(paths, config, argument)
+        "verify-cert" -> verifyCertificate(paths, config, argument)
         "once" -> runOnce(paths, config, identity)
         "run" -> runWithUi(paths, config, identity)
         "install-autostart" -> installAutostart(paths)
@@ -38,8 +39,10 @@ private fun printUsage() {
     println(
         """
         用法：service <命令>
-          status   查看设备配置、公钥与收件箱状态
-          pair     输配对用 JSON（device_id + 公钥 JWK）
+          status   查看设备配置、公钥、配对状态与收件箱
+          pair     输出配对请求 JSON（交给手机签发设备证书）
+          trust-phone <手机公钥.json>   记录信任根（手机公钥）
+          verify-cert <证书.json>       验证手机签发的设备证书并保存
           once     处理 inbox/ 与 pending/ 里的全部信封，然后退出
           run      常驻：每秒处理信封，托盘提示，L2 弹确认
           install-autostart   写入登录自启（HKCU Run，仅 Windows）
@@ -55,6 +58,8 @@ private fun printStatus(paths: DesktopPaths, config: DesktopConfigFile, identity
     println("数据目录：${paths.home}")
     println("设备：${config.device_id}（role=${config.role}）")
     println("hub 公钥：${if (config.hub_pubkey == null) "未配置（配置前拒绝接收信封）" else "已配置（kid=${config.hub_kid}）"}")
+    println("信任根（手机公钥）：${if (config.phone_pubkey == null) "未配置" else "已配置"}")
+    println("设备证书：${Pairing.describeCertificate(config.device_cert)}")
     println("dry_run：${config.dry_run}")
     println("应用目录：${config.app_catalog.size} 项；URL 允许清单：${config.url_allowlist.size} 项")
     println("inbox：${count(paths.inbox)}；pending：${count(paths.pending)}；outbox：${count(paths.outbox)}")
@@ -73,14 +78,54 @@ private fun printStatus(paths: DesktopPaths, config: DesktopConfigFile, identity
     println(pretty.encodeToString(identity.publicJwk()))
 }
 
-private fun printPair(config: DesktopConfigFile, identity: DesktopIdentity) {
+private fun printPairRequest(config: DesktopConfigFile, identity: DesktopIdentity) {
     val pretty = Json { prettyPrint = true }
-    val payload = buildJsonObject {
-        put("device_id", config.device_id)
-        put("role", config.role)
-        put("public_key_jwk", identity.publicJwk())
+    println(pretty.encodeToString(Pairing.request(config, identity)))
+}
+
+private fun trustPhone(paths: DesktopPaths, config: DesktopConfigFile, filePath: String?) {
+    if (filePath == null) {
+        println("用法：service trust-phone <手机公钥.json>")
+        return
     }
-    println(pretty.encodeToString(payload))
+    val parsed = try {
+        Json.parseToJsonElement(File(filePath).readText())
+    } catch (e: Exception) {
+        println("读取失败：${e.message}")
+        return
+    }
+    val obj = parsed as? JsonObject
+    if (obj == null) {
+        println("文件必须是 JSON 对象")
+        return
+    }
+    val phoneKey = (obj["public_key_jwk"] as? JsonObject) ?: obj
+    Pairing.trust(paths, config, phoneKey).fold(
+        onSuccess = { println("已记录手机公钥（信任根）。") },
+        onFailure = { println("失败：${it.message}") },
+    )
+}
+
+private fun verifyCertificate(paths: DesktopPaths, config: DesktopConfigFile, filePath: String?) {
+    if (filePath == null) {
+        println("用法：service verify-cert <证书.json>")
+        return
+    }
+    val parsed = try {
+        Json.parseToJsonElement(File(filePath).readText())
+    } catch (e: Exception) {
+        println("读取失败：${e.message}")
+        return
+    }
+    val cert = parsed as? JsonObject
+    if (cert == null) {
+        println("文件必须是 JSON 对象")
+        return
+    }
+    Pairing.verifyCertificate(paths, config, cert).fold(
+        onSuccess = { println("证书有效：${Pairing.describeCertificate(cert)}") },
+        onFailure = { println("验证失败：${it.message}") },
+    )
 }
 
 private fun runOnce(paths: DesktopPaths, config: DesktopConfigFile, identity: DesktopIdentity) {

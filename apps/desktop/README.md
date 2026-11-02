@@ -18,7 +18,7 @@
   系统托盘提供“显示主界面 / 退出”，关闭窗口最小化到托盘。
 - **身份**：P-256 密钥对，`pair` 命令输出 `device_id + 公钥 JWK`，供将来的手机扫码背书使用。
 
-已验证：20 个单元测试全绿（含跨重启去重、DPAPI 往返/迁移、历史查询、设置校验）；本机端到端跑通
+已验证：25 个单元测试全绿（含跨重启去重、DPAPI 往返/迁移、历史查询、设置校验、设备证书）；本机端到端跑通
 （device-sim 签发 → 电脑执行 → 回执 done → 重投同一信封返回 DUPLICATE 且不再执行；
 L2 在 Compose 界面点确认后执行，含审批密钥签名；取消则 rejected；篡改/错设备被拒）；
 打包出的 `DpaDesktop.exe`（自带 JRE）实机启动并完成一次 save_note 执行。
@@ -106,6 +106,18 @@ service.bat status               # 显示“登录自启：已启用/未启用�
 - `desktop.db`（SQLite）：已处理信封 id 与终态回执，用于跨重启去重。`awaiting_confirm` 不落库，重启后重新处理。
 - 私钥：Windows 上由 DPAPI 保护为 `identity-private.dpapi`（旧明文 `.der` 会自动加密并删除）；
   非 Windows 暂时明文，`status` 会明确标注。
+
+## 配对（v1 手工交换 JSON）
+
+```bash
+service.bat pair > request.json          # 输出配对请求（device_id/role/max_level/公钥）
+service.bat trust-phone phone_pubkey.json # 记录手机公钥（信任根）
+service.bat verify-cert cert.json         # 验证手机签发的设备证书并保存
+service.bat status                        # 查看“信任根 / 设备证书”
+```
+
+证书规则见 `protocol/spec/pairing.md`；签名用手机身份密钥，电脑只认信任根。
+**手机端签名 UI 尚未实现**，目前可以用测试密钥完成链路验证；扫码配对后续补。
 
 ## 安全边界
 

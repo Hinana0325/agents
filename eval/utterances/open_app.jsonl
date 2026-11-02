@@ -1,0 +1,34 @@
+{"id": "u_open_app_001", "text": "帮我打开微信", "expect_intent": "open_app", "expect_params": {"app_id": "wechat"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_002", "text": "打开支付宝，我要付个款", "expect_intent": "open_app", "expect_params": {"app_id": "alipay"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_003", "text": "刷会儿抖音", "expect_intent": "open_app", "expect_params": {"app_id": "douyin"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_004", "text": "把淘宝开起来，我看看物流", "expect_intent": "open_app", "expect_params": {"app_id": "taobao"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_005", "text": "点外卖，打开美团", "expect_intent": "open_app", "expect_params": {"app_id": "meituan"}, "tags": ["multi_intent"], "origin": "user_text"}
+{"id": "u_open_app_006", "text": "导航回家，开下高德", "expect_intent": "open_app", "expect_params": {"app_id": "amap"}, "tags": ["multi_intent"], "origin": "user_text"}
+{"id": "u_open_app_007", "text": "打开b站", "expect_intent": "open_app", "expect_params": {"app_id": "bilibili"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_008", "text": "我想逛逛知乎", "expect_intent": "open_app", "expect_params": {"app_id": "zhihu"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_009", "text": "放首歌，打开网易云", "expect_intent": "open_app", "expect_params": {"app_id": "netease_music"}, "tags": ["multi_intent"], "origin": "user_text"}
+{"id": "u_open_app_010", "text": "把设置打开，我要连蓝牙", "expect_intent": "open_app", "expect_params": {"app_id": "settings"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_011", "text": "开下相机", "expect_intent": "open_app", "expect_params": {"app_id": "camera"}, "tags": ["colloquial"], "origin": "user_voice"}
+{"id": "u_open_app_012", "text": "打开相册", "expect_intent": "open_app", "expect_params": {"app_id": "gallery"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_013", "text": "打开计算器，我要算个账", "expect_intent": "open_app", "expect_params": {"app_id": "calculator"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_014", "text": "打开时钟", "expect_intent": "open_app", "expect_params": {"app_id": "clock"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_015", "text": "打开日历看看这周安排", "expect_intent": "open_app", "expect_params": {"app_id": "calendar"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_016", "text": "打开邮箱", "expect_intent": "open_app", "expect_params": {"app_id": "mail"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_017", "text": "用浏览器打开 https://github.com", "expect_intent": "open_app", "expect_params": {"app_id": "browser", "url": "https://github.com"}, "tags": ["formal"], "origin": "user_text"}
+{"id": "u_open_app_018", "text": "微信打开", "expect_intent": "open_app", "expect_params": {"app_id": "wechat"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_019", "text": "诶帮我把美团开一下呗", "expect_intent": "open_app", "expect_params": {"app_id": "meituan"}, "tags": ["colloquial"], "origin": "user_voice"}
+{"id": "u_open_app_020", "text": "打天微信", "expect_intent": "open_app", "expect_params": {"app_id": "wechat"}, "tags": ["typo"], "origin": "user_text"}
+{"id": "u_open_app_021", "text": "打开威信", "expect_intent": "open_app", "expect_params": {"app_id": "wechat"}, "tags": ["typo"], "origin": "user_voice"}
+{"id": "u_open_app_022", "text": "唔该帮我开返个微信", "expect_intent": "open_app", "expect_params": {"app_id": "wechat"}, "tags": ["dialect"], "origin": "user_voice"}
+{"id": "u_open_app_023", "text": "整个滴滴来叫个车", "expect_intent": "open_app", "expect_params": {"app_id": "didi"}, "tags": ["dialect"], "origin": "user_text"}
+{"id": "u_open_app_024", "text": "把天气打开看看", "expect_intent": "open_app", "expect_params": {"app_id": "weather"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_025", "text": "开一下12306", "expect_intent": "open_app", "expect_params": {"app_id": "railway_12306"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_026", "text": "我要背单词，打开百词斩", "expect_intent": "open_app", "expect_params": {"app_id": "baicizhan"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_027", "text": "打开小红书刷刷", "expect_intent": "open_app", "expect_params": {"app_id": "xiaohongshu"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_028", "text": "打开keep，今天还没动呢", "expect_intent": "open_app", "expect_params": {"app_id": "keep"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_029", "text": "携程打开，我看看订的机票", "expect_intent": "open_app", "expect_params": {"app_id": "ctrip"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_030", "text": "把微信读书开起来", "expect_intent": "open_app", "expect_params": {"app_id": "weread"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_031", "text": "帮我开一下钉钉，看下通知", "expect_intent": "open_app", "expect_params": {"app_id": "dingtalk"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_032", "text": "深链打开京东的商品页 https://item.jd.com/100012043978.html", "expect_intent": "open_app", "expect_params": {"app_id": "jd", "url": "https://item.jd.com/100012043978.html"}, "tags": ["formal", "long"], "origin": "user_text"}
+{"id": "u_open_app_033", "text": "打开豆瓣，我看看评分", "expect_intent": "open_app", "expect_params": {"app_id": "douban"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_open_app_034", "text": "麻烦帮我启动一下QQ音乐，谢谢", "expect_intent": "open_app", "expect_params": {"app_id": "qqmusic"}, "tags": ["formal"], "origin": "user_text"}

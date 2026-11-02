@@ -1,0 +1,33 @@
+{"id": "u_set_timer_001", "text": "定个十分钟的计时器", "expect_intent": "set_timer", "expect_params": {"seconds": 600}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_002", "text": "煮个溏心蛋，六分钟提醒我", "expect_intent": "set_timer", "expect_params": {"seconds": 360, "label": "溏心蛋"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_003", "text": "泡面三分钟", "expect_intent": "set_timer", "expect_params": {"seconds": 180, "label": "泡面"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_004", "text": "帮我倒计时一个半小时", "expect_intent": "set_timer", "expect_params": {"seconds": 5400}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_005", "text": "午睡二十五分钟，到点叫我", "expect_intent": "set_timer", "expect_params": {"seconds": 1500, "label": "午睡"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_006", "text": "90秒倒计时", "expect_intent": "set_timer", "expect_params": {"seconds": 90}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_007", "text": "烤蛋糕四十五分钟后提醒我", "expect_intent": "set_timer", "expect_params": {"seconds": 2700, "label": "烤蛋糕"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_008", "text": "设个五分钟的计时器热牛奶", "expect_intent": "set_timer", "expect_params": {"seconds": 300, "label": "热牛奶"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_009", "text": "冥想十分钟，帮我计个时", "expect_intent": "set_timer", "expect_params": {"seconds": 600, "label": "冥想"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_010", "text": "十五分钟后把火关了，计时器安排上", "expect_intent": "set_timer", "expect_params": {"seconds": 900, "label": "关火"}, "tags": ["colloquial", "long"], "origin": "user_text"}
+{"id": "u_set_timer_011", "text": "整个计时器，两小时的", "expect_intent": "set_timer", "expect_params": {"seconds": 7200}, "tags": ["dialect"], "origin": "user_text"}
+{"id": "u_set_timer_012", "text": "安个二十分钟的倒计时", "expect_intent": "set_timer", "expect_params": {"seconds": 1200}, "tags": ["dialect"], "origin": "user_voice"}
+{"id": "u_set_timer_013", "text": "倒计时十分钟，我先眯一会儿", "expect_intent": "set_timer", "expect_params": {"seconds": 600, "label": "眯一会儿"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_014", "text": "帮我记着点时间，健身组间休息九十秒", "expect_intent": "set_timer", "expect_params": {"seconds": 90, "label": "组间休息"}, "tags": ["long"], "origin": "user_text"}
+{"id": "u_set_timer_015", "text": "计时十分钟，我下楼取个快递", "expect_intent": "set_timer", "expect_params": {"seconds": 600, "label": "取快递"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_016", "text": "排骨再炖四十分钟提醒我", "expect_intent": "set_timer", "expect_params": {"seconds": 2400, "label": "炖排骨"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_017", "text": "二十分钟后提醒我收衣服", "expect_intent": "set_timer", "expect_params": {"seconds": 1200, "label": "收衣服"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_018", "text": "帮我设个三分钟的计时器刷牙用", "expect_intent": "set_timer", "expect_params": {"seconds": 180, "label": "刷牙"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_019", "text": "计时器给我来一个一小时的，写作业用", "expect_intent": "set_timer", "expect_params": {"seconds": 3600, "label": "写作业"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_020", "text": "五分钟后再叫我，我先回个消息", "expect_intent": "set_timer", "expect_params": {"seconds": 300}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_021", "text": "煮饺子八分钟", "expect_intent": "set_timer", "expect_params": {"seconds": 480, "label": "煮饺子"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_022", "text": "帮我倒数十秒", "expect_intent": "set_timer", "expect_params": {"seconds": 10}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_023", "text": "耳朵休息一下，戴耳机满一小时就叫我", "expect_intent": "set_timer", "expect_params": {"seconds": 3600, "label": "摘耳机"}, "tags": ["long", "colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_024", "text": "蒸鱼十二分钟计时", "expect_intent": "set_timer", "expect_params": {"seconds": 720, "label": "蒸鱼"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_025", "text": "给我整个二十五分钟的番茄钟", "expect_intent": "set_timer", "expect_params": {"seconds": 1500, "label": "番茄钟"}, "tags": ["dialect"], "origin": "user_text"}
+{"id": "u_set_timer_026", "text": "十分钟之后提醒我翻面", "expect_intent": "set_timer", "expect_params": {"seconds": 600, "label": "翻面"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_027", "text": "定了四十分钟的计时器敷个面膜", "expect_intent": "set_timer", "expect_params": {"seconds": 2400, "label": "面膜"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_028", "text": "帮我数着点时间，三十秒后开锅", "expect_intent": "set_timer", "expect_params": {"seconds": 30, "label": "开锅"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_029", "text": "请设置一个 7200 秒的计时器", "expect_intent": "set_timer", "expect_params": {"seconds": 7200}, "tags": ["formal"], "origin": "user_text"}
+{"id": "u_set_timer_030", "text": "来个两分钟的限时挑战倒计时", "expect_intent": "set_timer", "expect_params": {"seconds": 120, "label": "限时挑战"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_031", "text": "给我开个一小时的计时器，我来练琴", "expect_intent": "set_timer", "expect_params": {"seconds": 3600, "label": "练琴"}, "tags": ["colloquial"], "origin": "user_text"}
+{"id": "u_set_timer_032", "text": "十五分钟小憩，叫我", "expect_intent": "set_timer", "expect_params": {"seconds": 900, "label": "小憩"}, "tags": ["colloquial"], "origin": "user_voice"}
+{"id": "u_set_timer_033", "text": "倒数三分钟，奶茶按这个标准泡", "expect_intent": "set_timer", "expect_params": {"seconds": 180, "label": "泡奶茶"}, "tags": ["long"], "origin": "user_text"}

@@ -14,6 +14,7 @@ import cn.phoneassistant.core.AuditLog
 import cn.phoneassistant.core.IntentType
 import cn.phoneassistant.core.Jwk
 import cn.phoneassistant.core.ModelIntentParser
+import cn.phoneassistant.core.ProcessedStore
 import cn.phoneassistant.core.ValidationResult
 import cn.phoneassistant.core.runtime.EnvelopeState
 import cn.phoneassistant.data.ChatHistoryStore
@@ -68,6 +69,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val _audit = MutableStateFlow<List<AuditEntry>>(emptyList())
     val audit: StateFlow<List<AuditEntry>> = _audit.asStateFlow()
     private val auditLog = AuditLog(File(application.filesDir, "audit.json"))
+    private val processedStore = ProcessedStore(File(application.filesDir, "processed.json"))
 
     private val _syncing = MutableStateFlow(false)
     val syncing: StateFlow<Boolean> = _syncing.asStateFlow()
@@ -157,6 +159,13 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                     val results = mutableListOf<String>()
                     for (envelope in pull.envelopes) {
                         val id = (envelope["id"] as? JsonPrimitive)?.contentOrNull ?: continue
+                        // 跨重启去重：终态回执已落库时直接回执，不再执行。
+                        val stored = processedStore.receipt(id)
+                        if (stored != null) {
+                            runCatching { client.postReceipt(stored) }
+                            results += "$id：duplicate"
+                            continue
+                        }
                         val receipt = agent.submit(envelope)
                         val finalReceipt = if (agent.stateOf(id) == EnvelopeState.AWAITING_CONFIRM) {
                             val level = agent.requiredLevelOf(id) ?: 2
@@ -167,6 +176,9 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         }
                         runCatching { client.postReceipt(finalReceipt) }
                         val status = (finalReceipt["status"] as? JsonPrimitive)?.contentOrNull ?: "unknown"
+                        if (status in TERMINAL_STATUSES) {
+                            processedStore.save(id, finalReceipt)
+                        }
                         val intentName = (envelope["intent"] as? JsonPrimitive)?.contentOrNull?.uppercase() ?: "REMOTE"
                         auditLog.append(
                             AuditEntry(
@@ -384,6 +396,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         const val INTRO =
             "你好，我是手机助理。先在右上角“设置”里填好服务地址、模型和密钥，" +
                 "然后直接说话就行：我会先把要做的事列出来，需要确认的动作等你点确认才执行。"
+        val TERMINAL_STATUSES = setOf("done", "failed", "rejected", "cancelled")
     }
 
     class Factory(private val application: Application) : ViewModelProvider.Factory {

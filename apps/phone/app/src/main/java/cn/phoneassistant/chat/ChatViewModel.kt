@@ -17,6 +17,8 @@ import cn.phoneassistant.core.Jwk
 import cn.phoneassistant.core.LocalIntentParser
 import cn.phoneassistant.core.ModelIntentParser
 import cn.phoneassistant.core.Outbox
+import cn.phoneassistant.core.PendingApproval
+import cn.phoneassistant.core.PendingApprovalStore
 import cn.phoneassistant.core.ProcessedStore
 import cn.phoneassistant.core.ValidationResult
 import cn.phoneassistant.core.runtime.EnvelopeState
@@ -78,6 +80,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     val auditIntegrity: StateFlow<String?> = _auditIntegrity.asStateFlow()
     private val auditLog = AuditLog(File(application.filesDir, "audit.json"))
     private val processedStore = ProcessedStore(File(application.filesDir, "processed.json"))
+    private val pendingApprovals = PendingApprovalStore(File(application.filesDir, "pending_approvals.json"))
     private val outbox = Outbox(File(application.filesDir, "outbox.json"))
 
     private val _syncing = MutableStateFlow(false)
@@ -109,6 +112,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 if (outbox.size() > 0) OutboxScheduler.ensureScheduled(getApplication())
             }
         }
+        // 上次进程在确认框弹出时被杀掉的话，启动后把待确认信封重新弹出来。
+        resumePendingApprovals()
         viewModelScope.launch {
             val loaded = withContext(Dispatchers.IO) { ChatHistoryStore.load(getApplication()) }
             if (loaded.isEmpty()) {
@@ -157,7 +162,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     /** 从编排服务拉取一次信封并处理；L2 会弹确认框。 */
     fun syncNow() {
-        if (_syncing.value) return
+        if (_syncing.value || remoteApproval.value != null) return
         val hubUrl = settings.hubUrl
         val token = settings.hubToken
         val pubkeyText = settings.hubPubkey
@@ -215,17 +220,9 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         val receipt = agent.submit(envelope)
                         val finalReceipt = if (agent.stateOf(id) == EnvelopeState.AWAITING_CONFIRM) {
                             val level = agent.requiredLevelOf(id) ?: 2
-                            val decision = askRemote(envelope, level)
-                            when {
-                                decision is RemoteAnswer.Signed -> agent.approveWith(id, decision.approval)
-                                level >= 3 -> {
-                                    appendAssistant("L3 审批必须通过生物识别签名，已拒绝。", isError = true)
-                                    agent.reject(id)
-                                }
-                                (decision as RemoteAnswer.Plain).approved ->
-                                    agent.approve(id, envelope, level)
-                                else -> agent.reject(id)
-                            }
+                            // 先落盘再弹框：进程在这个对话框上被杀掉时，重启还能恢复。
+                            pendingApprovals.put(PendingApproval(id, level, envelope, System.currentTimeMillis()))
+                            resolveDecision(agent, id, envelope, level).also { pendingApprovals.remove(id) }
                         } else {
                             receipt
                         }
@@ -285,6 +282,128 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 appendAssistant("生物识别已通过，但审批签名失败。", isError = true)
             } else {
                 answerRemoteWithApproval(proof)
+            }
+        }
+    }
+
+    /** 弹出确认并执行对应决策；L3 只接受生物识别签名，绝不吃普通确认。 */
+    private suspend fun resolveDecision(
+        agent: PhoneAgent,
+        id: String,
+        envelope: JsonObject,
+        level: Int,
+    ): JsonObject {
+        val decision = askRemote(envelope, level)
+        return when {
+            decision is RemoteAnswer.Signed -> agent.approveWith(id, decision.approval)
+            level >= 3 -> {
+                appendAssistant("L3 审批必须通过生物识别签名，已拒绝。", isError = true)
+                agent.reject(id)
+            }
+            (decision as RemoteAnswer.Plain).approved -> agent.approve(id, envelope, level)
+            else -> agent.reject(id)
+        }
+    }
+
+    private data class HubSetup(
+        val client: HttpHubClient,
+        val pubkey: JsonObject,
+        val kid: String,
+        val catalog: Map<String, String>,
+    )
+
+    /** 只在 IO 线程调用。 */
+    private fun buildHubSetup(): Result<HubSetup> {
+        if (!settings.isHubConfigured) {
+            return Result.failure(IllegalStateException("Hub 配置已清除"))
+        }
+        val pubkey = runCatching {
+            Json.parseToJsonElement(settings.hubPubkey) as? JsonObject
+        }.getOrNull() ?: return Result.failure(IllegalArgumentException("Hub 公钥不是合法 JSON"))
+        Jwk.validate(pubkey)?.let { return Result.failure(IllegalArgumentException("Hub 公钥不合法：$it")) }
+        val catalog = runCatching {
+            val text = settings.appCatalogJson
+            if (text.isBlank()) emptyMap() else AppCatalog.parse(Json.parseToJsonElement(text)).getOrThrow()
+        }.getOrElse { return Result.failure(IllegalArgumentException("应用目录不合法：${it.message ?: "请检查 JSON"}")) }
+        return Result.success(
+            HubSetup(
+                client = HttpHubClient(settings.hubUrl, identity.deviceId, settings.hubToken),
+                pubkey = pubkey,
+                kid = settings.hubKid,
+                catalog = catalog,
+            ),
+        )
+    }
+
+    @Volatile
+    private var resumingPending = false
+
+    /** 启动时恢复上次没审批完的信封；没有待确认或正在同步时什么都不做。 */
+    fun resumePendingApprovals() {
+        if (resumingPending || _syncing.value || remoteApproval.value != null) return
+        resumingPending = true
+        viewModelScope.launch {
+            try {
+                val pending = withContext(Dispatchers.IO) { pendingApprovals.list() }
+                if (pending.isEmpty()) return@launch
+                val setup = withContext(Dispatchers.IO) { buildHubSetup() }
+                if (setup.isFailure) {
+                    appendAssistant(
+                        "有 ${pending.size} 条待确认任务，但无法恢复：${setup.exceptionOrNull()?.message ?: "配置不可用"}",
+                        isError = true,
+                    )
+                    return@launch
+                }
+                val hub = setup.getOrThrow()
+                _syncing.value = true
+                val lines = withContext(Dispatchers.IO) {
+                    val agent = PhoneAgent(
+                        getApplication(), identity, hub.pubkey, hub.kid, hub.catalog,
+                        identity.approvalPublicJwk(),
+                    )
+                    val results = mutableListOf<String>()
+                    for (item in pending) {
+                        val id = item.envelopeId
+                        val stored = processedStore.receipt(id)
+                        if (stored != null) {
+                            deliverReceipt(hub.client, stored)
+                            pendingApprovals.remove(id)
+                            results += "$id：duplicate"
+                            continue
+                        }
+                        val receipt = agent.submit(item.envelope)
+                        val finalReceipt = if (agent.stateOf(id) == EnvelopeState.AWAITING_CONFIRM) {
+                            val level = agent.requiredLevelOf(id) ?: item.level
+                            resolveDecision(agent, id, item.envelope, level)
+                        } else {
+                            receipt
+                        }
+                        deliverReceipt(hub.client, finalReceipt)
+                        val status = (finalReceipt["status"] as? JsonPrimitive)?.contentOrNull ?: "unknown"
+                        if (status in TERMINAL_STATUSES) processedStore.save(id, finalReceipt)
+                        // 回执落库/入队之后再删待确认，进程在这中间被杀也能靠 processed/outbox 补发。
+                        pendingApprovals.remove(id)
+                        auditLog.append(
+                            AuditEntry(
+                                id = UUID.randomUUID().toString(),
+                                tsMillis = System.currentTimeMillis(),
+                                intent = (item.envelope["intent"] as? JsonPrimitive)
+                                    ?.contentOrNull?.uppercase() ?: "REMOTE",
+                                summary = "恢复待确认任务",
+                                outcome = if (status == "done") "success" else "failure",
+                            ),
+                        )
+                        results += "$id：$status"
+                    }
+                    refreshAuditOnIo()
+                    results
+                }
+                appendAssistant("恢复了 ${lines.size} 条待确认任务：\n" + lines.joinToString("\n"))
+            } catch (e: Exception) {
+                appendAssistant("恢复待确认任务失败：${e.message ?: "未知错误"}", isError = true)
+            } finally {
+                _syncing.value = false
+                resumingPending = false
             }
         }
     }

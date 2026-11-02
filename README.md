@@ -42,7 +42,7 @@ docs/legacy/     # 被 v1 取代的旧原型定义
   已把信封接入 `DeviceRuntime`（L2 手机确认、Keystore 审批签名、回执回传），并用临时 mock hub 在模拟器上端到端跑通；
   终态回执落盘，**重启后重复投递只回执不执行**；回执失败进发件箱并按指数退避重试，同时由 WorkManager
   在网络可用时后台补发（`outbox-retry`，模拟器仪器测试已验证登记与发送）。没有真实 hub/注册/令牌签发/FCM/WS。
-- core 共 121 个测试、桌面 27 个、手机 6 个、仪器测试 8 个（含 1 个默认跳过的交互式 L3 生物识别测试）全绿，debug/release APK 均可打包。设置存储已改为 Keystore AES-GCM（`SecureSettings`），不再依赖 deprecated 的 EncryptedSharedPreferences；应用目录支持从已安装应用多选添加。
+- core 共 125 个测试、桌面 27 个、手机 6 个、仪器测试 9 个（含 1 个默认跳过的交互式 L3 生物识别测试）全绿，debug/release APK 均可打包。设置存储已改为 Keystore AES-GCM（`SecureSettings`），不再依赖 deprecated 的 EncryptedSharedPreferences；应用目录支持从已安装应用多选添加；待确认信封落盘，进程被杀后重启能恢复审批。
 - 手机端已用 `tools/device-sim/mock_hub.py` 在模拟器上跑通：签名信封 → 拉取 → 验签/策略 → L1 执行 → 回执；L3 信封 → 生物识别 → 执行 → 回执。
 
 未验证 / 未完成（不要当成已完成）：

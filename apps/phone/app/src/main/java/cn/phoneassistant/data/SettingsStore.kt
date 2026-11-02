@@ -77,6 +77,30 @@ class SettingsStore(context: Context) {
     val isConfigured: Boolean
         get() = baseUrl.isNotBlank() && model.isNotBlank() && hasApiKey
 
+    /** 编排服务（hub）地址；为空表示只用本地能力。 */
+    var hubUrl: String
+        get() = storagePrefs?.getString(KEY_HUB_URL, "").orEmpty().trim().trimEnd('/')
+        set(value) {
+            storagePrefs?.edit()?.putString(KEY_HUB_URL, value.trim().trimEnd('/'))?.apply()
+        }
+
+    /** 设备令牌：只写不读回界面，只用于 Authorization 头。 */
+    var hubToken: String
+        get() = storagePrefs?.getString(KEY_HUB_TOKEN, "").orEmpty()
+        set(value) {
+            storagePrefs?.edit()?.putString(KEY_HUB_TOKEN, value)?.apply()
+        }
+
+    val hasHubToken: Boolean
+        get() = hubToken.isNotBlank()
+
+    val isHubConfigured: Boolean
+        get() = hubUrl.isNotBlank() && hasHubToken
+
+    fun clearHubToken() {
+        storagePrefs?.edit()?.remove(KEY_HUB_TOKEN)?.apply()
+    }
+
     fun clearApiKey() {
         storagePrefs?.edit()?.remove(KEY_API_KEY)?.apply()
     }
@@ -85,5 +109,7 @@ class SettingsStore(context: Context) {
         const val KEY_BASE_URL = "base_url"
         const val KEY_MODEL = "model"
         const val KEY_API_KEY = "api_key"
+        const val KEY_HUB_URL = "hub_url"
+        const val KEY_HUB_TOKEN = "hub_token"
     }
 }

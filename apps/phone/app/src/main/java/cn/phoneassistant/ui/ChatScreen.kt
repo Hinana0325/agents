@@ -298,6 +298,11 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
     var testIsError by remember { mutableStateOf(false) }
     var testing by remember { mutableStateOf(false) }
     var confirmClear by remember { mutableStateOf(false) }
+    var hubUrl by remember { mutableStateOf(store.hubUrl) }
+    var hubTokenInput by remember { mutableStateOf("") }
+    var hubState by remember { mutableStateOf(store.hasHubToken to store.isHubConfigured) }
+    var hubMessage by remember { mutableStateOf("") }
+    var hubIsError by remember { mutableStateOf(false) }
     val versionName = remember {
         runCatching {
             context.packageManager.getPackageInfo(context.packageName, 0).versionName
@@ -445,6 +450,79 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
                 testMessage,
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (testIsError) DangerRed else SuccessGreen,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text("编排服务（可选）", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "配置后可以从云端/局域网 hub 拉取任务信封；不配置时只用本机对话与本地能力。",
+            style = MaterialTheme.typography.bodySmall,
+            color = MutedGrey,
+        )
+        OutlinedTextField(
+            value = hubUrl,
+            onValueChange = { hubUrl = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Hub 地址") },
+            placeholder = { Text("例如 https://hub.example.com") },
+            singleLine = true,
+        )
+        OutlinedTextField(
+            value = hubTokenInput,
+            onValueChange = { hubTokenInput = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("设备令牌（配对后获得）") },
+            placeholder = { Text(if (hubState.first) "已设置，留空保持不变" else "未设置") },
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+        )
+        Text(
+            "编排服务：" + if (hubState.second) "已配置" else "未配置",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Row {
+            Button(
+                onClick = {
+                    val urlError = validateBaseUrl(hubUrl)
+                    when {
+                        urlError != null -> {
+                            hubIsError = true
+                            hubMessage = urlError
+                        }
+                        else -> {
+                            store.hubUrl = hubUrl
+                            if (hubTokenInput.isNotBlank()) {
+                                store.hubToken = hubTokenInput
+                                hubTokenInput = ""
+                            }
+                            hubState = store.hasHubToken to store.isHubConfigured
+                            hubIsError = false
+                            hubMessage = "编排服务设置已保存。"
+                        }
+                    }
+                },
+            ) {
+                Text("保存编排设置")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedButton(
+                onClick = {
+                    store.clearHubToken()
+                    hubTokenInput = ""
+                    hubState = store.hasHubToken to store.isHubConfigured
+                    hubIsError = false
+                    hubMessage = "设备令牌已清除。"
+                },
+            ) {
+                Text("清除令牌")
+            }
+        }
+        if (hubMessage.isNotEmpty()) {
+            Text(
+                hubMessage,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (hubIsError) DangerRed else SuccessGreen,
             )
         }
 

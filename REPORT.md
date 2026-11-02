@@ -435,3 +435,28 @@
 
 - 历史里只有“撤销备忘”一种可逆动作；打开应用/闹钟/日历等不可逆或由系统接管的动作不提供撤销。
 - 历史没有搜索/筛选/导出；也未与云端审计打通（传输层还没做）。
+
+## 17. 手机端传输前置件：审批证明生成 + Hub 客户端 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- core：`ApprovalProof.create`（绑定信封哈希、级别、审批设备、时间、nonce，手机身份密钥签名），
+  与既有 `ApprovalValidator` 正反两面配套；3 个单测（有效/篡改/换信封）。
+- 手机：`transport/HubClient` 接口 + `HttpHubClient`（OkHttp）：
+  `GET /v1/device/inbox?device_id=…`、`POST /v1/device/receipts`、`Authorization: Bearer`；
+  `MockWebServer` 3 个单测覆盖路径/查询参数/鉴权头/回执 JSON/HTTP 错误。
+- 设置存储与设置页新增「编排服务（可选）」：Hub 地址 + 设备令牌（加密存储，界面不回显）；
+  URL 规则与模型地址一致（https，本机调试允许 localhost/10.0.2.2 的 http）。
+- ADR 0013：先 HTTPS 拉取、WS 后续；避免在没有云端时写无法验证的 WS 客户端。
+
+### 已核验
+
+- core 测试 47 个（新增 ApprovalProof 3 个）、桌面 25 个、手机单测 3 个全绿。
+- 模拟器截图核对设置页「编排服务」区块：Hub 地址、设备令牌、状态、保存/清除按钮。
+- APK 构建通过；CI 增加了手机单元测试步骤。
+
+### 未完成
+
+- **没有真实 hub 端点**：拉取/回执只对 MockWebServer 验证过；设备注册、令牌签发、FCM 唤醒、WS 都未做。
+- 拉取到的信封还没有接入手机 `DeviceRuntime`（执行器映射、L2 审批弹窗、回执回传），下一步做。
+- 轮询频率/前台限制/退避策略未设计。

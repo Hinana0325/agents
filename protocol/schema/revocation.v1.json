@@ -1,0 +1,26 @@
+{
+  "$id": "https://assistant.local/protocol/schema/revocation.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DeviceRevocation v1",
+  "description": "手机（信任根）签发的设备证书吊销记录。绑定被吊销证书的哈希与设备 id，电脑验签后把该证书作废。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["v", "device_id", "cert_hash", "revoked_at", "issued_by", "sig"],
+  "properties": {
+    "v": { "const": 1 },
+    "device_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "cert_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "被吊销证书的 SHA-256(JCS(cert minus sig))，小写十六进制。"
+    },
+    "revoked_at": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$" },
+    "issued_by": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "reason": { "type": "string", "maxLength": 200 },
+    "sig": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{86,88}$",
+      "description": "手机身份密钥对 JCS(revocation minus sig) 的 ES256 签名。"
+    }
+  }
+}

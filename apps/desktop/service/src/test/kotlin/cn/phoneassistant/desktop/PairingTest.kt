@@ -1,6 +1,7 @@
 package cn.phoneassistant.desktop
 
 import cn.phoneassistant.core.DeviceCert
+import cn.phoneassistant.core.Revocation
 import java.math.BigInteger
 import java.nio.file.Files
 import java.security.KeyPair
@@ -44,6 +45,48 @@ class PairingTest {
         val reloaded = DesktopConfig.loadOrCreate(paths)
         assertEquals(cert, reloaded.device_cert)
         assertEquals(jwk(phone), reloaded.phone_pubkey)
+    }
+
+    @Test
+    fun revokedCertificateIsRejectedAndCleared() {
+        val paths = DesktopPaths(Files.createTempDirectory("pairing-revoke").toFile()).also { it.ensure() }
+        val identity = DesktopIdentity(paths.home)
+        val trusted = Pairing.trust(paths, DesktopConfigFile(device_id = "pc-1"), jwk(phone)).getOrThrow()
+        val cert = certificateFor(identity, signingKey = phone.private)
+        val verified = Pairing.verifyCertificate(paths, trusted, cert, now).getOrThrow()
+        assertEquals(cert, verified.device_cert)
+
+        val revocation = Revocation.create(
+            deviceId = "pc-1",
+            certHash = DeviceCert.hash(cert),
+            issuedBy = "phone-1",
+            reason = "设备丢失",
+            now = now,
+            signingKey = phone.private,
+        )
+        val revoked = Pairing.revoke(paths, verified, revocation, now).getOrThrow()
+
+        assertEquals(listOf(DeviceCert.hash(cert)), revoked.revoked_certs)
+        assertNull(revoked.device_cert)
+
+        val again = Pairing.verifyCertificate(paths, revoked, cert, now)
+        assertTrue(again.isFailure)
+        assertEquals("CERT_REVOKED", again.exceptionOrNull()!!.message)
+    }
+
+    @Test
+    fun tamperedRevocationIsRejected() {
+        val paths = DesktopPaths(Files.createTempDirectory("pairing-revoke-bad").toFile()).also { it.ensure() }
+        val trusted = Pairing.trust(paths, DesktopConfigFile(device_id = "pc-1"), jwk(phone)).getOrThrow()
+        val revocation = JsonObject(
+            Revocation.create("pc-1", "a".repeat(64), "phone-1", null, now, phone.private)
+                .toMutableMap().apply { put("device_id", JsonPrimitive("pc-2")) },
+        )
+
+        val result = Pairing.revoke(paths, trusted, revocation, now)
+
+        assertTrue(result.isFailure)
+        assertEquals("REVOCATION_SIGNATURE", result.exceptionOrNull()!!.message)
     }
 
     @Test

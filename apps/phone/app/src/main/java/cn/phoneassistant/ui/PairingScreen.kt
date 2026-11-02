@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -36,10 +38,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import cn.phoneassistant.core.DeviceCert
+import cn.phoneassistant.core.IssuedCertRecord
+import cn.phoneassistant.core.IssuedCertStore
 import cn.phoneassistant.core.PairingRequests
 import cn.phoneassistant.core.QrCode
 import cn.phoneassistant.data.DeviceIdentity
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -61,6 +69,8 @@ fun PairingScreen(identity: DeviceIdentity, modifier: Modifier = Modifier) {
     var certText by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var isError by remember { mutableStateOf(false) }
+    val certStore = remember { IssuedCertStore(File(context.filesDir, "issued-certs.json")) }
+    var issued by remember { mutableStateOf(certStore.list()) }
 
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
@@ -93,6 +103,15 @@ fun PairingScreen(identity: DeviceIdentity, modifier: Modifier = Modifier) {
             onSuccess = { request ->
                 val cert = identity.createCertificate(request)
                 certText = pretty.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), cert)
+                certStore.add(
+                    IssuedCertRecord(
+                        deviceId = request.deviceId,
+                        certHash = DeviceCert.hash(cert),
+                        issuedAtMillis = System.currentTimeMillis(),
+                        certJson = certText,
+                    ),
+                )
+                issued = certStore.list()
                 isError = false
                 message = "已为 ${request.deviceId}（${request.role}，最高 L${request.maxLevel}）签发证书。"
                 scope.launch(Dispatchers.IO) {
@@ -114,6 +133,21 @@ fun PairingScreen(identity: DeviceIdentity, modifier: Modifier = Modifier) {
         val error = identity.selfTest()
         isError = error != null
         message = if (error == null) "签名自检通过：Keystore 签名与验签一致。" else "自检失败：$error"
+    }
+
+    fun revoke(record: IssuedCertRecord) {
+        val revocation = identity.createRevocation(record.deviceId, record.certHash)
+        val text = pretty.encodeToString(kotlinx.serialization.json.JsonObject.serializer(), revocation)
+        certStore.markRevoked(record.certHash, text)
+        scope.launch(Dispatchers.IO) {
+            runCatching {
+                val dir = File(context.filesDir, "revocations").apply { mkdirs() }
+                File(dir, "${record.certHash}.json").writeText(text, Charsets.UTF_8)
+            }
+        }
+        issued = certStore.list()
+        isError = false
+        message = "已为 ${record.deviceId} 生成吊销记录。"
     }
 
     Column(
@@ -178,9 +212,60 @@ fun PairingScreen(identity: DeviceIdentity, modifier: Modifier = Modifier) {
                 color = MutedGrey,
             )
         }
+        if (issued.isNotEmpty()) {
+            HorizontalDivider()
+            Text("已签发的证书", style = MaterialTheme.typography.titleMedium)
+            issued.sortedByDescending { it.issuedAtMillis }.forEach { record ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = ShapeCard,
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(
+                            record.deviceId + if (record.revokedAtMillis != null) "（已吊销）" else "（有效）",
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                        Text(
+                            formatIssuedAt(record.issuedAtMillis),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MutedGrey,
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            TextButton(onClick = { clipboard.setText(AnnotatedString(record.certJson)) }) {
+                                Text("复制证书")
+                            }
+                            if (record.revokedAtMillis == null) {
+                                TextButton(onClick = { revoke(record) }) {
+                                    Text("吊销", color = DangerRed)
+                                }
+                            } else {
+                                record.revocationJson?.let { json ->
+                                    TextButton(onClick = { clipboard.setText(AnnotatedString(json)) }) {
+                                        Text("复制吊销记录")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Text(
+                "吊销记录交给电脑执行 revoke-device；电脑之后会拒绝这张证书。",
+                style = MaterialTheme.typography.bodySmall,
+                color = MutedGrey,
+            )
+        }
         Spacer(modifier = Modifier.height(4.dp))
     }
 }
+
+private fun formatIssuedAt(millis: Long): String =
+    SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(millis))
 
 /** 从相册图片里识别二维码；只在 IO 线程调用。 */
 private fun decodeQr(context: Context, uri: Uri): String? = runCatching {

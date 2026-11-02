@@ -53,6 +53,8 @@ data class DesktopConfigFile(
     val phone_pubkey: JsonObject? = null,
     /** 手机签发给本机的设备证书。 */
     val device_cert: JsonObject? = null,
+    /** 已吊销证书的哈希（SHA-256(JCS(cert minus sig)) 十六进制）。 */
+    val revoked_certs: List<String> = emptyList(),
 )
 
 class DesktopConfigLoadError(message: String) : Exception(message)

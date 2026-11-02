@@ -40,3 +40,10 @@
 手机在配对页“从相册扫描”二维码图片（`GetContent` → Bitmap 像素 → `QrCode.decodeLuminance`），
 解码逻辑在 core 里做成纯 JVM/Android 通用的编解码并有单测。**相机实时扫码仍未做**，
 当前是“选相册里的二维码图片”；吊销/轮换仍未做。
+
+## 更新 3（2026-11-02）
+
+吊销已落地：`schema/revocation.v1.json` + `core.Revocation`（手机签名、电脑验签）；
+手机配对页保存“已签发证书”并可生成吊销记录，电脑 `revoke-device` 验签后把哈希列入
+`revoked_certs` 并清掉匹配的本机证书，之后 `verify-cert` 返回 `CERT_REVOKED`。
+已用模拟器 + 电脑完成真实跨设备吊销验证。证书轮换与吊销的云端分发仍未做。

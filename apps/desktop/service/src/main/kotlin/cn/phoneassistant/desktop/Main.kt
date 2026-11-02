@@ -28,6 +28,7 @@ fun main(args: Array<String>) {
         "pair-qr" -> writePairingQr(config, identity, argument)
         "trust-phone" -> trustPhone(paths, config, argument)
         "verify-cert" -> verifyCertificate(paths, config, argument)
+        "revoke-device" -> revokeDevice(paths, config, argument)
         "once" -> runOnce(paths, config, identity)
         "run" -> runWithUi(paths, config, identity)
         "install-autostart" -> installAutostart(paths)
@@ -45,6 +46,7 @@ private fun printUsage() {
           pair-qr <输出.png>            把配对请求导出成二维码 PNG
           trust-phone <手机公钥.json>   记录信任根（手机公钥）
           verify-cert <证书.json>       验证手机签发的设备证书并保存
+          revoke-device <吊销.json>     验证手机签发的吊销记录并作废证书
           once     处理 inbox/ 与 pending/ 里的全部信封，然后退出
           run      常驻：每秒处理信封，托盘提示，L2 弹确认
           install-autostart   写入登录自启（HKCU Run，仅 Windows）
@@ -62,6 +64,7 @@ private fun printStatus(paths: DesktopPaths, config: DesktopConfigFile, identity
     println("hub 公钥：${if (config.hub_pubkey == null) "未配置（配置前拒绝接收信封）" else "已配置（kid=${config.hub_kid}）"}")
     println("信任根（手机公钥）：${if (config.phone_pubkey == null) "未配置" else "已配置"}")
     println("设备证书：${Pairing.describeCertificate(config.device_cert)}")
+    println("已吊销证书：${config.revoked_certs.size} 个")
     println("dry_run：${config.dry_run}")
     println("应用目录：${config.app_catalog.size} 项；URL 允许清单：${config.url_allowlist.size} 项")
     println("inbox：${count(paths.inbox)}；pending：${count(paths.pending)}；outbox：${count(paths.outbox)}")
@@ -122,8 +125,7 @@ private fun trustPhone(paths: DesktopPaths, config: DesktopConfigFile, filePath:
     )
 }
 
-private fun verifyCertificate(paths: DesktopPaths, config: DesktopConfigFile, filePath: String?) {
-    if (filePath == null) {
+private fun verifyCertificate(paths: DesktopPaths, config: DesktopConfigFile, filePath: String?) {    if (filePath == null) {
         println("用法：service verify-cert <证书.json>")
         return
     }
@@ -141,6 +143,33 @@ private fun verifyCertificate(paths: DesktopPaths, config: DesktopConfigFile, fi
     Pairing.verifyCertificate(paths, config, cert).fold(
         onSuccess = { println("证书有效：${Pairing.describeCertificate(cert)}") },
         onFailure = { println("验证失败：${it.message}") },
+    )
+}
+
+private fun revokeDevice(paths: DesktopPaths, config: DesktopConfigFile, filePath: String?) {
+    if (filePath == null) {
+        println("用法：service revoke-device <吊销.json>")
+        return
+    }
+    val parsed = try {
+        Json.parseToJsonElement(File(filePath).readText())
+    } catch (e: Exception) {
+        println("读取失败：${e.message}")
+        return
+    }
+    val revocation = parsed as? JsonObject
+    if (revocation == null) {
+        println("文件必须是 JSON 对象")
+        return
+    }
+    Pairing.revoke(paths, config, revocation).fold(
+        onSuccess = { updated ->
+            println(
+                "已吊销证书：${updated.revoked_certs.size} 个；本机证书" +
+                    if (updated.device_cert == null) "已作废。" else "仍有效。",
+            )
+        },
+        onFailure = { println("吊销失败：${it.message}") },
     )
 }
 

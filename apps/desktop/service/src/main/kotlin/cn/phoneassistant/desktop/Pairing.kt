@@ -2,6 +2,7 @@ package cn.phoneassistant.desktop
 
 import cn.phoneassistant.core.DeviceCert
 import cn.phoneassistant.core.Jwk
+import cn.phoneassistant.core.Revocation
 import java.time.Instant
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -43,9 +44,30 @@ object Pairing {
     ): Result<DesktopConfigFile> {
         val root = config.phone_pubkey
             ?: return Result.failure(IllegalStateException("还没有信任根：先运行 trust-phone <手机公钥.json>"))
-        val error = DeviceCert.verify(cert, root, now)
+        val error = DeviceCert.verify(cert, root, now, config.revoked_certs.toSet())
         if (error != null) return Result.failure(IllegalArgumentException(error))
         val updated = config.copy(device_cert = cert)
+        DesktopConfig.save(paths, updated)
+        return Result.success(updated)
+    }
+
+    /** 验证手机签发的吊销记录；把证书哈希列入本地吊销表，并清掉匹配的本机证书。 */
+    fun revoke(
+        paths: DesktopPaths,
+        config: DesktopConfigFile,
+        revocation: JsonObject,
+        now: Instant = Instant.now(),
+    ): Result<DesktopConfigFile> {
+        val root = config.phone_pubkey
+            ?: return Result.failure(IllegalStateException("还没有信任根：先运行 trust-phone <手机公钥.json>"))
+        val error = Revocation.verify(revocation, root, now)
+        if (error != null) return Result.failure(IllegalArgumentException(error))
+        val hash = (revocation["cert_hash"] as? JsonPrimitive)?.contentOrNull
+            ?: return Result.failure(IllegalArgumentException("REVOCATION_INVALID"))
+        val updated = config.copy(
+            revoked_certs = (config.revoked_certs + hash).distinct(),
+            device_cert = config.device_cert?.takeIf { DeviceCert.hash(it) != hash },
+        )
         DesktopConfig.save(paths, updated)
         return Result.success(updated)
     }

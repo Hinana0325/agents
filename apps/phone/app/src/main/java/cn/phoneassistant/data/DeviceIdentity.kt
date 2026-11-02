@@ -7,6 +7,7 @@ import cn.phoneassistant.core.ApprovalProof
 import cn.phoneassistant.core.DeviceCert
 import cn.phoneassistant.core.Es256
 import cn.phoneassistant.core.PairingRequest
+import cn.phoneassistant.core.Revocation
 import java.math.BigInteger
 import java.security.KeyPairGenerator
 import java.security.KeyStore
@@ -84,6 +85,10 @@ class DeviceIdentity(context: Context) {
         val nonce = Base64.getUrlEncoder().withoutPadding().encodeToString(nonceBytes)
         return ApprovalProof.create(envelope, level, deviceId, nonce, Instant.now(), privateKey)
     }
+
+    /** 给一张已签发的设备证书生成吊销记录。 */
+    fun createRevocation(deviceId: String, certHash: String, reason: String? = "用户吊销"): JsonObject =
+        Revocation.create(deviceId, certHash, this.deviceId, reason, Instant.now(), privateKey)
 
     /** 用本机公钥签一张测试证书并验签；返回 null 表示通过，否则是错误码。 */
     fun selfTest(now: Instant = Instant.now()): String? {        val issuedAt = format(now)

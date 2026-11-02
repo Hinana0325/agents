@@ -531,3 +531,35 @@
 
 - 重试只在 App 运行/下次同步时发生，没有 WorkManager 后台重试；退避上限 5 分钟、最多 8 次。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 21. 设备证书吊销 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- 协议：新增 `protocol/schema/revocation.v1.json`（device_id、cert_hash、issued_by、
+  issued_at、reason?、sig）。撤销单由手机（信任根）签名，引用被吊销证书的
+  `cert_hash = SHA-256(JCS(cert 去掉 sig))`。
+- core：`DeviceCert.hash()`；`DeviceCert.verify(..., revokedHashes)` 命中返回
+  `CERT_REVOKED`；`Revocation.create/verify`（吊销单自身验签 + 时间窗校验）。
+- core：`IssuedCertStore`（手机侧已签发证书台账，支持标记吊销并保存吊销单），4 个单测。
+- 手机：`DeviceIdentity.createRevocation`；配对页新增「已签发的证书」列表，每项可
+  「吊销」，吊销单导出到 `files/revocations/<cert_hash>.json`。
+- 电脑：配置新增 `revoked_certs`；`Pairing.revoke` + `revoke-device <cert_hash>` 命令；
+  `pair`/`pair-qr` 在校验证书时带上已吊销集合，命中即拒绝；`status` 显示已吊销数量。
+
+### 已核验（模拟器 + 电脑端真实联调）
+
+1. 配对成功：`verify-cert` → `证书有效：pc-abb2f79a`。
+2. 手机端点「吊销」，电脑执行 `revoke-device`：
+   `已吊销证书：1 个；本机证书已作废`。
+3. 再 `verify-cert` → `验证失败：CERT_REVOKED`；`status` 显示
+   `设备证书：无`、`已吊销证书：1 个`。
+4. 篡改吊销单（改 reason 后重新序列化）被拒绝：`REVOCATION_SIGNATURE`。
+5. 测试：core 71 个（新增 Revocation 5、IssuedCertStore 4）、desktop 27、手机 3，
+   0 失败 0 错误；debug/release APK 与桌面 app-image 均构建通过。
+
+### 未完成
+
+- 吊销状态目前只落在电脑端配置文件与手机台账里，没有跨设备同步（真实 hub 应下发吊销列表）。
+- 证书过期/轮换未做；吊销后重新配对需要手机重新签发新证书（当前 UI 已可再签，但没有轮换入口）。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。

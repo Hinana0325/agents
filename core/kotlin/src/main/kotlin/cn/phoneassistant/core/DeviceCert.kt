@@ -43,7 +43,12 @@ object DeviceCert {
         return JsonObject(claims.toMutableMap().apply { put("sig", JsonPrimitive(Es256.signRaw(claims, signingKey))) })
     }
 
-    fun verify(cert: JsonElement, trustRootJwk: JsonObject, now: Instant): String? {
+    fun verify(
+        cert: JsonElement,
+        trustRootJwk: JsonObject,
+        now: Instant,
+        revokedHashes: Set<String> = emptySet(),
+    ): String? {
         val obj = cert as? JsonObject ?: return "CERT_INVALID"
         if (obj.keys != FIELDS) return "CERT_INVALID"
 
@@ -83,8 +88,13 @@ object DeviceCert {
         if (str(obj["sig"]) == null) return "CERT_INVALID"
         val payload = JsonObject(obj.filterKeys { it != "sig" })
         if (!Es256.verify(payload, str(obj["sig"])!!, trustRootJwk)) return "CERT_SIGNATURE"
+        if (Es256.sha256Hex(payload) in revokedHashes) return "CERT_REVOKED"
         return null
     }
+
+    /** 证书哈希：SHA-256(JCS(cert minus sig))，吊销记录用它绑定证书。 */
+    fun hash(cert: JsonObject): String =
+        Es256.sha256Hex(JsonObject(cert.filterKeys { it != "sig" }))
 
     private fun str(element: JsonElement?): String? =
         (element as? JsonPrimitive)?.takeIf { it.isString }?.content

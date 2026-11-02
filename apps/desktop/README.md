@@ -114,7 +114,8 @@ service.bat pair > request.json           # 输出配对请求（device_id/role/
 service.bat pair-qr request.png           # 把配对请求导出成二维码 PNG
 service.bat trust-phone phone_pubkey.json # 记录手机公钥（信任根）
 service.bat verify-cert cert.json         # 验证手机签发的设备证书并保存
-service.bat status                        # 查看“信任根 / 设备证书”
+service.bat revoke-device revoke.json     # 验证手机签发的吊销记录并作废证书
+service.bat status                        # 查看“信任根 / 设备证书 / 已吊销证书”
 ```
 
 主界面“配对”页同时显示二维码与请求 JSON。手机端在“配对”页可以“从相册扫描”二维码

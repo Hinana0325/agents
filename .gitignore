@@ -1,0 +1,21 @@
+# Android / Gradle
+local.properties
+.gradle/
+**/build/
+captures/
+.kotlin/
+
+# Python
+__pycache__/
+*.pyc
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Signing material and secrets must never be committed
+*.jks
+*.keystore
+signing.properties
+.env

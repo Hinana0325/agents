@@ -11,7 +11,7 @@ import kotlinx.serialization.json.contentOrNull
  * 协议意图（envelope.intent + params）→ 手机现有的 [AssistantIntent]。
  *
  * 参数已经在 EnvelopeValidator 里按 schema 校验过；这里只做字段改名与展示字段换算。
- * open_app 的 app_id 目前按包名处理（见 REPORT 的已知限制）。
+ * open_app 的 app_id 只作展示；执行前必须由端上 [AppCatalog] 映射成包名。
  */
 object ProtocolMapping {
 

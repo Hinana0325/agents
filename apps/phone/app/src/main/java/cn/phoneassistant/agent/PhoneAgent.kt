@@ -22,6 +22,7 @@ class PhoneAgent(
     private val identity: DeviceIdentity,
     hubPubkey: JsonObject,
     hubKid: String,
+    private val appCatalog: Map<String, String> = emptyMap(),
 ) {
 
     private val runtime = DeviceRuntime(
@@ -51,15 +52,20 @@ class PhoneAgent(
         val mapped = ProtocolMapping.toAssistantIntent(intent, params).getOrElse {
             return ExecutionOutcome(false, it.message ?: "协议参数映射失败")
         }
+        // 云端只能给逻辑 app_id；包名必须从本机目录解析，缺失就拒绝，绝不把 app_id 当包名。
+        val confirmedPackage = if (mapped.type == IntentType.OPEN_APP) {
+            val appId = (params["app_id"] as? JsonPrimitive)?.takeIf { it.isString }?.contentOrNull
+                ?: return ExecutionOutcome(false, "缺少 app_id")
+            appCatalog[appId]
+                ?: return ExecutionOutcome(false, "应用目录里没有 $appId（请在设置里配置 app_id → 包名）")
+        } else {
+            null
+        }
         val result = try {
             IntentExecutor.execute(
                 context = context,
                 intent = mapped,
-                confirmedPackage = if (mapped.type == IntentType.OPEN_APP) {
-                    mapped.params["appName"]
-                } else {
-                    null
-                },
+                confirmedPackage = confirmedPackage,
             )
         } catch (e: Exception) {
             return ExecutionOutcome(false, e.message)

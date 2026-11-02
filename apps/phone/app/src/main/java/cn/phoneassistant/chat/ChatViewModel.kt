@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import cn.phoneassistant.agent.PhoneAgent
 import cn.phoneassistant.agent.RemoteApproval
 import cn.phoneassistant.agent.describeEnvelope
+import cn.phoneassistant.core.AppCatalog
 import cn.phoneassistant.core.AssistantIntent
 import cn.phoneassistant.core.AuditEntry
 import cn.phoneassistant.core.AuditLog
@@ -168,12 +169,19 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             appendAssistant("Hub 公钥不合法：$it", isError = true)
             return
         }
+        val appCatalog: Map<String, String> = runCatching {
+            val text = settings.appCatalogJson
+            if (text.isBlank()) emptyMap() else AppCatalog.parse(Json.parseToJsonElement(text)).getOrThrow()
+        }.getOrElse {
+            appendAssistant("应用目录不合法：${it.message ?: "请检查 JSON"}", isError = true)
+            return
+        }
         _syncing.value = true
         viewModelScope.launch {
             try {
                 val lines = withContext(Dispatchers.IO) {
                     val client = HttpHubClient(hubUrl, identity.deviceId, token)
-                    val agent = PhoneAgent(getApplication(), identity, pubkey, kid)
+                    val agent = PhoneAgent(getApplication(), identity, pubkey, kid, appCatalog)
                     val resent = flushOutbox(client)
                     val pull = client.pull()
                     val results = mutableListOf<String>()

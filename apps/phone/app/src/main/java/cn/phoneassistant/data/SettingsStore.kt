@@ -116,6 +116,13 @@ class SettingsStore(context: Context) {
         storagePrefs?.edit()?.remove(KEY_HUB_TOKEN)?.apply()
     }
 
+    /** 端上应用目录（JSON：app_id → 包名）；为空表示不接受远端 open_app。 */
+    var appCatalogJson: String
+        get() = storagePrefs?.getString(KEY_APP_CATALOG, "").orEmpty().trim()
+        set(value) {
+            storagePrefs?.edit()?.putString(KEY_APP_CATALOG, value.trim())?.apply()
+        }
+
     fun clearApiKey() {
         storagePrefs?.edit()?.remove(KEY_API_KEY)?.apply()
     }
@@ -128,5 +135,6 @@ class SettingsStore(context: Context) {
         const val KEY_HUB_TOKEN = "hub_token"
         const val KEY_HUB_PUBKEY = "hub_pubkey"
         const val KEY_HUB_KID = "hub_kid"
+        const val KEY_APP_CATALOG = "app_catalog"
     }
 }

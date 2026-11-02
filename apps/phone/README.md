@@ -21,11 +21,13 @@
   “已签发的证书”列表会保存每张证书，可为任一张生成吊销记录（导出到 `files/revocations/`），
   交给电脑 `revoke-device` 后该证书失效。实时相机扫码尚未实现。
 - 设置页：服务地址（强制 https，本机调试允许 localhost/127.0.0.1/10.0.2.2 的 http）、模型名、密钥；
-  保存前校验，另有「测试连接」（只请求 `/models`，不消耗对话额度）与版本号显示。
+  应用目录（JSON：`app_id` → 包名，远端 `open_app` 只认这里的映射）；保存前校验，
+  另有「测试连接」（只请求 `/models`，不消耗对话额度）与版本号显示。
 - 编排服务（可选）：Hub 地址、设备令牌、Hub 公钥（JWK）与 kid；顶栏“同步”会拉取一次信封，
   经 core 的 `DeviceRuntime` 验签/策略/去重后执行：L2 在本机弹确认并用 Keystore 审批密钥签名，
-  终态回执回传 hub。协议意图通过 `ProtocolMapping` 映射到现有执行器（open_app 的 app_id 目前按包名处理；
-  voice_command / task_handoff 不执行）。未配置时只用本机对话与本地能力。
+  终态回执回传 hub。协议意图通过 `ProtocolMapping` 映射到现有执行器（open_app 的 app_id 只作逻辑名，
+  执行前必须用设置里的本机应用目录映射到包名，目录里没有就拒绝；voice_command / task_handoff 不执行）。
+  未配置时只用本机对话与本地能力。
   **没有真实 hub**：目前只在临时 mock hub 上做过端到端验证；终态回执已落盘 `processed.json`，
   同一信封跨重启重复投递只回执、不再执行；回执发送失败会进 `outbox.json`，按指数退避在下次同步/启动时补发，
   同时登记一个 `outbox-retry` 的 WorkManager 任务（网络可用时执行），进程被杀后仍会继续补发。

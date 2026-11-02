@@ -49,6 +49,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import cn.phoneassistant.chat.ChatViewModel
+import cn.phoneassistant.core.AppCatalog
 import cn.phoneassistant.core.AssistantIntent
 import cn.phoneassistant.core.IntentType
 import cn.phoneassistant.core.Jwk
@@ -327,6 +328,7 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
     var hubTokenInput by remember { mutableStateOf("") }
     var hubPubkey by remember { mutableStateOf(store.hubPubkey) }
     var hubKid by remember { mutableStateOf(store.hubKid) }
+    var appCatalog by remember { mutableStateOf(store.appCatalogJson) }
     var hubState by remember { mutableStateOf(store.hasHubToken to store.isHubConfigured) }
     var hubMessage by remember { mutableStateOf("") }
     var hubIsError by remember { mutableStateOf(false) }
@@ -518,6 +520,14 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
             label = { Text("Hub kid") },
             singleLine = true,
         )
+        OutlinedTextField(
+            value = appCatalog,
+            onValueChange = { appCatalog = it },
+            modifier = Modifier.fillMaxWidth().height(120.dp),
+            label = { Text("应用目录（JSON：app_id → 包名）") },
+            placeholder = { Text("{\"wechat\":\"com.tencent.mm\"}") },
+            textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+        )
         Text(
             "编排服务：" + if (hubState.second) "已配置" else "未配置",
             style = MaterialTheme.typography.bodyMedium,
@@ -527,6 +537,9 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
                 onClick = {
                     val urlError = validateBaseUrl(hubUrl)
                     val pubkeyError = validateHubPubkey(hubPubkey)
+                    val catalogError = if (appCatalog.isBlank()) null else runCatching {
+                        AppCatalog.validate(Json.parseToJsonElement(appCatalog))
+                    }.getOrElse { "应用目录不是合法 JSON" }
                     when {
                         urlError != null -> {
                             hubIsError = true
@@ -536,10 +549,15 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
                             hubIsError = true
                             hubMessage = pubkeyError
                         }
+                        catalogError != null -> {
+                            hubIsError = true
+                            hubMessage = catalogError
+                        }
                         else -> {
                             store.hubUrl = hubUrl
                             store.hubPubkey = hubPubkey
                             store.hubKid = hubKid
+                            store.appCatalogJson = appCatalog
                             if (hubTokenInput.isNotBlank()) {
                                 store.hubToken = hubTokenInput
                                 hubTokenInput = ""

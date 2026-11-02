@@ -33,7 +33,7 @@ docs/legacy/     # 被 v1 取代的旧原型定义
 - 同一份向量，Kotlin（`./gradlew :core:kotlin:test`）与 Python（`uv run --with cryptography python tools/vector-runner/py/runner.py`）**均 0 失败**。
 - 阳性对照：故意改坏一条向量后，Python 退出码 1、Kotlin 测试 FAILED。
 - 设备运行时（`core/kotlin/.../runtime/`）：按 id 幂等去重、状态机、TTL 过期、回执、L2 待确认、L3 审批（绑定信封哈希 + nonce 防重放 + 级别权限），14 个单元测试全绿。
-- 手机 App v0.2.0：对话历史持久化、记录页（备忘 + 动作历史 + 备忘撤销）、Keystore 设备身份与二维码配对、地址校验、连接测试；**签名 release APK 已在 Android 16 模拟器上端到端跑通**（设置→测试连接→发消息→确认卡→拉起系统闹钟→重启后历史仍在；保存备忘→动作历史→撤销）。未配置模型或请求失败时走本地规则快路径，离线可用计时/闹钟/备忘/打开应用/搜索（18 个单测 + 2 个仪器测试）。
+- 手机 App v0.2.0：对话历史持久化、记录页（备忘 + 动作历史 + 备忘撤销）、Keystore 设备身份与二维码配对、地址校验、连接测试；**签名 release APK 已在 Android 16 模拟器上端到端跑通**（设置→测试连接→发消息→确认卡→拉起系统闹钟→重启后历史仍在；保存备忘→动作历史→撤销）。未配置模型或请求失败时走本地规则快路径，离线可用计时/闹钟/备忘/打开应用/搜索（18 个单测 + 2 个仪器测试）；远端 `open_app` 的 `app_id` 只由本机设置里的应用目录映射成包名，目录缺失即拒绝。
 
 - 电脑端 v1：**可独立运行的无头服务 + Compose Desktop 主界面/托盘**（本地信封通道 + SQLite 跨重启去重与处理历史 + DPAPI 保护私钥 + 设置页 + save_note/web_search/open_app/set_timer 执行器 + L2 界面确认与本机审批密钥签名 + jpackage 自带 JRE 打包 + Windows 登录自启 + 设备证书手工配对）；桌面 27 个单元测试全绿，并用 device-sim 在本机端到端跑通（含 Compose 弹窗批准与重复投递去重）。
 - 本机审计：动作历史按 SHA-256 哈希链追加，记录页显示链完整性；旧日志兼容，截断后从保留区首条重新校验。
@@ -42,7 +42,7 @@ docs/legacy/     # 被 v1 取代的旧原型定义
   已把信封接入 `DeviceRuntime`（L2 手机确认、Keystore 审批签名、回执回传），并用临时 mock hub 在模拟器上端到端跑通；
   终态回执落盘，**重启后重复投递只回执不执行**；回执失败进发件箱并按指数退避重试，同时由 WorkManager
   在网络可用时后台补发（`outbox-retry`，模拟器仪器测试已验证登记与发送）。没有真实 hub/注册/令牌签发/FCM/WS。
-- core 共 94 个测试、桌面 27 个、手机 6 个（另有 3 个仪器测试：WorkManager 补发 + 离线快路径 2 个）全绿，debug/release APK 均可打包。
+- core 共 101 个测试、桌面 27 个、手机 6 个（另有 3 个仪器测试：WorkManager 补发 + 离线快路径 2 个）全绿，debug/release APK 均可打包。
 
 未验证 / 未完成（不要当成已完成）：
 

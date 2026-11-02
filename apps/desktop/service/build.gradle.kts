@@ -1,6 +1,10 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.compose.multiplatform)
     application
 }
 
@@ -21,5 +25,7 @@ application {
 dependencies {
     implementation(project(":core:kotlin"))
     implementation(libs.kotlinx.serialization.json)
+    implementation(compose.desktop.currentOs)
+    implementation(compose.material3)
     testImplementation(libs.junit)
 }

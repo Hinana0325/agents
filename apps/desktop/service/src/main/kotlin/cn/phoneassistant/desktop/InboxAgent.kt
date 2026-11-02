@@ -31,8 +31,8 @@ class InboxAgent(
     private val paths: DesktopPaths,
     private val config: DesktopConfigFile,
     private val identity: DesktopIdentity,
-    private val tray: TrayUI,
-    private val interactive: Boolean,
+    private val notifier: Notifier,
+    private val confirm: ((ApprovalPrompt) -> Boolean)?,
 ) {
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -40,7 +40,7 @@ class InboxAgent(
     private val runtime = DeviceRuntime(
         deviceId = config.device_id,
         deviceRole = config.role,
-        executor = DesktopExecutors(paths.notes, config, TimerService(tray)),
+        executor = DesktopExecutors(paths.notes, config, TimerService(notifier)),
         hubPublicKeys = config.hub_pubkey?.let { mapOf(config.hub_kid to it) } ?: emptyMap(),
         approvers = mapOf(
             config.device_id to TrustedApprover(config.device_id, 2, identity.publicJwk()),
@@ -94,13 +94,13 @@ class InboxAgent(
             val level = runtime.requiredLevelOf(id) ?: 2
             when {
                 level >= 3 -> {
-                    tray.notify("需要手机批准", "这条任务需要 L3，电脑只能批 L2")
+                    notifier.notify("需要手机批准", "这条任务需要 L3，电脑只能批 L2")
                     writeReceipt(id, receipt)
                     moveTo(file, paths.pending)
                     return "AWAITING_PHONE ${file.name}"
                 }
-                interactive -> {
-                    val approved = tray.confirm("确认执行", describe(envelope))
+                confirm != null -> {
+                    val approved = confirm(ApprovalPrompt("确认执行", describe(envelope)))
                     val final = if (approved) runtime.approve(id, approval(envelope, level)) else runtime.reject(id)
                     writeReceipt(id, final)
                     moveTo(file, paths.processed)

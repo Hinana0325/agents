@@ -72,6 +72,38 @@ class DesktopAgentTest {
     }
 
     @Test
+    fun approvedLevelTwoEnvelopeExecutes() {
+        val paths = paths()
+        val agent = agent(paths, dryRun = true, confirm = { true })
+
+        writeEnvelope(paths, signEnvelope(envelope("save_note", buildJsonObject {
+            put("text", "确认后执行")
+        }, level = 2)))
+
+        val results = agent.processAll()
+
+        assertTrue(results.single().startsWith("done"))
+        assertEquals(1, notesCount(paths))
+        assertEquals("done", readReceipts(paths).single()["status"]!!.jsonPrimitive.content)
+    }
+
+    @Test
+    fun rejectedLevelTwoEnvelopeIsNotExecuted() {
+        val paths = paths()
+        val agent = agent(paths, dryRun = true, confirm = { false })
+
+        writeEnvelope(paths, signEnvelope(envelope("save_note", buildJsonObject {
+            put("text", "不该执行")
+        }, level = 2)))
+
+        val results = agent.processAll()
+
+        assertTrue(results.single().startsWith("rejected"))
+        assertEquals(0, notesCount(paths))
+        assertEquals("rejected", readReceipts(paths).single()["status"]!!.jsonPrimitive.content)
+    }
+
+    @Test
     fun envelopeForAnotherDeviceIsRejected() {
         val paths = paths()
         val agent = agent(paths, dryRun = true)
@@ -121,7 +153,7 @@ class DesktopAgentTest {
     @Test
     fun executorsReportUnsupportedIntents() {
         val paths = paths()
-        val executors = DesktopExecutors(paths.notes, config(dryRun = true), TimerService(TrayUI()))
+        val executors = DesktopExecutors(paths.notes, config(dryRun = true), TimerService(Notifier { _, _ -> }))
 
         val unsupported = executors.execute("create_event", buildJsonObject { put("title", "x") })
         assertFalse(unsupported.success)
@@ -147,12 +179,16 @@ class DesktopAgentTest {
         dry_run = dryRun,
     )
 
-    private fun agent(paths: DesktopPaths, dryRun: Boolean): InboxAgent = InboxAgent(
+    private fun agent(
+        paths: DesktopPaths,
+        dryRun: Boolean,
+        confirm: ((ApprovalPrompt) -> Boolean)? = null,
+    ): InboxAgent = InboxAgent(
         paths = paths,
         config = config(dryRun),
         identity = DesktopIdentity(paths.home),
-        tray = TrayUI(),
-        interactive = false,
+        notifier = Notifier { _, _ -> },
+        confirm = confirm,
     )
 
     private fun envelope(intent: String, params: JsonObject, level: Int = 1): JsonObject = buildJsonObject {

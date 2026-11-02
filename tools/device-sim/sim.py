@@ -26,6 +26,10 @@ sys.path.insert(0, str(HERE.parent / "vector-runner" / "py"))
 
 from jcs import canonicalize  # noqa: E402
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
+
 DEFAULT_SIM_HOME = pathlib.Path.home() / ".dpa-sim"
 DEFAULT_DESKTOP_HOME = pathlib.Path.home() / ".dpa-desktop"
 

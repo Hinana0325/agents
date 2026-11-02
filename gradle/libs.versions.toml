@@ -5,6 +5,7 @@ coreKtx = "1.13.1"
 activityCompose = "1.9.3"
 lifecycle = "2.8.7"
 composeBom = "2024.10.01"
+composeMultiplatform = "1.7.3"
 serializationJson = "1.7.3"
 securityCrypto = "1.1.0"
 junit = "4.13.2"
@@ -29,3 +30,4 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }

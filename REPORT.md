@@ -204,8 +204,10 @@
 - **执行器**：`chat`、`save_note`（写本地备忘）、`web_search`（端上固定搜索模板）、
   `open_app`（端上应用目录映射 url/command）、`set_timer`（进程内计时 + 托盘通知）。
   日历/闹钟按策略只属于手机，电脑返回失败而不是假装成功。
-- **确认**：L1 自动执行；L2 弹 Swing 确认框，用户点确认后用**本机 P-256 审批密钥**签名
+- **确认**：L1 自动执行；L2 在 Compose 主界面弹确认框，用户点确认后用**本机 P-256 审批密钥**签名
   `approval.v1`（绑定信封哈希 + 时间窗 + nonce）再执行；L3 电脑没有审批权，留 pending 并提示去手机。
+- **界面**：Compose Multiplatform 1.7.3 + Material3 主窗口（设备信息、hub 公钥、inbox/pending/outbox 计数、运行日志）+ 系统托盘（显示主界面 / 退出，关闭窗口最小化）。
+  最初一版是 AWT 托盘 + Swing 确认框；按用户要求改为文档第 202 行的 Kotlin + Compose Desktop，见 ADR 0008。
 - **身份**：`pair` 输出 `device_id + 公钥 JWK`，为将来的手机扫码背书留接口。
 - `tools/device-sim/sim.py`：以 hub 身份签发信封（ES256 + JCS），投递到电脑收件箱；支持 `init/install/send/receipts`。
 - ADR 0007：记录三处偏离（先 AWT 托盘不做 Compose Desktop、本地目录通道、密钥明文文件）及原因。
@@ -213,13 +215,16 @@
 
 ### 已核验
 
-- `:apps:desktop:service:test`：**6 个用例全绿**（备忘执行、L2 待确认、错设备拒绝、篡改 BAD_SIG、重复投递只执行一次、不支持意图失败）。
+- `:apps:desktop:service:test`：**8 个用例全绿**（备忘执行、L2 待确认、L2 批准后执行、L2 拒绝不执行、
+  错设备拒绝、篡改 BAD_SIG、重复投递只执行一次、不支持意图失败）。
 - 本机端到端（临时目录，`dry_run=true`）：
   1. `sim install` 写入 hub 公钥 → `sim send save_note --level 1` → `service once` → 回执 `done`，备忘文件落盘，信封移入 `processed/`。
   2. `sim send save_note --level 2` → `service once` → 回执 `awaiting_confirm`，信封留在 `pending/`。
   3. `sim send web_search`（dry-run）→ 回执 `done`，没有真的打开浏览器。
-  4. `service run` 常驻 → 弹出「确认执行」窗口（动作/参数可见）→ 点确认 → 回执 `done`，`pending/` 清空，备忘写入。
-- 控制台中文乱码已修（JDK 17 默认 GBK → 分发包加 `-Dsun.stdout.encoding=UTF-8`）。
+  4. `service run` 启动 Compose 主窗口（截图核对：设备信息、计数、日志、托盘提示）；
+     再发一条 L2 信封 → 界面弹出「确认执行」（动作/参数可见）→ 点确认 → 日志出现 `done`，
+     回执 `done`，备忘写入，`pending/` 清空。
+- 控制台中文乱码已修（JDK 17 默认 GBK → 分发包加 `-Dsun.stdout.encoding=UTF-8`；sim.py 也改用 UTF-8 输出）。
 
 ### 未验证 / 未完成
 

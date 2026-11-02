@@ -1,6 +1,6 @@
 package cn.phoneassistant.desktop
 
-import java.awt.GraphicsEnvironment
+import java.io.File
 import java.time.Instant
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -27,7 +27,7 @@ fun main(args: Array<String>) {
         "status" -> printStatus(paths, config, identity)
         "pair" -> printPair(config, identity)
         "once" -> runOnce(paths, config, identity)
-        "run" -> runForever(paths, config, identity)
+        "run" -> runWithUi(paths, config, identity)
         else -> printUsage()
     }
 }
@@ -73,7 +73,13 @@ private fun runOnce(paths: DesktopPaths, config: DesktopConfigFile, identity: De
         println("还没配置 hub 公钥，拒绝接收任何信封。先运行 device-sim install（或手工填 config.json）。")
         return
     }
-    val agent = InboxAgent(paths, config, identity, TrayUI(), interactive = false)
+    val agent = InboxAgent(
+        paths = paths,
+        config = config,
+        identity = identity,
+        notifier = Notifier { title, body -> println("[通知] $title：$body") },
+        confirm = null,
+    )
     val results = agent.processAll()
     if (results.isEmpty()) {
         println("收件箱是空的。")
@@ -82,30 +88,36 @@ private fun runOnce(paths: DesktopPaths, config: DesktopConfigFile, identity: De
     }
 }
 
-private fun runForever(paths: DesktopPaths, config: DesktopConfigFile, identity: DesktopIdentity) {
+private fun runWithUi(paths: DesktopPaths, config: DesktopConfigFile, identity: DesktopIdentity) {
     if (config.hub_pubkey == null) {
         println("还没配置 hub 公钥，拒绝接收任何信封。先运行 device-sim install（或手工填 config.json）。")
         return
     }
-    val tray = TrayUI()
-    val trayReady = tray.install()
-    val interactive = !GraphicsEnvironment.isHeadless()
-    println("电脑助理已启动：${config.device_id}，监听 ${paths.inbox}")
-    println(
-        if (trayReady) "托盘已就绪；L2 会在桌面弹出确认框。"
-        else "没有系统托盘；L2 会留在 pending/，等下次交互式运行再确认。",
+    val state = UiState()
+    state.log("已启动：${config.device_id}，监听 ${paths.inbox}")
+    val agent = InboxAgent(
+        paths = paths,
+        config = config,
+        identity = identity,
+        notifier = state.notifier,
+        confirm = state::ask,
     )
-    val agent = InboxAgent(paths, config, identity, tray, interactive = interactive)
-    while (true) {
-        val results = try {
-            agent.processAll()
-        } catch (e: Exception) {
-            listOf("ERROR ${e.message}")
-        }
-        results.forEach { println("[${Instant.now()}] $it") }
-        Thread.sleep(1000L)
-    }
+    Thread(
+        {
+            while (true) {
+                val results = try {
+                    agent.processAll()
+                } catch (e: Exception) {
+                    listOf("ERROR ${e.message}")
+                }
+                results.forEach(state::log)
+                Thread.sleep(1000L)
+            }
+        },
+        "dpa-inbox",
+    ).apply { isDaemon = true }.start()
+    runDesktopUi(state, config, paths)
 }
 
-private fun count(dir: java.io.File): Int =
+private fun count(dir: File): Int =
     dir.listFiles { file -> file.isFile && file.name.endsWith(".json") }?.size ?: 0

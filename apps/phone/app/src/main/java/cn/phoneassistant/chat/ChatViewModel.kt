@@ -27,6 +27,8 @@ import cn.phoneassistant.llm.LlmClient
 import cn.phoneassistant.model.ChatMessage
 import cn.phoneassistant.model.PendingIntent
 import cn.phoneassistant.transport.HttpHubClient
+import cn.phoneassistant.transport.flushDue
+import cn.phoneassistant.work.OutboxScheduler
 import java.io.File
 import java.util.UUID
 import kotlinx.coroutines.CompletableDeferred
@@ -88,12 +90,13 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         // 在 IO 线程第一次触碰加密存储，界面之后读设置就不会在主线程做 Keystore I/O。
         viewModelScope.launch(Dispatchers.IO) { settings.isConfigured }
         viewModelScope.launch(Dispatchers.IO) { _audit.value = auditLog.list() }
-        // 启动时补发上次没送出去的回执（失败就留到下次同步再试）。
+        // 启动时补发上次没送出去的回执；仍有剩余就交给 WorkManager，进程退出后也会重试。
         viewModelScope.launch(Dispatchers.IO) {
             if (settings.isHubConfigured) {
                 runCatching {
                     flushOutbox(HttpHubClient(settings.hubUrl, identity.deviceId, settings.hubToken))
                 }
+                if (outbox.size() > 0) OutboxScheduler.ensureScheduled(getApplication())
             }
         }
         viewModelScope.launch {
@@ -363,25 +366,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             withContext(Dispatchers.IO) { client.postReceipt(receipt) }
             withContext(Dispatchers.IO) { outbox.markSent(key) }
         } catch (_: Exception) {
-            // 记一次失败并按指数退避安排下次重试
-            withContext(Dispatchers.IO) { outbox.markFailed(key) }
+            // 记一次失败并按指数退避安排下次重试；进程可能被回收，交给 WorkManager 兜底
+            val keep = withContext(Dispatchers.IO) { outbox.markFailed(key) }
+            if (keep) OutboxScheduler.ensureScheduled(getApplication())
         }
     }
 
-    private suspend fun flushOutbox(client: HttpHubClient): Int = withContext(Dispatchers.IO) {
-        val now = System.currentTimeMillis()
-        var sent = 0
-        for (item in outbox.due(now)) {
-            try {
-                client.postReceipt(item.payload)
-                outbox.markSent(item.key)
-                sent++
-            } catch (_: Exception) {
-                outbox.markFailed(item.key, now)
-            }
-        }
-        sent
-    }
+    private suspend fun flushOutbox(client: HttpHubClient): Int =
+        flushDue(outbox) { client.postReceipt(it) }
 
     private fun recordAudit(intent: AssistantIntent, outcome: String, artifact: String? = null) {
         val entry = AuditEntry(

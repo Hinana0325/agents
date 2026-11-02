@@ -563,3 +563,33 @@
 - 吊销状态目前只落在电脑端配置文件与手机台账里，没有跨设备同步（真实 hub 应下发吊销列表）。
 - 证书过期/轮换未做；吊销后重新配对需要手机重新签发新证书（当前 UI 已可再签，但没有轮换入口）。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 22. 手机回执发件箱接入 WorkManager — 2026-11-02 晚（续）
+
+### 做了什么
+
+- 手机：新增 `OutboxRetryWorker`（网络可用时补发 `outbox.json` 里的回执）与
+  `OutboxScheduler.ensureScheduled`（唯一任务 `outbox-retry`，WorkManager 指数退避，KEEP 不重置退避）。
+  回执首次发送失败、以及 App 启动补发后仍有剩余时都会登记该任务。
+- 把补发逻辑抽成 `runOutboxPass(context)`，worker 与仪器测试共用；返回 SUCCESS / RETRY / FAILED。
+- core：`Outbox` 的锁从实例级改为进程级——界面和后台 worker 各有一个实例，只锁实例会丢写。
+- 仪器测试（真实 SettingsStore + 真实 HTTP + 真实 WorkManager 登记，不依赖系统 JobScheduler 的执行时机）：
+  `OutboxScheduler` 登记的任务存在且未结束；随后直接跑一次补发，回执 POST 到 `/v1/device/receipts`
+  并带上 Bearer 令牌，发件箱清空。
+
+### 已核验（Android 16 模拟器）
+
+1. 仪器测试日志：`OutboxScheduler: enqueued outbox-retry` →
+   `OutboxRetryWorker: start outbox=1 configured=true` → `end sent=1 remaining=0`。
+2. MockWebServer 收到 `POST /v1/device/receipts`，`Authorization: Bearer test-token`，body 含测试信封 id。
+3. 首次尝试“等系统真的执行任务”失败：模拟器 Wi-Fi 探测不到外网（`PROBE_HTTPS www.google.com` 超时），
+   `dumpsys` 显示任务已交给 JobScheduler 但 60 秒内未执行——这是测试环境的调度延迟，不是 worker 逻辑问题；
+   改为直接调用同一条补发路径后稳定通过。
+4. 单元测试：core 71、桌面 27、手机 6（新增 `OutboxSyncTest` 3 个）+ 仪器测试 1，0 失败 0 错误；
+   release APK 构建通过。
+
+### 未完成
+
+- 后台补发依赖系统调度窗口；国产 ROM 的省电策略可能进一步延后，仍需真机过夜验证。
+- 只有回执走发件箱；其他上行消息（未来同步推送）还没有队列。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。

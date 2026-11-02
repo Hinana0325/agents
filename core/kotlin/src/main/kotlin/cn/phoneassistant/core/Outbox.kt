@@ -28,44 +28,41 @@ class Outbox(
 
     private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
-    @Synchronized
-    fun list(): List<OutboxItem> = load()
+    fun list(): List<OutboxItem> = synchronized(LOCK) { load() }
 
-    @Synchronized
     fun enqueue(key: String, kind: String, payload: JsonObject, nowMillis: Long = System.currentTimeMillis()) {
-        val updated = load().filterNot { it.key == key } + OutboxItem(key, kind, payload, 0, nowMillis)
-        save(updated)
+        synchronized(LOCK) {
+            val updated = load().filterNot { it.key == key } + OutboxItem(key, kind, payload, 0, nowMillis)
+            save(updated)
+        }
     }
 
-    @Synchronized
     fun due(nowMillis: Long = System.currentTimeMillis()): List<OutboxItem> =
-        load().filter { it.nextAttemptAtMillis <= nowMillis }
+        synchronized(LOCK) { load().filter { it.nextAttemptAtMillis <= nowMillis } }
 
-    @Synchronized
     fun markSent(key: String) {
-        save(load().filterNot { it.key == key })
+        synchronized(LOCK) { save(load().filterNot { it.key == key }) }
     }
 
     /** @return true 仍在队列（等待重试），false 已耗尽被丢弃 */
-    @Synchronized
-    fun markFailed(key: String, nowMillis: Long = System.currentTimeMillis()): Boolean {
-        val items = load()
-        val item = items.firstOrNull { it.key == key } ?: return false
-        val attempts = item.attempts + 1
-        if (attempts >= maxAttempts) {
-            save(items.filterNot { it.key == key })
-            return false
+    fun markFailed(key: String, nowMillis: Long = System.currentTimeMillis()): Boolean =
+        synchronized(LOCK) {
+            val items = load()
+            val item = items.firstOrNull { it.key == key } ?: return@synchronized false
+            val attempts = item.attempts + 1
+            if (attempts >= maxAttempts) {
+                save(items.filterNot { it.key == key })
+                return@synchronized false
+            }
+            val delay = minOf(baseDelayMillis shl minOf(attempts - 1, 20), maxDelayMillis)
+            val updated = items.map {
+                if (it.key == key) it.copy(attempts = attempts, nextAttemptAtMillis = nowMillis + delay) else it
+            }
+            save(updated)
+            return@synchronized true
         }
-        val delay = minOf(baseDelayMillis shl minOf(attempts - 1, 20), maxDelayMillis)
-        val updated = items.map {
-            if (it.key == key) it.copy(attempts = attempts, nextAttemptAtMillis = nowMillis + delay) else it
-        }
-        save(updated)
-        return true
-    }
 
-    @Synchronized
-    fun size(): Int = load().size
+    fun size(): Int = synchronized(LOCK) { load().size }
 
     private fun save(items: List<OutboxItem>) {
         runCatching {
@@ -77,4 +74,9 @@ class Outbox(
     private fun load(): List<OutboxItem> = runCatching {
         if (!file.isFile) emptyList() else json.decodeFromString<List<OutboxItem>>(file.readText())
     }.getOrDefault(emptyList())
+
+    private companion object {
+        /** 进程级锁：界面和后台 worker 各持有一个 Outbox 实例，不能只锁实例。 */
+        val LOCK = Any()
+    }
 }

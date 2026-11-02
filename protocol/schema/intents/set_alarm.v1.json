@@ -1,0 +1,20 @@
+{
+  "$id": "https://assistant.local/protocol/schema/intents/set_alarm.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "set_alarm params v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["hour", "minute"],
+  "properties": {
+    "hour": { "type": "integer", "minimum": 0, "maximum": 23 },
+    "minute": { "type": "integer", "minimum": 0, "maximum": 59 },
+    "label": { "type": "string", "minLength": 1, "maxLength": 40 },
+    "repeat": { "enum": ["none", "daily", "weekdays"] },
+    "days": {
+      "type": "array",
+      "maxItems": 7,
+      "uniqueItems": true,
+      "items": { "type": "integer", "minimum": 1, "maximum": 7 }
+    }
+  }
+}

@@ -1,0 +1,1136 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "chat_min",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7001-8001-000000000001",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "你好"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "chat_max_len",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7002-8002-000000000002",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字字"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "chat_ascii",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7003-8003-000000000003",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "what is on my calendar"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "chat_with_trace",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7004-8004-000000000004",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "trace": "trace-0001"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "chat_from_phone_to_pc",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7005-8005-000000000005",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "phone",
+          "kid": "phone-1-key"
+        },
+        "to": {
+          "device": "pc-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "web_search_min",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7006-8006-000000000006",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "web_search",
+        "params": {
+          "query": "天气"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "web_search_max_len",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7007-8007-000000000007",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "web_search",
+        "params": {
+          "query": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "save_note_text_only",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7008-8008-000000000008",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "save_note",
+        "params": {
+          "text": "买牛奶"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "save_note_with_title",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7009-8009-000000000009",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "save_note",
+        "params": {
+          "text": "买牛奶",
+          "title": "购物"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "save_note_max_len",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-700a-800a-00000000000a",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "save_note",
+        "params": {
+          "text": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "set_timer_one_second",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-700b-800b-00000000000b",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_timer",
+        "params": {
+          "seconds": 1
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "set_timer_max",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-700c-800c-00000000000c",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_timer",
+        "params": {
+          "seconds": 86400,
+          "label": "炖汤"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "set_alarm_basic",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-700d-800d-00000000000d",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 7,
+          "minute": 30
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "set_alarm_label",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-700e-800e-00000000000e",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 0,
+          "minute": 0,
+          "label": "起床"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "set_alarm_daily",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-700f-800f-00000000000f",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 7,
+          "minute": 0,
+          "repeat": "daily"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      }
+    },
+    {
+      "name": "set_alarm_weekdays",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7010-8010-000000000010",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 8,
+          "minute": 15,
+          "repeat": "weekdays",
+          "days": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      }
+    },
+    {
+      "name": "open_app_basic",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7011-8011-000000000011",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.music"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "open_app_allowlisted_url",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7012-8012-000000000012",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.browser",
+          "url": "https://example.com/path?q=1"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "url_allowlist": [
+          "example.com"
+        ]
+      }
+    },
+    {
+      "name": "open_app_finance_class",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7013-8013-000000000013",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.bank"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "app_catalog": {
+          "com.example.bank": {
+            "class": "finance"
+          }
+        }
+      }
+    },
+    {
+      "name": "open_app_unlisted_url",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7014-8014-000000000014",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.browser",
+          "url": "https://evil.test/x"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      }
+    },
+    {
+      "name": "create_event_basic",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7015-8015-000000000015",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "评审",
+          "begin_ms": 1762081200000,
+          "end_ms": 1762084800000
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      }
+    },
+    {
+      "name": "create_event_details",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7016-8016-000000000016",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "评审",
+          "begin_ms": 1762081200000,
+          "end_ms": 1762084800000,
+          "description": "讨论 Phase 0",
+          "location": "线上"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      }
+    },
+    {
+      "name": "create_event_attendees",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7017-8017-000000000017",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "评审",
+          "begin_ms": 1762081200000,
+          "end_ms": 1762084800000,
+          "attendees": [
+            "a@example.com"
+          ]
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 3,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 3
+      }
+    },
+    {
+      "name": "task_handoff_chat",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7018-8018-000000000018",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "target_device_id": "pc-1",
+          "proposal": {
+            "intent": "chat",
+            "params": {
+              "text": "hi"
+            },
+            "level": 1
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      }
+    },
+    {
+      "name": "task_handoff_alarm_proposal",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7019-8019-000000000019",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "target_device_id": "phone-1",
+          "proposal": {
+            "intent": "set_alarm",
+            "params": {
+              "hour": 7,
+              "minute": 0
+            },
+            "level": 1
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      }
+    },
+    {
+      "name": "task_handoff_high_proposal",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-701a-801a-00000000001a",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "target_device_id": "phone-1",
+          "proposal": {
+            "intent": "create_event",
+            "params": {
+              "title": "x",
+              "begin_ms": 1,
+              "end_ms": 2
+            },
+            "level": 3
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 3,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 3
+      }
+    },
+    {
+      "name": "voice_command_basic",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-701b-801b-00000000001b",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "voice_command",
+        "params": {
+          "transcript": "明天早上七点叫我"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2,
+        "executable": false
+      }
+    },
+    {
+      "name": "voice_command_lang",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-701c-801c-00000000001c",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "voice_command",
+        "params": {
+          "transcript": "set a timer",
+          "lang": "en-US"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2,
+        "executable": false
+      }
+    },
+    {
+      "name": "handoff_resigned_with_parent",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-701d-801d-00000000001d",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "parent": "0193f0a8-9c1b-73e7-83e7-0000000003e7"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "origin_scheduled",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-701e-801e-00000000001e",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_timer",
+        "params": {
+          "seconds": 60
+        },
+        "origin": {
+          "kind": "scheduled",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "origin_derived",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-701f-801f-00000000001f",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "derived",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "origin_voice",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7020-8020-000000000020",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_voice",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "ttl_max",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7021-8021-000000000021",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 86400,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "sender_raises_level",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7022-8022-000000000022",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 3,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 3
+      }
+    },
+    {
+      "name": "to_pc_role",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7023-8023-000000000023",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "phone",
+          "kid": "k1"
+        },
+        "to": {
+          "device": "pc-1"
+        },
+        "intent": "save_note",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "pc"
+      }
+    }
+  ]
+}

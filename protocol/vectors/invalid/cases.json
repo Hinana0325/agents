@@ -1,0 +1,2833 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "missing_v",
+      "envelope": {
+        "id": "0193f0a8-9c1b-7024-8024-000000000024",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "v2",
+      "envelope": {
+        "v": 2,
+        "id": "0193f0a8-9c1b-7025-8025-000000000025",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "UNSUPPORTED_VERSION"
+      }
+    },
+    {
+      "name": "v_string",
+      "envelope": {
+        "v": "1",
+        "id": "0193f0a8-9c1b-7026-8026-000000000026",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "v_bool",
+      "envelope": {
+        "v": true,
+        "id": "0193f0a8-9c1b-7027-8027-000000000027",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "unknown_envelope_field",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7028-8028-000000000028",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "extra": 1
+      },
+      "expect": {
+        "ok": false,
+        "code": "UNKNOWN_FIELD"
+      }
+    },
+    {
+      "name": "missing_id",
+      "envelope": {
+        "v": 1,
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "missing_ts",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-702a-802a-00000000002a",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "missing_ttl_s",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-702b-802b-00000000002b",
+        "ts": "2026-11-02T10:00:00Z",
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "missing_from",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-702c-802c-00000000002c",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "missing_to",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-702d-802d-00000000002d",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "missing_intent",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-702e-802e-00000000002e",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "missing_params",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-702f-802f-00000000002f",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "missing_origin",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7030-8030-000000000030",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "missing_level",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7031-8031-000000000031",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "missing_sig",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7032-8032-000000000032",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "id_uuid4",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-4a2d-8e3f-123456789abc",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "id_uppercase",
+      "envelope": {
+        "v": 1,
+        "id": "0193F0A8-9C1B-7A2D-8E3F-123456789ABC",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "id_not_uuid",
+      "envelope": {
+        "v": 1,
+        "id": "not-a-uuid",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "id_int",
+      "envelope": {
+        "v": 1,
+        "id": 123,
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "trace_empty",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7037-8037-000000000037",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "trace": ""
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "trace_too_long",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7038-8038-000000000038",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "trace": "ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "ts_no_z",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7039-8039-000000000039",
+        "ts": "2026-11-02T10:00:00",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "ts_millis",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-703a-803a-00000000003a",
+        "ts": "2026-11-02T10:00:00.123Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "ts_offset",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-703b-803b-00000000003b",
+        "ts": "2026-11-02T18:00:00+08:00",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "ttl_zero",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-703c-803c-00000000003c",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 0,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "ttl_too_big",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-703d-803d-00000000003d",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 86401,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "ttl_float",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-703e-803e-00000000003e",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300.0,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "from_not_object",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-703f-803f-00000000003f",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": "hub",
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "from_unknown_field",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7040-8040-000000000040",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "k",
+          "name": "x"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "UNKNOWN_FIELD"
+      }
+    },
+    {
+      "name": "from_missing_kid",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7041-8041-000000000041",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "from_bad_role",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7042-8042-000000000042",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "cloud",
+          "kid": "k"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_ENUM"
+      }
+    },
+    {
+      "name": "from_empty_kid",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7043-8043-000000000043",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": ""
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "to_unknown_field",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7044-8044-000000000044",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1",
+          "user": "u"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "UNKNOWN_FIELD"
+      }
+    },
+    {
+      "name": "to_empty_device",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7045-8045-000000000045",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": ""
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "intent_unknown",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7046-8046-000000000046",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "delete_file",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "UNKNOWN_INTENT"
+      }
+    },
+    {
+      "name": "intent_uppercase",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7047-8047-000000000047",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "CHAT_ONLY",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "UNKNOWN_INTENT"
+      }
+    },
+    {
+      "name": "intent_int",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7048-8048-000000000048",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": 1,
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "params_array",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7049-8049-000000000049",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": [
+          "hi"
+        ],
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "origin_missing_tainted",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-704a-804a-00000000004a",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text"
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "origin_tainted_string",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-704b-804b-00000000004b",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": "false"
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "origin_bad_kind",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-704c-804c-00000000004c",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_ENUM"
+      }
+    },
+    {
+      "name": "origin_empty_via",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-704d-804d-00000000004d",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false,
+          "via": ""
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "origin_unknown_field",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-704e-804e-00000000004e",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false,
+          "src": "x"
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "UNKNOWN_FIELD"
+      }
+    },
+    {
+      "name": "level_zero",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-704f-804f-00000000004f",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 0,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "level_four",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7050-8050-000000000050",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 4,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "level_float",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7051-8051-000000000051",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1.0,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "level_string",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7052-8052-000000000052",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": "1",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "parent_bad",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7053-8053-000000000053",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "parent": "x"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "sig_short",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7054-8054-000000000054",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "sig_bad_char",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7055-8055-000000000055",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "sig_too_long",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7056-8056-000000000056",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "chat_missing_text",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7057-8057-000000000057",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {},
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "chat_empty_text",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7058-8058-000000000058",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": ""
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "chat_text_too_long",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7059-8059-000000000059",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "chat_text_int",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-705a-805a-00000000005a",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": 1
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "chat_unknown_param",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-705b-805b-00000000005b",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi",
+          "html": "<b>"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "UNKNOWN_FIELD"
+      }
+    },
+    {
+      "name": "web_search_missing_query",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-705c-805c-00000000005c",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "web_search",
+        "params": {},
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "web_search_long_query",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-705d-805d-00000000005d",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "web_search",
+        "params": {
+          "query": "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "web_search_url_param",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-705e-805e-00000000005e",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "web_search",
+        "params": {
+          "query": "x",
+          "url": "https://e.test"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "UNKNOWN_FIELD"
+      }
+    },
+    {
+      "name": "save_note_long_title",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-705f-805f-00000000005f",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "save_note",
+        "params": {
+          "text": "x",
+          "title": "ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "save_note_long_text",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7060-8060-000000000060",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "save_note",
+        "params": {
+          "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "timer_zero",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7061-8061-000000000061",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_timer",
+        "params": {
+          "seconds": 0
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "timer_too_big",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7062-8062-000000000062",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_timer",
+        "params": {
+          "seconds": 86401
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "timer_bool",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7063-8063-000000000063",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_timer",
+        "params": {
+          "seconds": true
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "alarm_hour_24",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7064-8064-000000000064",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 24,
+          "minute": 0
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "alarm_minute_60",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7065-8065-000000000065",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 0,
+          "minute": 60
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "alarm_bad_repeat",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7066-8066-000000000066",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 0,
+          "minute": 0,
+          "repeat": "monthly"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_ENUM"
+      }
+    },
+    {
+      "name": "alarm_days_zero",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7067-8067-000000000067",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 0,
+          "minute": 0,
+          "days": [
+            0
+          ]
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "alarm_days_duplicate",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7068-8068-000000000068",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 0,
+          "minute": 0,
+          "days": [
+            1,
+            1
+          ]
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_PARAM"
+      }
+    },
+    {
+      "name": "alarm_days_too_many",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7069-8069-000000000069",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 0,
+          "minute": 0,
+          "days": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            1
+          ]
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "alarm_days_not_array",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-706a-806a-00000000006a",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 0,
+          "minute": 0,
+          "days": 1
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "open_app_bad_id",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-706b-806b-00000000006b",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "Bad App"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "open_app_id_too_long",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-706c-806c-00000000006c",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "abbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "open_app_http_url",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-706d-806d-00000000006d",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.b",
+          "url": "http://example.com"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "open_app_javascript_scheme",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-706e-806e-00000000006e",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.b",
+          "url": "javascript:alert(1)"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "open_app_file_scheme",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-706f-806f-00000000006f",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.b",
+          "url": "file:///etc/passwd"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "open_app_data_scheme",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7070-8070-000000000070",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.b",
+          "url": "data:text/html,<script>x</script>"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "open_app_url_int",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7071-8071-000000000071",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.b",
+          "url": 1
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    },
+    {
+      "name": "event_end_before_begin",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7072-8072-000000000072",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "x",
+          "begin_ms": 10,
+          "end_ms": 10
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_PARAM"
+      }
+    },
+    {
+      "name": "event_empty_title",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7073-8073-000000000073",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "",
+          "begin_ms": 1,
+          "end_ms": 2
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "event_begin_zero",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7074-8074-000000000074",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "x",
+          "begin_ms": 0,
+          "end_ms": 2
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "event_too_many_attendees",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7075-8075-000000000075",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "x",
+          "begin_ms": 1,
+          "end_ms": 2,
+          "attendees": [
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c",
+            "a@b.c"
+          ]
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 3,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "event_attendee_too_short",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7076-8076-000000000076",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "x",
+          "begin_ms": 1,
+          "end_ms": 2,
+          "attendees": [
+            "ab"
+          ]
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 3,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "handoff_nested_handoff",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7077-8077-000000000077",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "target_device_id": "pc-1",
+          "proposal": {
+            "intent": "task_handoff",
+            "params": {},
+            "level": 1
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "HANDOFF_DEPTH"
+      }
+    },
+    {
+      "name": "handoff_nested_voice",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7078-8078-000000000078",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "target_device_id": "pc-1",
+          "proposal": {
+            "intent": "voice_command",
+            "params": {
+              "transcript": "x"
+            },
+            "level": 1
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "HANDOFF_DEPTH"
+      }
+    },
+    {
+      "name": "handoff_unknown_proposal",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7079-8079-000000000079",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "target_device_id": "pc-1",
+          "proposal": {
+            "intent": "delete_file",
+            "params": {},
+            "level": 1
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "UNKNOWN_INTENT"
+      }
+    },
+    {
+      "name": "handoff_bad_proposal_level",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-707a-807a-00000000007a",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "target_device_id": "pc-1",
+          "proposal": {
+            "intent": "chat",
+            "params": {
+              "text": "x"
+            },
+            "level": 4
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "handoff_bad_proposal_params",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-707b-807b-00000000007b",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "target_device_id": "pc-1",
+          "proposal": {
+            "intent": "chat",
+            "params": {
+              "text": ""
+            },
+            "level": 1
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "handoff_missing_target",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-707c-807c-00000000007c",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "proposal": {
+            "intent": "chat",
+            "params": {
+              "text": "x"
+            },
+            "level": 1
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "MISSING_FIELD"
+      }
+    },
+    {
+      "name": "voice_empty_transcript",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-707d-807d-00000000007d",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "voice_command",
+        "params": {
+          "transcript": ""
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_RANGE"
+      }
+    },
+    {
+      "name": "voice_bad_lang",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-707e-807e-00000000007e",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "voice_command",
+        "params": {
+          "transcript": "x",
+          "lang": "zh_CN"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_FORMAT"
+      }
+    },
+    {
+      "name": "not_object",
+      "envelope": [
+        "not",
+        "an",
+        "envelope"
+      ],
+      "expect": {
+        "ok": false,
+        "code": "BAD_TYPE"
+      }
+    }
+  ]
+}

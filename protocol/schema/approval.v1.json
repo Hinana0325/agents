@@ -1,0 +1,23 @@
+{
+  "$id": "https://assistant.local/protocol/schema/approval.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ApprovalProof v1",
+  "description": "用户确认证明。签名对象是 {envelope_hash, decision, level, ts, nonce} 的 JCS 编码；执行端自己验：审批方公钥是否受信、级别是否在其权限内、哈希是否匹配、是否过期或重放。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["v", "envelope_hash", "decision", "level", "approver_device", "ts", "nonce", "sig"],
+  "properties": {
+    "v": { "const": 1 },
+    "envelope_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256(JCS(envelope minus sig)) 的小写十六进制。"
+    },
+    "decision": { "enum": ["approve", "deny"] },
+    "level": { "type": "integer", "minimum": 1, "maximum": 3 },
+    "approver_device": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "ts": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$" },
+    "nonce": { "type": "string", "pattern": "^[A-Za-z0-9_-]{16,64}$" },
+    "sig": { "type": "string", "pattern": "^[A-Za-z0-9_-]{86,88}$" }
+  }
+}

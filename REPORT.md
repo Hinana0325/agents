@@ -80,3 +80,53 @@
 - 中文路径坑：直接在 `…\Desktop\分布式个人助理` 下跑单测会 `ClassNotFoundException`（类文件其实已生成在 `app/build/tmp/kotlin-classes/debugUnitTest/`）。绕法见 README「构建手机 Agent」。这是本机环境问题，不是代码问题。
 - `security-crypto` 1.1.0 起把 `EncryptedSharedPreferences`/`MasterKey` 标为 deprecated，编译有告警；换实现方式是下一个决定，没在本次改动里做。
 - 手表、电脑、耳机、云端编排的状态与第 3 节相同，本次没有任何改动。
+
+## 6. Phase 0（契约与脚手架）执行报告 — 2026-11-02 晚
+
+依据：`DEVELOPMENT.md`（v1，Claude 方案 + 用户修订），第一周开工清单 Day 1–5。
+
+### 先同步仓库
+
+- 拉取 `origin/main`（新增 `DEVELOPMENT.md`，其余仍是同一份基线），与本地未提交的首次构建修复合并；合并后本地修复全部保留。
+- 本地由此第一次有了 git 历史：`25a4718`（本地修复）+ `c74337b`（合并远程）。**未推送**。
+
+### 按目标结构重组（Day 1）
+
+- `phone-agent/` → `apps/phone/`；`watch-agent/` → `apps/watch/`；`pc-agent/` → `apps/desktop/`（搜索存根移到 `apps/desktop/capabilities/`）；`earphone-agent/README.md` → `docs/devices/earphone.md`。
+- Gradle 改为根级多模块：`:core:kotlin`（纯 JVM）+ `:apps:phone:app`，wrapper/version catalog/gradle.properties 上移到根。
+- 旧原型 `protocol/AgentEnvelope.kt`、`envelope.py`、`envelope.schema.json` 移到 `docs/legacy/`（未删除）。
+- **没有创建 `services/hub/`**：DEVELOPMENT.md 明确要求云端代码不进本仓库。Python 侧放在 `tools/vector-runner/py/`，标注为参考实现。
+
+### 协议契约（Day 2–3）
+
+- `protocol/schema/`：`envelope.v1.json`、9 个意图 params schema（全部 `additionalProperties: false`）、`receipt.v1.json`、`approval.v1.json`、`capability.v1.json`。
+- `protocol/policy/intent-policy.v1.yaml`：基础级、升级规则、污点、handoff 规则、全局约束。
+- `protocol/spec/`：JCS 子集、签名与密钥、状态机、错误码（含优先级）、版本协商；`protocol/CHANGELOG.md` 记录与旧原型的差异（大写意图名 → 小写，status 移出信封）。
+
+### 金标准向量
+
+`protocol/vectors/` 共 **183 条**：valid 35、invalid 92、policy 26、injection 15、signing 15。覆盖：越界/未知字段/缺字段/类型错误、`javascript:`/`file:`/`data:`/`http:` 危险 scheme、超长、策略升级与"发送方不能降级"、污点加级与封顶、handoff 深度、ES256 篡改/过期/时钟偏移/重放。
+
+向量由 `tools/vector-runner/py/gen_vectors.py` 生成（期望值按 spec 手写，不是由校验器反推）；固定 P-256 测试私钥只用于向量。
+
+### 双实现（Day 4–5）
+
+- `core/kotlin`：`Jcs.kt`（JCS 子集）、`EnvelopeValidator.kt`（严格结构 + 策略重算 + ES256 验签）、`ValidationContext.kt`、`ModelIntentParser.kt`（原手机校验器整体迁入，含 11 个用例）。
+- `tools/vector-runner/py`：与 Kotlin 逐条对应的参考实现 + JUnit 之外的另一入口。
+- 手机 App 改为依赖 `:core:kotlin`，删除原 `IntentValidator.kt` 与 `model/Intent.kt`。
+
+### 已核验事实
+
+- Kotlin：`./gradlew :core:kotlin:test --rerun-tasks` → `VectorTest.allVectorsPass` PASSED，`ModelIntentParserTest` 11 例全部 PASSED。
+- Python：`uv run --with cryptography python tools/vector-runner/py/runner.py` → `TOTAL 183 cases, 0 failed`，退出码 0。
+- 阳性对照（验收门禁）：把 `valid/chat_min` 的期望 level 改成 99 后，Python 退出码 1，Kotlin `VectorTest` FAILED；恢复后两侧重新全绿。
+- 手机：`:apps:phone:app:assembleDebug` BUILD SUCCESSFUL，APK 位于 `apps/phone/app/build/outputs/apk/debug/app-debug.apk`。
+
+### 未验证 / 未完成
+
+- **CI 从未在 GitHub 上跑过**：`.github/workflows/ci.yml` 已写好（两侧向量 + Android 构建 + gitleaks），本地用同样命令验证过；没有推送，也没有 Actions 运行记录。
+- **无真机**：手机界面、意图跳转、Keystore 仍无实机证据。
+- 没有云端 hub、没有 device-sim、没有传输层/签名签发方；`signing/` 向量验证的是设备侧验签，不是"云真的签了"。
+- schema 与两份手写实现靠向量对齐，**没有**引入通用 JSON Schema 校验器做三方交叉验证。
+- ADR 0006（电脑文件搜索是否接入）仍待用户拍板，默认不接入。
+- Phase 0 剩余：`spec/` 可继续补协议升级演练、`tools/codegen`、夜跑评测目录；这些不影响当前向量门禁。

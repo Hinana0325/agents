@@ -1,0 +1,21 @@
+{
+  "$id": "https://assistant.local/protocol/schema/intents/create_event.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "create_event params v1",
+  "description": "时间用 epoch 毫秒整数，信封里不出现浮点数。end_ms 必须大于 begin_ms。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["title", "begin_ms", "end_ms"],
+  "properties": {
+    "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "begin_ms": { "type": "integer", "minimum": 1 },
+    "end_ms": { "type": "integer", "minimum": 1 },
+    "description": { "type": "string", "maxLength": 2000 },
+    "location": { "type": "string", "maxLength": 200 },
+    "attendees": {
+      "type": "array",
+      "maxItems": 20,
+      "items": { "type": "string", "minLength": 3, "maxLength": 200 }
+    }
+  }
+}

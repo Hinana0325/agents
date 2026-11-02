@@ -1,0 +1,635 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "sig_valid_chat",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70a8-80a8-0000000000a8",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "你好"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "I6ASz69TM9zBgTSRaRbfpj1K_aY8cqWCJ8yXVphd8wb3LeVq6mrdadZizf9e6_hLlB9BkCXZLA_ZSFdox8iEJg"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_valid_event",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70a9-80a9-0000000000a9",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "评审",
+          "begin_ms": 1,
+          "end_ms": 2
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "3SQwzD2q0h4A08AJ9jkBOL88fUNF1n5S-uO7AO_VIHrFgF1LG0gwynbSSJoEiABVJutUKckhpFXziY2v9_-riQ"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_valid_then_tampered_param",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70aa-80aa-0000000000aa",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "tampered"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "3PPor9amF6G7ksK9XhV70IcovsvCrugGctZbW8EOfRLW8xQQ6xsReoIHFpd_DIPVal3sb6rfcWq-z87YI7cDpw"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_SIG"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_tampered_level",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70ab-80ab-0000000000ab",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 3,
+        "sig": "tgxIr6i-qoX976tjKgFN3q5IQtBkPW7_UseMC3Nj2tq1EU9KAScI1EY0xXV7gFZUuN_2Z9BcA7b5RSLf0i7WYg"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_SIG"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_wrong_key_placeholder",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70ac-80ac-0000000000ac",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "9z--rQVRk6R2qOsYduTK3aY5BNhdl3CPgA0_t-NIcOXzXJCWnxmz5fdTwt4WGcEswp-LA9m8JQK-He2dcVGd9Q"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_SIG"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE",
+          "y": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE"
+        }
+      }
+    },
+    {
+      "name": "sig_expired",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70ad-80ad-0000000000ad",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 10,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "fJOnlzdbYCKUW2hOqokGMlE7TX7Eg77PIax3-I6L8qfamSsfcm-aDPfKW0Ak9Mg1a3ndVUHAn8uYj7FwZfcVlw"
+      },
+      "expect": {
+        "ok": false,
+        "code": "EXPIRED"
+      },
+      "context": {
+        "now": "2026-11-02T10:01:00Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_not_expired_at_boundary",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70ae-80ae-0000000000ae",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 30,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "F-spwKrum9iVjlVpGhMrv75Tj1-HbZEqZ44EwvHaZp0i-rEedZjt2xobypBPkaTker5TfmsKPUXJmrqRkpkeyQ"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_expired_by_one",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70af-80af-0000000000af",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 29,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "-LpH_v6hgq2AhaW1V6opXkiJZAXnfQF4V2AX0mh5HJht4rDIP1r6evgBHAWvFyTHdSb-mwb24iOgNhMWMGKeOg"
+      },
+      "expect": {
+        "ok": false,
+        "code": "EXPIRED"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_clock_skew_positive",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70b0-80b0-0000000000b0",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "NTMRRFm0hWSEKsfm7DqZ82vyy6nii47Ug35y7MFakaVGTKe-Ox-USkYCmO9O1ju4BYLI5G-GfIF4KRgeBtLi1Q"
+      },
+      "expect": {
+        "ok": false,
+        "code": "CLOCK_SKEW"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "clock_offset_s": 61,
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_clock_skew_negative",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70b1-80b1-0000000000b1",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "ChfvnAAALxuo7mkTc62wOOudpAf-3DBc78aJYHYj5APi9Wd2S4hhV6Zfn72t9sGDo0vXGq_xxpqkVmuq92TDOg"
+      },
+      "expect": {
+        "ok": false,
+        "code": "CLOCK_SKEW"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "clock_offset_s": -61,
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_clock_skew_within",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70b2-80b2-0000000000b2",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "9S9Sk_ORCXXy3Kw3zcgPsOtzt2GWHDBiDifLW6BjB1no0dgW1xvEq809z-5D8LJn5i5JZfyRMlLX85URzGm7Ag"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "clock_offset_s": 60,
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_replay",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70b3-80b3-0000000000b3",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "7MI68slSo135BBHH0j478h0VzE9IhM1tu7_Kc1USuJC8beEUO2dWBGvZSyPWKKMY8GdurgdJsZKxGQiqtgG1OQ"
+      },
+      "expect": {
+        "ok": false,
+        "code": "ID_REPLAYED"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [
+          "0193f0a8-9c1b-70b3-80b3-0000000000b3"
+        ],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_valid_handoff",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70b4-80b4-0000000000b4",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "target_device_id": "pc-1",
+          "proposal": {
+            "intent": "chat",
+            "params": {
+              "text": "hi"
+            },
+            "level": 1
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "1dT79CwVw4chsATvvyNIFY1P0amZB0yYwfKYUVe-peOLXEifSLfiTkWFuZdP930P4v8RzQ0F9FD8rpMCReoIcw"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_valid_voice",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70b5-80b5-0000000000b5",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "voice_command",
+        "params": {
+          "transcript": "设一个十分钟的计时"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "19AXK1CvZwLeIF0Vez9cBe7Qq2M5CueXbPKWul_Sf_mmi8MS4Q8wwdt69CpAeV-2x0lusjx2sUyULO4QFx7B_A"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2,
+        "executable": false
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    },
+    {
+      "name": "sig_of_other_envelope",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-70b6-80b6-0000000000b6",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "I6ASz69TM9zBgTSRaRbfpj1K_aY8cqWCJ8yXVphd8wb3LeVq6mrdadZizf9e6_hLlB9BkCXZLA_ZSFdox8iEJg"
+      },
+      "expect": {
+        "ok": false,
+        "code": "BAD_SIG"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "pubkey_jwk": {
+          "kty": "EC",
+          "crv": "P-256",
+          "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+          "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+        }
+      }
+    }
+  ]
+}

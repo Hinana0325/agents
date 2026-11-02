@@ -1,0 +1,17 @@
+{
+  "$id": "https://assistant.local/protocol/schema/intents/open_app.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "open_app params v1",
+  "description": "云端只能给逻辑 app_id，不能给包名或任意 Intent；app_id 到包名的映射只存在端上目录里。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["app_id"],
+  "properties": {
+    "app_id": { "type": "string", "pattern": "^[a-z][a-z0-9_.-]{1,63}$" },
+    "url": {
+      "type": "string",
+      "pattern": "^https://[^\\s]{1,512}$",
+      "description": "可选深链，只允许 https；host 不在端上允许清单时策略升到 L2。"
+    }
+  }
+}

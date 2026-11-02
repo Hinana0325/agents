@@ -1,0 +1,920 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "chat_level1_ok",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-707f-807f-00000000007f",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "hi"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      }
+    },
+    {
+      "name": "event_level1_below",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7080-8080-000000000080",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "x",
+          "begin_ms": 1,
+          "end_ms": 2
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "LEVEL_BELOW_POLICY"
+      }
+    },
+    {
+      "name": "event_level2_ok",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7081-8081-000000000081",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "x",
+          "begin_ms": 1,
+          "end_ms": 2
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      }
+    },
+    {
+      "name": "event_attendees_level2_below",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7082-8082-000000000082",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "x",
+          "begin_ms": 1,
+          "end_ms": 2,
+          "attendees": [
+            "a@b.c"
+          ]
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "LEVEL_BELOW_POLICY"
+      }
+    },
+    {
+      "name": "event_attendees_level3_ok",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7083-8083-000000000083",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "x",
+          "begin_ms": 1,
+          "end_ms": 2,
+          "attendees": [
+            "a@b.c"
+          ]
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 3,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 3
+      }
+    },
+    {
+      "name": "alarm_repeat_level1_below",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7084-8084-000000000084",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 7,
+          "minute": 0,
+          "repeat": "daily"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "LEVEL_BELOW_POLICY"
+      }
+    },
+    {
+      "name": "alarm_repeat_level2_ok",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7085-8085-000000000085",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 7,
+          "minute": 0,
+          "repeat": "daily"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      }
+    },
+    {
+      "name": "alarm_recent_over_limit",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7086-8086-000000000086",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 7,
+          "minute": 0
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "LEVEL_BELOW_POLICY"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "recent_alarms_24h": 6
+      }
+    },
+    {
+      "name": "alarm_recent_at_limit",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7087-8087-000000000087",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 7,
+          "minute": 0
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "recent_alarms_24h": 5
+      }
+    },
+    {
+      "name": "open_app_finance_level1_below",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7088-8088-000000000088",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.bank"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "LEVEL_BELOW_POLICY"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "app_catalog": {
+          "com.example.bank": {
+            "class": "finance"
+          }
+        }
+      }
+    },
+    {
+      "name": "open_app_payment_level2_ok",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7089-8089-000000000089",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.pay"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "app_catalog": {
+          "com.example.pay": {
+            "class": "payment"
+          }
+        }
+      }
+    },
+    {
+      "name": "open_app_settings_level2_ok",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-708a-808a-00000000008a",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.settings"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "app_catalog": {
+          "com.example.settings": {
+            "class": "system_settings"
+          }
+        }
+      }
+    },
+    {
+      "name": "open_app_unlisted_url_level1_below",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-708b-808b-00000000008b",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.b",
+          "url": "https://evil.test/x"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "LEVEL_BELOW_POLICY"
+      }
+    },
+    {
+      "name": "open_app_unlisted_url_level2_ok",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-708c-808c-00000000008c",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.b",
+          "url": "https://evil.test/x"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      }
+    },
+    {
+      "name": "open_app_allowlisted_url_level1_ok",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-708d-808d-00000000008d",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.b",
+          "url": "https://example.com/x"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "url_allowlist": [
+          "example.com"
+        ]
+      }
+    },
+    {
+      "name": "open_app_subdomain_not_allowlisted",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-708e-808e-00000000008e",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "open_app",
+        "params": {
+          "app_id": "com.example.b",
+          "url": "https://a.example.com/x"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "LEVEL_BELOW_POLICY"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "phone",
+        "url_allowlist": [
+          "example.com"
+        ]
+      }
+    },
+    {
+      "name": "handoff_proposal3_level2_below",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-708f-808f-00000000008f",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "target_device_id": "phone-1",
+          "proposal": {
+            "intent": "create_event",
+            "params": {
+              "title": "x",
+              "begin_ms": 1,
+              "end_ms": 2
+            },
+            "level": 3
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "LEVEL_BELOW_POLICY"
+      }
+    },
+    {
+      "name": "handoff_proposal1_level2_ok",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7090-8090-000000000090",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "task_handoff",
+        "params": {
+          "target_device_id": "pc-1",
+          "proposal": {
+            "intent": "chat",
+            "params": {
+              "text": "x"
+            },
+            "level": 1
+          }
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 2
+      }
+    },
+    {
+      "name": "target_event_to_watch",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7091-8091-000000000091",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "create_event",
+        "params": {
+          "title": "x",
+          "begin_ms": 1,
+          "end_ms": 2
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 2,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "TARGET_NOT_ALLOWED"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "watch"
+      }
+    },
+    {
+      "name": "target_alarm_to_pc",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7092-8092-000000000092",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 7,
+          "minute": 0
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "TARGET_NOT_ALLOWED"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "pc"
+      }
+    },
+    {
+      "name": "target_web_search_to_watch",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7093-8093-000000000093",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "web_search",
+        "params": {
+          "query": "x"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "TARGET_NOT_ALLOWED"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "watch"
+      }
+    },
+    {
+      "name": "target_note_to_watch",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7094-8094-000000000094",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "save_note",
+        "params": {
+          "text": "x"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": false,
+        "code": "TARGET_NOT_ALLOWED"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "watch"
+      }
+    },
+    {
+      "name": "target_chat_to_watch",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7095-8095-000000000095",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "x"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "watch"
+      }
+    },
+    {
+      "name": "timer_to_watch",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7096-8096-000000000096",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_timer",
+        "params": {
+          "seconds": 60
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "seen_ids": [],
+        "device_role": "watch"
+      }
+    },
+    {
+      "name": "no_device_role_skips_target_check",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7097-8097-000000000097",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "set_alarm",
+        "params": {
+          "hour": 7,
+          "minute": 0
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 1,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 1
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z"
+      }
+    },
+    {
+      "name": "level3_on_chat_accepted",
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7098-8098-000000000098",
+        "ts": "2026-11-02T10:00:00Z",
+        "ttl_s": 300,
+        "from": {
+          "role": "hub",
+          "kid": "hub-test-1"
+        },
+        "to": {
+          "device": "phone-1"
+        },
+        "intent": "chat",
+        "params": {
+          "text": "x"
+        },
+        "origin": {
+          "kind": "user_text",
+          "tainted": false
+        },
+        "level": 3,
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "expect": {
+        "ok": true,
+        "level": 3
+      }
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "$id": "https://assistant.local/protocol/schema/receipt.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DeviceReceipt v1",
+  "description": "设备回执，只推进状态机，不含可执行内容。只有回执能推进信封状态。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["v", "envelope_id", "device_id", "status", "ts"],
+  "properties": {
+    "v": { "const": 1 },
+    "envelope_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "device_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "status": {
+      "enum": ["accepted", "awaiting_confirm", "executing", "done", "failed", "expired", "rejected", "cancelled"]
+    },
+    "ts": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$" },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code"],
+      "properties": {
+        "code": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "detail": { "type": "string", "maxLength": 500 }
+      }
+    }
+  }
+}

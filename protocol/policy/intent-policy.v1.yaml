@@ -1,0 +1,68 @@
+# 意图确认策略 v1（人类可读的权威说明；机器实现对两侧校验器各自硬编码，靠 vectors/ 对齐）
+#
+# 规则要点：
+# - level 由策略引擎算，大模型不参与；设备收到信封后独立重算，取 max(信封 level, 本机算出的 level)。
+# - 信封携带的 level 低于重算结果时，整条信封拒绝（LEVEL_BELOW_POLICY），不是“提升后执行”。
+# - 污点（origin.tainted）与来源（origin.kind）由云端标记，但设备复核时同样按本文件重算。
+# - app_class 不在 params 里，来自端上应用目录；url 允许清单也在端上，发送方无法自证清白。
+version: 1
+levels:
+  1: auto
+  2: confirm
+  3: confirm_phone_biometric
+intents:
+  chat:
+    base: 1
+    targets: [phone, watch, pc]
+  web_search:
+    base: 1
+    targets: [phone, pc]
+    params:
+      query: { max_len: 200 }
+  set_timer:
+    base: 1
+    targets: [phone, watch, pc]
+    params:
+      seconds: { min: 1, max: 86400 }
+  save_note:
+    base: 1
+    targets: [phone, pc]
+    params:
+      text: { max_len: 2000 }
+  open_app:
+    base: 1
+    targets: [phone, pc]
+    params:
+      app_id: { enum_from: device_catalog }
+      url: { scheme: [https], optional: true }
+    escalate:
+      - when: "app_catalog[app_id].class in [finance, payment, system_settings]"
+        to: 2
+      - when: "url present and host not in url_allowlist"
+        to: 2
+  set_alarm:
+    base: 1
+    targets: [phone]
+    escalate:
+      - when: "repeat != none or recent_alarms_24h > 5"
+        to: 2
+  create_event:
+    base: 2
+    targets: [phone]
+    relaxable: true
+    escalate:
+      - when: "attendees present and non-empty"
+        to: 3
+  task_handoff:
+    base: 2
+    relaxable: true
+    rule: "level = max(2, proposal.level)；proposal 深度 <= 1，且不得是 task_handoff / voice_command"
+  voice_command:
+    executable: false
+    rule: "只能被解析为其它意图；产出的意图继承 origin.kind=user_voice 与 tainted"
+global:
+  - { when: "origin.tainted", rule: "level += 1，上限 3" }
+  - { when: "origin.kind == scheduled", rule: "level >= 2 时只能进入待确认，不得静默执行" }
+  - { when: "envelopes_per_min > 10", rule: "暂停该设备投递并把 level 升到 3（运行时执行，纯校验器不处理）" }
+  - { rule: "L2+ 的口头确认无效，必须在界面上点" }
+  - { rule: "用户设置可调高级别；调低仅限 relaxable 项，且永不低于硬下限" }

@@ -1,0 +1,13 @@
+{
+  "$id": "https://assistant.local/protocol/schema/intents/voice_command.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "voice_command params v1",
+  "description": "输入信封，携带转写文本，不可直接执行。必须先解析成其他具体意图，产出的意图继承 voice 来源标记。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["transcript"],
+  "properties": {
+    "transcript": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "lang": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" }
+  }
+}

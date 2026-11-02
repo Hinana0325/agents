@@ -1,0 +1,12 @@
+{
+  "$id": "https://assistant.local/protocol/schema/intents/web_search.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "web_search params v1",
+  "description": "只给查询词；搜索引擎 URL 模板固定在端上，云端不能指定 URL。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["query"],
+  "properties": {
+    "query": { "type": "string", "minLength": 1, "maxLength": 200 }
+  }
+}

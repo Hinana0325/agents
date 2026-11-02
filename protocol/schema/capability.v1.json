@@ -1,0 +1,30 @@
+{
+  "$id": "https://assistant.local/protocol/schema/capability.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DeviceCapability v1",
+  "description": "设备能力声明。云端只发设备认识的字段；设备对未知字段一律拒绝。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["v", "device_id", "role", "proto_minor", "intents", "max_level"],
+  "properties": {
+    "v": { "const": 1 },
+    "device_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "role": { "enum": ["phone", "watch", "pc"] },
+    "proto_minor": { "type": "integer", "minimum": 0, "maximum": 99 },
+    "intents": {
+      "type": "array",
+      "maxItems": 9,
+      "uniqueItems": true,
+      "items": { "enum": ["open_app", "set_alarm", "create_event", "set_timer", "web_search", "save_note", "chat", "task_handoff", "voice_command"] }
+    },
+    "max_level": { "type": "integer", "minimum": 1, "maximum": 3 },
+    "audio_endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["none", "airpods", "other"] },
+        "mic": { "type": "boolean" }
+      }
+    }
+  }
+}

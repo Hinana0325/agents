@@ -1,0 +1,24 @@
+{
+  "$id": "https://assistant.local/protocol/schema/intents/task_handoff.v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "task_handoff params v1",
+  "description": "跨设备转交请求，内含一个意图提案。提案深度不超过 1，且不得是 task_handoff 或 voice_command 本身。云端重新校验后签发新信封，parent 指向原请求。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["target_device_id", "proposal"],
+  "properties": {
+    "target_device_id": { "type": "string", "minLength": 1, "maxLength": 64 },
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["intent", "params", "level"],
+      "properties": {
+        "intent": {
+          "enum": ["open_app", "set_alarm", "create_event", "set_timer", "web_search", "save_note", "chat"]
+        },
+        "params": { "type": "object" },
+        "level": { "type": "integer", "minimum": 1, "maximum": 3 }
+      }
+    }
+  }
+}

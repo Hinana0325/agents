@@ -12,8 +12,9 @@ Python 侧是协议的**参考实现**，不是云端 hub；hub 落地时（另�
 - `py/jcs.py` — RFC 8785 子集，必须与 `core/kotlin/.../Jcs.kt` 逐字节一致。
 - `py/validator.py` — 严格结构校验 + 策略重算 + ES256 验签；
   另有 `verify_cert` / `verify_revocation` 对应 `device-cert.v1` 与 `revocation.v1`。
-- `py/runner.py` — 跑向量，失败退出码 1；按目录分派：`cert` / `revocation` 用对应校验器，
-  其余类别校验信封。`cert` 用例带 `cert` 字段，`revocation` 用例带 `revocation` 字段。
+- `py/runner.py` — 跑向量，失败退出码 1；按目录分派：`cert` / `revocation` / `approval`
+  用对应校验器，其余类别校验信封。`cert` 用例带 `cert` 字段，`revocation` 用例带
+  `revocation` 字段，`approval` 用例带 `approval` + `envelope` 字段。
 - `py/gen_vectors.py` — 生成向量（需要 cryptography）。向量是契约，改向量先改 `protocol/spec`。
 
 ## 变异测试（验收门禁的阳性对照）

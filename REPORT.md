@@ -749,3 +749,28 @@
   持久化窗口或由 hub 侧“暂停投递”来兜底（协议已写明 hub 责任）。
 - 还没有在真实 L3 信封洪水的 UI 上做压力测试。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 29. 审批证明金标准向量 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- `gen_vectors.py` 生成 `protocol/vectors/approval`（15 条），复用固定测试密钥与
+  第二把“错误签名者”密钥；期望值按 `protocol/spec/error-codes.md` 手写。
+- Python 参考实现新增 `verify_approval`，检查顺序与 Kotlin 的
+  `ApprovalValidator.verify` 一致：结构 → 审批方 → 级别 → 时间窗 → nonce/重放 →
+  信封哈希 → 签名。
+- Kotlin `VectorTest` 与 `runner.py` 增加 `approval` 目录分派。
+
+### 已核验
+
+1. Python：`TOTAL 218 cases, 0 failed`（新增 approval 15）。
+2. Kotlin：`VectorTest > allVectorsPass PASSED`。
+3. 阳性对照：把 `approval_valid_l2` 的期望改为失败后，Python 报
+   `FAIL [approval] approval_valid_l2`，Kotlin `VectorTest` FAILED；重新生成后恢复全绿。
+4. 覆盖：有效 L2/L3、级别不足、超出审批方上限、未知审批方、过期、重放、
+   错信封哈希、nonce 篡改、错误签名者、decision/v/字段/nonce 格式错误。
+
+### 未完成
+
+- 回执（receipt.v1）还没有金标准向量；它目前由运行时单元测试与端到端联调覆盖。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。

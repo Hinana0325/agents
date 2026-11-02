@@ -1,5 +1,7 @@
 package cn.phoneassistant.core
 
+import cn.phoneassistant.core.runtime.ApprovalValidator
+import cn.phoneassistant.core.runtime.TrustedApprover
 import java.io.File
 import java.time.Instant
 import kotlinx.serialization.json.Json
@@ -60,6 +62,30 @@ class VectorTest {
                                 if (expectedOk) code == null
                                 else code == expect["code"]?.jsonPrimitive?.content
                             }
+                        }
+                        "approval" -> {
+                            val context = case["context"]!!.jsonObject
+                            val approvers = context["approvers"]!!.jsonObject.mapValues { (id, element) ->
+                                val obj = element.jsonObject
+                                TrustedApprover(
+                                    id,
+                                    obj["max_level"]!!.jsonPrimitive.int,
+                                    obj["pubkey_jwk"]!!.jsonObject,
+                                )
+                            }
+                            val used = (context["used_nonces"] as? JsonArray)
+                                ?.map { it.jsonPrimitive.content }?.toSet().orEmpty()
+                            val error = ApprovalValidator.verify(
+                                approval = case["approval"]!!,
+                                envelope = case["envelope"]!!.jsonObject,
+                                requiredLevel = context["required_level"]!!.jsonPrimitive.int,
+                                approvers = approvers,
+                                usedNonces = used,
+                                now = Instant.parse(context["now"]!!.jsonPrimitive.content),
+                                windowSeconds = context["window_s"]!!.jsonPrimitive.content.toLong(),
+                            )
+                            if (expectedOk) error == null
+                            else error == expect["code"]?.jsonPrimitive?.content
                         }
                         else -> {
                             val got = EnvelopeValidator.validate(case["envelope"]!!, parseContext(case["context"]))

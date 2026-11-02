@@ -439,6 +439,60 @@ def verify_revocation(revocation, ctx=None):
     return Result(True)
 
 
+APPROVAL_FIELDS = {"v", "envelope_hash", "decision", "level", "approver_device", "ts", "nonce", "sig"}
+NONCE = re.compile(r"^[A-Za-z0-9_-]{16,64}$")
+
+
+def _envelope_hash(env):
+    payload = {k: v for k, v in env.items() if k != "sig"}
+    return hashlib.sha256(canonicalize(payload).encode("utf-8")).hexdigest()
+
+
+def verify_approval(approval, envelope, ctx):
+    """校验 approval.v1，顺序与 core 的 ApprovalValidator 一致。"""
+    if not isinstance(approval, dict) or set(approval.keys()) != APPROVAL_FIELDS:
+        return Result(False, code="APPROVAL_INVALID")
+    if not _is_int(approval.get("v")) or approval["v"] != 1:
+        return Result(False, code="APPROVAL_INVALID")
+    envelope_hash = approval.get("envelope_hash")
+    if not isinstance(envelope_hash, str) or not HEX64.match(envelope_hash):
+        return Result(False, code="APPROVAL_INVALID")
+    if approval.get("decision") != "approve":
+        return Result(False, code="APPROVAL_INVALID")
+    approver_device = approval.get("approver_device")
+    approvers = ctx.get("approvers") or {}
+    if not isinstance(approver_device, str) or approver_device not in approvers:
+        return Result(False, code="APPROVAL_UNKNOWN_APPROVER")
+    approver = approvers[approver_device]
+    level = approval.get("level")
+    if not _is_int(level) or not (1 <= level <= 3):
+        return Result(False, code="APPROVAL_INVALID")
+    if level < int(ctx["required_level"]) or level > int(approver["max_level"]):
+        return Result(False, code="APPROVAL_LEVEL")
+    timestamp_text = approval.get("ts")
+    if not isinstance(timestamp_text, str) or not TS.match(timestamp_text):
+        return Result(False, code="APPROVAL_INVALID")
+    try:
+        timestamp = _parse_ts(timestamp_text)
+    except ValueError:
+        return Result(False, code="APPROVAL_INVALID")
+    now = _parse_ts(ctx["now"])
+    if abs((timestamp - now).total_seconds()) > float(ctx.get("window_s", 120)):
+        return Result(False, code="APPROVAL_EXPIRED")
+    nonce = approval.get("nonce")
+    if not isinstance(nonce, str) or not NONCE.match(nonce):
+        return Result(False, code="APPROVAL_INVALID")
+    if nonce in (ctx.get("used_nonces") or []):
+        return Result(False, code="APPROVAL_REPLAY")
+    if _envelope_hash(envelope) != envelope_hash:
+        return Result(False, code="APPROVAL_HASH")
+    if not isinstance(approval.get("sig"), str):
+        return Result(False, code="APPROVAL_INVALID")
+    if not verify_es256(approval, approver["pubkey_jwk"]):
+        return Result(False, code="APPROVAL_SIGNATURE")
+    return Result(True)
+
+
 def validate(env, ctx=None):
     """校验一条信封。返回 Result；顺序即 error-codes.md 的优先级。"""
     ctx = ctx or {}

@@ -1,0 +1,739 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "name": "approval_valid_l2",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0001",
+        "sig": "6UQ3QE5P95mDV8Q-j0F30oR6oUVGL1cP-ZuC8Uk6P8KjLHoLIL3NNcH2oIzTndbbjip3VtZhTATAnitCzBY1sw"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "approval_valid_l3",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 3,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0002",
+        "sig": "Q56NNJixnwnNmP_7JEkPB4GNZqaZs2QAqCk7DkPqdoyfnoBTW1EjzcJDzvSoEfMFIuxbCkaAjWc_s5rRxSEPHQ"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 3,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": true
+      }
+    },
+    {
+      "name": "approval_level_too_low",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0003",
+        "sig": "dx-qnBi69QN3OTZI29n-ptieeNP70Gh3j8bcfqXHO9Wg-T54hIVZCQFCFBN6VWwQmM-mzLjjYKu3kAv72GtK0A"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 3,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_LEVEL"
+      }
+    },
+    {
+      "name": "approval_over_approver_max",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 3,
+        "approver_device": "watch-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0004",
+        "sig": "EJj-HBe6kgXMy7vCVA5RiBQy4ko_gABX8m35SvTNterinjWl0lK57d8YGRKy7s2Izs8KKYbmaNE6w4vCXeM-Bg"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 3,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_LEVEL"
+      }
+    },
+    {
+      "name": "approval_unknown_approver",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-9",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0005",
+        "sig": "GI2EHqQkJIPfMuTaxc5sUqaUdf0UXLOnusHYIlwGoyHfdVvU82JiMoPSJR1merlSxZQUj4m4UtihqWQ_7J3y6w"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_UNKNOWN_APPROVER"
+      }
+    },
+    {
+      "name": "approval_expired",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0006",
+        "sig": "t0hvc3Rc2hQnGsYOMK8dmxVvi83VwWCMj4wbqy7-5-1qAQua-hTyTYQIkW7DUnBIZoVahYm9LRD5DoxWFFkaAQ"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:05:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_EXPIRED"
+      }
+    },
+    {
+      "name": "approval_replay",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0007",
+        "sig": "rGzvzD4r6WaI0gPqGlx7m3tG8bCcreLucf_H6Ncxxsnr2v3PsfGDJLoPZGQIhii61SNbTYFETgie0ZTDOnlMLg"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": [
+          "approval-nonce-0007"
+        ]
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_REPLAY"
+      }
+    },
+    {
+      "name": "approval_wrong_envelope",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0008",
+        "sig": "GcWWsBZQmNGqYyBrh0HRzNXW1y-1_lAs09xHv4KwSwQZzNuxPRMQSgb3NzmN5PxTPAw-esyU4-4YZc0Ygk-waA"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f2",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_HASH"
+      }
+    },
+    {
+      "name": "approval_tampered_nonce",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-9999",
+        "sig": "Yj2aI7KTa3lk_9_zX1pIFxYHFt5k5toYBCaODY6noHUPWimfUfQhZ8xA676nevIqIvzMWNPcCs8iCfR0a4TGZQ"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_SIGNATURE"
+      }
+    },
+    {
+      "name": "approval_wrong_signer",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0010",
+        "sig": "zlPWQT-Gzf3ap4BVQ9rN7AVmhkfexMJ6weBkv3sW0WJmUZBDLuhgKJTegy81MqhktUOcETvOUfqYGmuxXYkkuA"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_SIGNATURE"
+      }
+    },
+    {
+      "name": "approval_decision_reject",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "reject",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0011",
+        "sig": "z_Et70NtI3zFb2i_N-hLPyl4Je48PAooIIn5tplCpUqxuvrFa4W0noz2jbw949w6xDqCbi4kbAF5ImdOhEuSkw"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_INVALID"
+      }
+    },
+    {
+      "name": "approval_v_string",
+      "approval": {
+        "v": "1",
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0012",
+        "sig": "xyug1QAp8n6Mwxjp3tMWupWQCkNFTgz8hWD6k_rFOIzw8o7kE4gcr1gRNWnjHwKhy4CXHE8wNCouViX7ao9eqg"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_INVALID"
+      }
+    },
+    {
+      "name": "approval_bad_nonce",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "short",
+        "sig": "YmMUclWO3z-JPv69IY4fmEPzmEthlA3UnLhRnarq5ss5UIWbDc-tZIcV8XEx2DApdBsHR8we-YiNtiFcJGsGHA"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_INVALID"
+      }
+    },
+    {
+      "name": "approval_missing_sig",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "0d296d185cc8fb93c0157bb730f829e39a32c3f35af9f97ae38c0dfc5f26bce6",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0013"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_INVALID"
+      }
+    },
+    {
+      "name": "approval_bad_hash_format",
+      "approval": {
+        "v": 1,
+        "envelope_hash": "abc",
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0014",
+        "sig": "S7Yt7ED3ByRZR4qWtniE3X90BheTQVNSouZvXad8YfqHz_nNlctxJNujgm0SiZxmpvSvXe4WzcLcDQxuI4aqIQ"
+      },
+      "envelope": {
+        "v": 1,
+        "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+        "intent": "chat",
+        "sig": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "context": {
+        "now": "2026-11-02T10:00:30Z",
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+          "phone-1": {
+            "max_level": 3,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "ziZi6H8qYWDAlj8Jthf-JVGbtmZQY943xuerOLV1BTA",
+              "y": "u79nOTpG7gVYykQtY0YX9dVWDGdnqbNZ6EXYCYXCKPs"
+            }
+          },
+          "watch-1": {
+            "max_level": 2,
+            "pubkey_jwk": {
+              "kty": "EC",
+              "crv": "P-256",
+              "x": "Nkbu95XdNlDpG9Kpuszve1XG5p-RvqWL8eCq9DxN7uw",
+              "y": "Z2Yk5Q92vsG5oiY5F5tKXYHKFaz7GaFwpS-5AuKlX5A"
+            }
+          }
+        },
+        "used_nonces": []
+      },
+      "expect": {
+        "ok": false,
+        "code": "APPROVAL_INVALID"
+      }
+    }
+  ]
+}

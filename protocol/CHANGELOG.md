@@ -14,6 +14,8 @@
 - 新增 `schema/revocation.v1.json` 与 `vectors/cert`、`vectors/revocation` 金标准向量
   （设备证书 11 条、吊销记录 9 条），Kotlin 与 Python 参考实现同跑同过；覆盖过期、
   未生效、角色越权、篡改、未知字段、错误信任根、已吊销、错误签名者。
+- 新增 `vectors/approval`（15 条）：审批证明的有效 L2/L3、降级、越权、过期、重放、
+  错哈希、错信封、nonce 篡改、错误签名者、字段/类型错误；Python 侧新增 `verify_approval`。
 
 ### 与旧原型的关系
 

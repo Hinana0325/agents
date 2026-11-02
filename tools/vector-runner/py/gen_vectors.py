@@ -596,6 +596,161 @@ _sig_not_string["sig"] = 123
 REVOCATION.append(revocation_case("revocation_sig_not_string", _sig_not_string, _bad("REVOCATION_INVALID")))
 
 
+APPROVAL_NOW = "2026-11-02T10:00:30Z"
+APPROVAL_ENVELOPE = {
+    "v": 1,
+    "id": "0193f0a8-9c1b-7000-8000-0000000000f1",
+    "intent": "chat",
+    "sig": "A" * 86,
+}
+
+
+def _approval_hash():
+    sys.path.insert(0, HERE)
+    from jcs import canonicalize
+
+    payload = {k: v for k, v in APPROVAL_ENVELOPE.items() if k != "sig"}
+    return hashlib.sha256(canonicalize(payload).encode("utf-8")).hexdigest()
+
+
+def _approval_payload(**over):
+    payload = {
+        "v": 1,
+        "envelope_hash": _approval_hash(),
+        "decision": "approve",
+        "level": 2,
+        "approver_device": "phone-1",
+        "ts": "2026-11-02T10:00:00Z",
+        "nonce": "approval-nonce-0001",
+    }
+    payload.update(over)
+    return payload
+
+
+def approval(**over):
+    payload = _approval_payload(**over)
+    payload["sig"] = _sign_with(PRIV, payload)
+    return payload
+
+
+def approval_context(**over):
+    context = {
+        "now": APPROVAL_NOW,
+        "window_s": 120,
+        "required_level": 2,
+        "approvers": {
+            "phone-1": {"max_level": 3, "pubkey_jwk": PUB_JWK},
+            "watch-1": {"max_level": 2, "pubkey_jwk": OTHER_PUB_JWK},
+        },
+        "used_nonces": [],
+    }
+    context.update(over)
+    return context
+
+
+def approval_case(name, approval_obj, expect, envelope=None, **context_over):
+    return {
+        "name": name,
+        "approval": approval_obj,
+        "envelope": envelope or APPROVAL_ENVELOPE,
+        "context": approval_context(**context_over),
+        "expect": expect,
+    }
+
+
+APPROVAL = []
+APPROVAL.append(approval_case("approval_valid_l2", approval(), _ok()))
+APPROVAL.append(
+    approval_case("approval_valid_l3", approval(level=3, nonce="approval-nonce-0002"), _ok(), required_level=3)
+)
+APPROVAL.append(
+    approval_case(
+        "approval_level_too_low",
+        approval(nonce="approval-nonce-0003"),
+        _bad("APPROVAL_LEVEL"),
+        required_level=3,
+    )
+)
+APPROVAL.append(
+    approval_case(
+        "approval_over_approver_max",
+        approval(level=3, approver_device="watch-1", nonce="approval-nonce-0004"),
+        _bad("APPROVAL_LEVEL"),
+        required_level=3,
+    )
+)
+APPROVAL.append(
+    approval_case(
+        "approval_unknown_approver",
+        approval(approver_device="phone-9", nonce="approval-nonce-0005"),
+        _bad("APPROVAL_UNKNOWN_APPROVER"),
+    )
+)
+APPROVAL.append(
+    approval_case(
+        "approval_expired",
+        approval(nonce="approval-nonce-0006"),
+        _bad("APPROVAL_EXPIRED"),
+        now="2026-11-02T10:05:30Z",
+    )
+)
+APPROVAL.append(
+    approval_case(
+        "approval_replay",
+        approval(nonce="approval-nonce-0007"),
+        _bad("APPROVAL_REPLAY"),
+        used_nonces=["approval-nonce-0007"],
+    )
+)
+
+_other_envelope = dict(APPROVAL_ENVELOPE)
+_other_envelope["id"] = "0193f0a8-9c1b-7000-8000-0000000000f2"
+APPROVAL.append(
+    approval_case(
+        "approval_wrong_envelope",
+        approval(nonce="approval-nonce-0008"),
+        _bad("APPROVAL_HASH"),
+        envelope=_other_envelope,
+    )
+)
+
+_tampered_approval = approval(nonce="approval-nonce-0009")
+_tampered_approval["nonce"] = "approval-nonce-9999"
+APPROVAL.append(approval_case("approval_tampered_nonce", _tampered_approval, _bad("APPROVAL_SIGNATURE")))
+
+_wrong_signer = _approval_payload(nonce="approval-nonce-0010")
+_wrong_signer["sig"] = _sign_with(OTHER_PRIV, _wrong_signer)
+APPROVAL.append(approval_case("approval_wrong_signer", _wrong_signer, _bad("APPROVAL_SIGNATURE")))
+
+APPROVAL.append(
+    approval_case(
+        "approval_decision_reject",
+        approval(decision="reject", nonce="approval-nonce-0011"),
+        _bad("APPROVAL_INVALID"),
+    )
+)
+APPROVAL.append(
+    approval_case("approval_v_string", approval(v="1", nonce="approval-nonce-0012"), _bad("APPROVAL_INVALID"))
+)
+APPROVAL.append(
+    approval_case("approval_bad_nonce", approval(nonce="short"), _bad("APPROVAL_INVALID"))
+)
+APPROVAL.append(
+    approval_case(
+        "approval_missing_sig",
+        _approval_payload(nonce="approval-nonce-0013"),
+        _bad("APPROVAL_INVALID"),
+    )
+)
+APPROVAL.append(
+    approval_case(
+        "approval_bad_hash_format",
+        approval(envelope_hash="abc", nonce="approval-nonce-0014"),
+        _bad("APPROVAL_INVALID"),
+    )
+)
+
+
 def dump(cases, path):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8", newline="\n") as f:
@@ -611,6 +766,7 @@ buckets = {
     "signing": SIGNING,
     "cert": CERT,
     "revocation": REVOCATION,
+    "approval": APPROVAL,
 }
 
 total = 0

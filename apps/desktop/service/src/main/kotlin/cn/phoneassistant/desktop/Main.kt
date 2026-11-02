@@ -28,6 +28,8 @@ fun main(args: Array<String>) {
         "pair" -> printPair(config, identity)
         "once" -> runOnce(paths, config, identity)
         "run" -> runWithUi(paths, config, identity)
+        "install-autostart" -> installAutostart(paths)
+        "remove-autostart" -> removeAutostart()
         else -> printUsage()
     }
 }
@@ -40,6 +42,8 @@ private fun printUsage() {
           pair     输配对用 JSON（device_id + 公钥 JWK）
           once     处理 inbox/ 与 pending/ 里的全部信封，然后退出
           run      常驻：每秒处理信封，托盘提示，L2 弹确认
+          install-autostart   写入登录自启（HKCU Run，仅 Windows）
+          remove-autostart    删除登录自启
         环境变量：
           DPA_DESKTOP_HOME  覆盖数据目录（默认 ~/.dpa-desktop）
         """.trimIndent(),
@@ -58,6 +62,13 @@ private fun printStatus(paths: DesktopPaths, config: DesktopConfigFile, identity
         DesktopStore(File(paths.home, "desktop.db")).use { it.count() }
     }.getOrDefault(0))
     println("私钥保护：" + if (SecretStore.isProtected) "DPAPI（当前用户）" else "明文（非 Windows，尚未加密）")
+    println(
+        "登录自启：" + when {
+            !Autostart.isSupported -> "不支持（仅 Windows）"
+            Autostart.isInstalled() -> "已启用"
+            else -> "未启用"
+        },
+    )
     println("本机公钥：")
     println(pretty.encodeToString(identity.publicJwk()))
 }
@@ -136,3 +147,25 @@ private fun runWithUi(paths: DesktopPaths, config: DesktopConfigFile, identity: 
 
 private fun count(dir: File): Int =
     dir.listFiles { file -> file.isFile && file.name.endsWith(".json") }?.size ?: 0
+
+private fun installAutostart(paths: DesktopPaths) {
+    if (!Autostart.isSupported) {
+        println("登录自启只支持 Windows。")
+        return
+    }
+    try {
+        val cmd = Autostart.install(paths)
+        println("已启用登录自启：$cmd")
+        println("取消：service.bat remove-autostart")
+    } catch (e: Exception) {
+        println("启用失败：${e.message}")
+    }
+}
+
+private fun removeAutostart() {
+    if (!Autostart.isSupported) {
+        println("登录自启只支持 Windows。")
+        return
+    }
+    println(if (Autostart.remove()) "已删除登录自启。" else "没有找到自启项，或删除失败。")
+}

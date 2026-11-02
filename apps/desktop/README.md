@@ -26,7 +26,7 @@ L2 在 Compose 界面点确认后执行，含审批密钥签名；取消则 reje
 
 - WS/FCM 传输、手机扫码配对与设备证书、设备吊销。
 - 密钥保护：Windows 已用 DPAPI；**TPM 未做**，非 Windows 仍是明文文件。
-- 安装器：没有 MSI（本机缺 WiX）、没有开始菜单/卸载登记/自启/自动更新。
+- 安装器：没有 MSI（本机缺 WiX）、没有开始菜单/卸载登记/自动更新；已有登录自启命令（Windows）。
 - 本地模型、相册整理、文件夹分类、桌面自动化。
 - 主界面之外的页面（设置、应用目录编辑）后续再补；已处理记录已接入主界面。
 - SQLite 目前只存“已处理 id + 回执”；收件箱/发件箱的持久化与重试队列还没做。
@@ -64,6 +64,18 @@ apps/desktop/service/build/install/service/bin/service.bat run
 整个 `DpaDesktop/` 目录可直接拷到别的 Windows 机器运行（jpackage app-image + 内置 runtime）。
 GUI 版没有控制台，`status/pair/once` 继续用 `installDist` 的 `service.bat`。
 没有 MSI：本机缺 WiX，`jpackage --type msi` 无法执行（见 ADR 0010）。
+
+## 登录自启（仅 Windows）
+
+```bash
+service.bat install-autostart    # 写 HKCU\Software\Microsoft\Windows\CurrentVersion\Run\DpaDesktop
+service.bat remove-autostart     # 删除该项
+service.bat status               # 显示“登录自启：已启用/未启用”
+```
+
+自启指向数据目录里的 `autostart.cmd`，命令由当前 JVM 的 `java.home` + `java.class.path` 拼成，
+`installDist` 与 jpackage 两种运行方式都能用。**正式使用时请从打包后的 `DpaDesktop.exe` 执行
+`install-autostart`**：从 `installDist` 安装会指向 build 目录，重新构建后路径可能失效。
 
 ## 配置（`~/.dpa-desktop/config.json`）
 

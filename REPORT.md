@@ -287,5 +287,15 @@
 
 ### 未完成
 
-- 没有 MSI/安装器、开始菜单、卸载登记、自启、自动更新（自启与更新依赖安装器/更新源）。
+- 没有 MSI/安装器、开始菜单、卸载登记、自动更新（自启已用 HKCU Run 实现，见下方补记）。
 - 打包只有 Windows app-image；macOS/Linux 未验证。
+
+### 补记：登录自启（同日）
+
+- `install-autostart` / `remove-autostart` 命令：写/删 `HKCU\...\Run\DpaDesktop`，
+  指向数据目录的 `autostart.cmd`；命令由 `java.home` + `java.class.path` 拼成，installDist 与 jpackage 都适用。
+- 已核验：安装后注册表值可读回；直接执行生成的 `autostart.cmd` 能启动应用窗口；
+  `remove-autostart` 后注册表值消失、`status` 显示“未启用”，测试数据目录已清理。
+- 修了一个真实缺陷：最初用 `ProcessHandle.arguments()` 拼命令，Windows 上拿不到参数，
+  生成的 .cmd 只有 `java.exe run`；改为从 JVM 属性拼。
+- 未做自动更新（需要更新源与签名策略，等云端/发布方式定了再说）。

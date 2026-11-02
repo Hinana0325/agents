@@ -831,5 +831,31 @@
 ### 未完成
 
 - 回执的语义推进（状态机、非法转移丢弃）仍由 hub 实现；本仓库只校验结构。
-- 没有把回执校验接到 mock hub 的 `/v1/device/receipts`（目前只记录）。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 32. 回执校验联调与速率限制真机演练 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- mock hub 的 `POST /v1/device/receipts` 现在先用 `verify_receipt` 校验结构，
+  非法回执返回 400 并打印 `INVALID receipt`。
+- 修了一个测试污染问题：`SettingsStore` 的写入从 `apply()` 改为 `commit()`。
+  仪器测试在 `finally` 里恢复设置时，异步 `apply()` 可能随测试进程退出而丢失，
+  曾把真实设备的 Hub 地址/JWK 覆盖成 MockWebServer 的临时值（本轮联调就复现了）。
+  设置写入不频繁，同步落盘更可靠。
+
+### 已核验（Android 16 模拟器 + mock hub）
+
+1. 一次性投递 11 条 L1 `chat`，点击“同步”：
+   前 10 条执行并回执 `done`，第 11 条被运行时速率规则升到 L3，手机弹出 L3 对话框
+   （`L3 必须用本机生物识别批准`）。
+2. 点“取消”后第 11 条回执 `rejected`；hub 收到 10 条 `done` + 1 条 `rejected`，
+   全部通过 `verify_receipt`（HTTP 200，没有 `INVALID receipt` 日志）。
+3. 手机界面显示 11 条同步结果（10 done + 1 rejected）。
+4. 全量单测/构建不受影响：core 117、桌面 27、手机 6、仪器测试 4（1 交互式跳过）。
+
+### 未完成
+
+- 第 11 条没有做“生物识别批准后执行”的洪水版本（取消路径已覆盖升 L3）。
+- mock hub 仍是投递即出队，不复刻真实 hub 的重投/状态机。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。

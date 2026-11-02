@@ -161,6 +161,12 @@ class Handler(BaseHTTPRequestHandler):
                 receipt = json.loads(raw.decode("utf-8"))
             except Exception:
                 return self._send(400, {"error": "bad json"})
+            from validator import verify_receipt
+
+            checked = verify_receipt(receipt)
+            if not checked.ok:
+                print("[hub] INVALID receipt %s %s" % (receipt.get("envelope_id"), checked.code), flush=True)
+                return self._send(400, {"error": checked.code})
             with STATE_LOCK:
                 RECEIPTS.append(receipt)
             print("[hub] receipt %s %s" % (receipt.get("envelope_id"), receipt.get("status")), flush=True)

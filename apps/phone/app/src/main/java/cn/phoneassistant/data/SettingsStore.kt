@@ -22,6 +22,7 @@ class SettingsStore(context: Context) {
      * 懒加载：构造时不碰 Keystore 和磁盘（原来在 ViewModel 字段初始化里同步建
      * EncryptedSharedPreferences，主线程做加解密 I/O）。
      * 建不出来时只记中文原因并拒绝读写，绝不退回明文存储。
+     * 写入统一用 commit()：设置不频繁，必须在进程被回收前落盘（仪器测试恢复也依赖这一点）。
      */
     private var cachedPrefs: SharedPreferences? = null
     private var initAttempted = false
@@ -55,20 +56,20 @@ class SettingsStore(context: Context) {
     var baseUrl: String
         get() = storagePrefs?.getString(KEY_BASE_URL, "").orEmpty().trim().trimEnd('/')
         set(value) {
-            storagePrefs?.edit()?.putString(KEY_BASE_URL, value.trim().trimEnd('/'))?.apply()
+            storagePrefs?.edit()?.putString(KEY_BASE_URL, value.trim().trimEnd('/'))?.commit()
         }
 
     var model: String
         get() = storagePrefs?.getString(KEY_MODEL, "").orEmpty().trim()
         set(value) {
-            storagePrefs?.edit()?.putString(KEY_MODEL, value.trim())?.apply()
+            storagePrefs?.edit()?.putString(KEY_MODEL, value.trim())?.commit()
         }
 
     /** 密钥：只写不读原文到界面；界面只展示“已设置 / 未设置”。 */
     var apiKey: String
         get() = storagePrefs?.getString(KEY_API_KEY, "").orEmpty()
         set(value) {
-            storagePrefs?.edit()?.putString(KEY_API_KEY, value)?.apply()
+            storagePrefs?.edit()?.putString(KEY_API_KEY, value)?.commit()
         }
 
     val hasApiKey: Boolean
@@ -82,14 +83,14 @@ class SettingsStore(context: Context) {
     var hubUrl: String
         get() = storagePrefs?.getString(KEY_HUB_URL, "").orEmpty().trim().trimEnd('/')
         set(value) {
-            storagePrefs?.edit()?.putString(KEY_HUB_URL, value.trim().trimEnd('/'))?.apply()
+            storagePrefs?.edit()?.putString(KEY_HUB_URL, value.trim().trimEnd('/'))?.commit()
         }
 
     /** 设备令牌：只写不读回界面，只用于 Authorization 头。 */
     var hubToken: String
         get() = storagePrefs?.getString(KEY_HUB_TOKEN, "").orEmpty()
         set(value) {
-            storagePrefs?.edit()?.putString(KEY_HUB_TOKEN, value)?.apply()
+            storagePrefs?.edit()?.putString(KEY_HUB_TOKEN, value)?.commit()
         }
 
     val hasHubToken: Boolean
@@ -102,29 +103,29 @@ class SettingsStore(context: Context) {
     var hubPubkey: String
         get() = storagePrefs?.getString(KEY_HUB_PUBKEY, "").orEmpty().trim()
         set(value) {
-            storagePrefs?.edit()?.putString(KEY_HUB_PUBKEY, value.trim())?.apply()
+            storagePrefs?.edit()?.putString(KEY_HUB_PUBKEY, value.trim())?.commit()
         }
 
     /** Hub 的 kid；缺省用 hub-test-1（本地联调）。 */
     var hubKid: String
         get() = storagePrefs?.getString(KEY_HUB_KID, "hub-test-1").orEmpty().ifBlank { "hub-test-1" }
         set(value) {
-            storagePrefs?.edit()?.putString(KEY_HUB_KID, value.trim())?.apply()
+            storagePrefs?.edit()?.putString(KEY_HUB_KID, value.trim())?.commit()
         }
 
     fun clearHubToken() {
-        storagePrefs?.edit()?.remove(KEY_HUB_TOKEN)?.apply()
+        storagePrefs?.edit()?.remove(KEY_HUB_TOKEN)?.commit()
     }
 
     /** 端上应用目录（JSON：app_id → 包名）；为空表示不接受远端 open_app。 */
     var appCatalogJson: String
         get() = storagePrefs?.getString(KEY_APP_CATALOG, "").orEmpty().trim()
         set(value) {
-            storagePrefs?.edit()?.putString(KEY_APP_CATALOG, value.trim())?.apply()
+            storagePrefs?.edit()?.putString(KEY_APP_CATALOG, value.trim())?.commit()
         }
 
     fun clearApiKey() {
-        storagePrefs?.edit()?.remove(KEY_API_KEY)?.apply()
+        storagePrefs?.edit()?.remove(KEY_API_KEY)?.commit()
     }
 
     private companion object {

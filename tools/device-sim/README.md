@@ -50,7 +50,8 @@ curl http://127.0.0.1:8899/test/state
 ```
 
 手机设置里填 `http://10.0.2.2:8899`（模拟器）或电脑局域网地址、Bearer 令牌、启动时打印的 JWK。
-`GET /v1/device/inbox` 与 `POST /v1/device/receipts` 需要令牌。
+`GET /v1/device/inbox` 与 `POST /v1/device/receipts` 需要令牌；收到的回执会用
+`verify_receipt` 校验结构，非法回执返回 400 并打印 `INVALID receipt`。
 
 ## 注意
 

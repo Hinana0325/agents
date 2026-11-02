@@ -5,11 +5,13 @@
 
 > 状态说明（请先读）：v0.2.0 已在**一次性 Android 16 模拟器**上完成端到端验证
 > （安装 → 设置并测试连接 → 发消息 → 意图确认卡 → 拉起系统闹钟 → 重启后历史仍在），
-> 并产出签名的 release APK。**尚未在物理真机上验证**；没有 GMS/激进省电机型的真实表现数据。
+> 并产出签名的 release APK；设备侧协议链路也已用签名 mock hub 跑通
+> （L1 执行、L3 生物识别审批、回执、速率限制、待确认重启恢复）。
+> **尚未在物理真机上验证**；没有 GMS/激进省电机型的真实表现数据。
 > 校验规则不在本目录：模型输出解析在 `core/kotlin/.../ModelIntentParser.kt`，
 > 协议信封校验在 `core/kotlin/.../EnvelopeValidator.kt`。
 
-## v0.1 能做什么
+## v0.2.0 能做什么
 
 - 对话界面：消息列表、输入框、思考中提示；对话历史保存在应用私有目录，重启不丢，可在设置里清空。
 - 记录页：两个页签——“备忘”列出本机备忘，点开看全文，可删除；“动作历史”记录已执行意图的
@@ -94,7 +96,9 @@ subst V: "<本仓库所在目录>"     # 目录名含中文时必须；AGP 与�
 cd V:
 ./gradlew :apps:phone:app:assembleDebug
 ./gradlew :apps:phone:app:assembleRelease     # 需要 local.properties 里的签名配置
-./gradlew :core:kotlin:test                   # 模型输出解析 11 例 + 协议向量 183 条 + 运行时 14 例
+./gradlew :core:kotlin:test                   # core 全量 131 例（含 230 条协议向量、运行时 20 例等）
+./gradlew :apps:phone:app:testDebugUnitTest   # 手机单元测试
+./gradlew :apps:phone:app:connectedDebugAndroidTest  # 模拟器仪器测试（含 1 个交互式 L3 测试，默认跳过）
 ```
 
 构建产物在 `apps/phone/app/build/outputs/apk/`。首次构建需要联网下载依赖；
@@ -150,7 +154,7 @@ apps/phone/
 `ModelIntentParser.kt`（模型输出→意图）、`EnvelopeValidator.kt`（协议信封）、
 `Jcs.kt`（签名规范化）、`ModelIntent.kt`（意图类型）。
 
-## 已知限制（v0.1，诚实记录）
+## 已知限制（v0.2.0，诚实记录）
 
 1. 已在 Android 16 模拟器完成端到端验证；**未在物理真机验证**（不同厂商的时钟/日历实现、
    省电策略、Keystore 行为都可能不同）。

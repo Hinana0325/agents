@@ -68,12 +68,17 @@ uv run --with cryptography python tools/vector-runner/py/runner.py
 # 协议向量（Kotlin）
 ./gradlew :core:kotlin:test
 
-# 手机 APK
+# 手机 APK / 单元测试 / 模拟器仪器测试
 ./gradlew :apps:phone:app:assembleDebug
+./gradlew :apps:phone:app:testDebugUnitTest
+./gradlew :apps:phone:app:connectedDebugAndroidTest
 
 # 电脑端服务（测试 + 分发包 + 自带 JRE 的 app-image）
 ./gradlew :apps:desktop:service:test :apps:desktop:service:installDist
 ./gradlew :apps:desktop:service:packageAppImage
+
+# 手机端 mock hub 联调（打印 JWK；手机设置里填地址/令牌/公钥）
+uv run --with cryptography python tools/device-sim/mock_hub.py serve --host 0.0.0.0 --port 8899
 
 # 电脑端端到端联调（另开终端；见 apps/desktop/README）
 uv run --with cryptography python tools/device-sim/sim.py install --desktop-home ~/.dpa-desktop --dry-run

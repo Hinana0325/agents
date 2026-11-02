@@ -1,5 +1,6 @@
 package cn.phoneassistant.desktop
 
+import cn.phoneassistant.core.AuditLog
 import cn.phoneassistant.core.Jcs
 import cn.phoneassistant.core.runtime.ExecutionOutcome
 import java.io.File
@@ -25,6 +26,7 @@ import kotlinx.serialization.json.putJsonObject
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -60,6 +62,26 @@ class DesktopAgentTest {
         assertEquals(1, notesCount(paths))
         val receipt = readReceipts(paths).single()
         assertEquals("done", receipt["status"]!!.jsonPrimitive.content)
+    }
+
+    @Test
+    fun auditLogIsHashChained() {
+        val paths = paths()
+        val agent = agent(paths, dryRun = true)
+        writeEnvelope(paths, signEnvelope(envelope("save_note", buildJsonObject {
+            put("text", "x")
+            put("title", "t")
+        })))
+        agent.processAll()
+
+        val file = File(paths.home, "audit.json")
+        val log = AuditLog(file)
+        assertEquals(1, log.list().size)
+        assertEquals("SAVE_NOTE", log.list().single().intent)
+        assertNull(log.verify())
+
+        file.writeText(file.readText().replace("SAVE_NOTE", "HACKED"))
+        assertEquals("AUDIT_TAMPERED", log.verify())
     }
 
     @Test

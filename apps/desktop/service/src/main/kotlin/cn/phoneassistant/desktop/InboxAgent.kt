@@ -1,5 +1,7 @@
 package cn.phoneassistant.desktop
 
+import cn.phoneassistant.core.AuditEntry
+import cn.phoneassistant.core.AuditLog
 import cn.phoneassistant.core.EnvelopeValidator
 import cn.phoneassistant.core.RateWindowStore
 import cn.phoneassistant.core.runtime.DeviceRuntime
@@ -11,6 +13,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.Base64
+import java.util.UUID
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -38,6 +41,7 @@ class InboxAgent(
 ) {
 
     private val json = Json { ignoreUnknownKeys = true }
+    private val auditLog = AuditLog(File(paths.home, "audit.json"))
 
     private val runtime = DeviceRuntime(
         deviceId = config.device_id,
@@ -58,7 +62,26 @@ class InboxAgent(
     fun processAll(): List<String> {
         val results = mutableListOf<String>()
         for (file in listJsonFiles(paths.pending) + listJsonFiles(paths.inbox)) {
-            results += processFile(file)
+            val intent = runCatching {
+                (json.parseToJsonElement(file.readText()).jsonObject["intent"] as? JsonPrimitive)
+                    ?.contentOrNull
+            }.getOrNull() ?: "unknown"
+            val line = processFile(file)
+            val status = line.substringBefore(' ')
+            auditLog.append(
+                AuditEntry(
+                    id = UUID.randomUUID().toString(),
+                    tsMillis = System.currentTimeMillis(),
+                    intent = intent.uppercase(),
+                    summary = line,
+                    outcome = when (status) {
+                        "DONE", "DUPLICATE" -> "success"
+                        "AWAITING_CONFIRM", "AWAITING_PHONE" -> "pending"
+                        else -> "failure"
+                    },
+                ),
+            )
+            results += line
         }
         results += runtime.sweepExpired().map { "EXPIRED $it" }
         return results

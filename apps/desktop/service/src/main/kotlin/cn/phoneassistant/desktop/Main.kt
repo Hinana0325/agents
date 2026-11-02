@@ -66,6 +66,10 @@ private fun printStatus(paths: DesktopPaths, config: DesktopConfigFile, identity
     println("设备证书：${Pairing.describeCertificate(config.device_cert)}")
     println("证书状态：${Pairing.certificateState(config.device_cert)}")
     println("已吊销证书：${config.revoked_certs.size} 个")
+    runCatching {
+        val audit = cn.phoneassistant.core.AuditLog(File(paths.home, "audit.json"))
+        println("审计链：${audit.verify() ?: "完整"}（${audit.list().size} 条）")
+    }
     println("dry_run：${config.dry_run}")
     println("应用目录：${config.app_catalog.size} 项；URL 允许清单：${config.url_allowlist.size} 项")
     println("inbox：${count(paths.inbox)}；pending：${count(paths.pending)}；outbox：${count(paths.outbox)}")

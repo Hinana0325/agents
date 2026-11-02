@@ -25,9 +25,10 @@ class SettingsStore(context: Context) {
      */
     private var cachedPrefs: SharedPreferences? = null
     private var initAttempted = false
+    private val initLock = Any()
 
     private val storagePrefs: SharedPreferences?
-        get() {
+        get() = synchronized(initLock) {
             if (!initAttempted) {
                 initAttempted = true
                 cachedPrefs = try {
@@ -44,7 +45,7 @@ class SettingsStore(context: Context) {
                     null
                 }
             }
-            return cachedPrefs
+            cachedPrefs
         }
 
     /** 加密存储建不出来时的中文说明；正常为 null。 */

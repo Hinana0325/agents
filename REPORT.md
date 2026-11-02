@@ -508,3 +508,26 @@
 - 回执发送失败仍无重试队列/发件箱。
 - store 只保留最近 500 条；更长期的去重窗口需要按 TTL 计算与持久化索引（接真实 hub 时再定）。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 20. 手机端回执发件箱与启动补发 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- core：`Outbox`（先落盘再发送、指数退避、同 key 幂等、最多 8 次、坏文件按空处理），5 个单测。
+- 手机：回执统一走 `deliverReceipt`（入队 → 发送 → 成功出队，失败记一次退避）；
+  每次同步前补发，App 启动时也补发一次。
+- 修了一个并发缺陷：`SettingsStore` 懒初始化未同步，启动时并发读取可能拿到 null，
+  导致 `isHubConfigured` 假阴性、启动补发被跳过；改为 `synchronized` 初始化。
+
+### 已核验（模拟器 + mock hub 第一次回执返回 500）
+
+1. 同步执行后回执 POST 失败 → `outbox.json` 出现该回执（attempts=1，带下次重试时间）。
+2. 重启 App：日志显示 `flush start configured=true outbox=1`、`flush end sent=Success(1) outbox=0`；
+   hub 收到回执，`outbox.json` 变为 `[]`。
+3. 修复前同一场景日志为 `configured=false`、队列不动——这是本轮定位到的真实竞态。
+4. 测试：core 62 个（新增 Outbox 5 个）、desktop 25、手机 3，全绿；APK 构建通过。
+
+### 未完成
+
+- 重试只在 App 运行/下次同步时发生，没有 WorkManager 后台重试；退避上限 5 分钟、最多 8 次。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。

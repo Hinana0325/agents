@@ -14,6 +14,7 @@ import cn.phoneassistant.core.AuditLog
 import cn.phoneassistant.core.IntentType
 import cn.phoneassistant.core.Jwk
 import cn.phoneassistant.core.ModelIntentParser
+import cn.phoneassistant.core.Outbox
 import cn.phoneassistant.core.ProcessedStore
 import cn.phoneassistant.core.ValidationResult
 import cn.phoneassistant.core.runtime.EnvelopeState
@@ -70,6 +71,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     val audit: StateFlow<List<AuditEntry>> = _audit.asStateFlow()
     private val auditLog = AuditLog(File(application.filesDir, "audit.json"))
     private val processedStore = ProcessedStore(File(application.filesDir, "processed.json"))
+    private val outbox = Outbox(File(application.filesDir, "outbox.json"))
 
     private val _syncing = MutableStateFlow(false)
     val syncing: StateFlow<Boolean> = _syncing.asStateFlow()
@@ -86,6 +88,14 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         // 在 IO 线程第一次触碰加密存储，界面之后读设置就不会在主线程做 Keystore I/O。
         viewModelScope.launch(Dispatchers.IO) { settings.isConfigured }
         viewModelScope.launch(Dispatchers.IO) { _audit.value = auditLog.list() }
+        // 启动时补发上次没送出去的回执（失败就留到下次同步再试）。
+        viewModelScope.launch(Dispatchers.IO) {
+            if (settings.isHubConfigured) {
+                runCatching {
+                    flushOutbox(HttpHubClient(settings.hubUrl, identity.deviceId, settings.hubToken))
+                }
+            }
+        }
         viewModelScope.launch {
             val loaded = withContext(Dispatchers.IO) { ChatHistoryStore.load(getApplication()) }
             if (loaded.isEmpty()) {
@@ -155,14 +165,16 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 val lines = withContext(Dispatchers.IO) {
                     val client = HttpHubClient(hubUrl, identity.deviceId, token)
                     val agent = PhoneAgent(getApplication(), identity, pubkey, kid)
+                    val resent = flushOutbox(client)
                     val pull = client.pull()
                     val results = mutableListOf<String>()
+                    if (resent > 0) results += "补发回执 $resent 条"
                     for (envelope in pull.envelopes) {
                         val id = (envelope["id"] as? JsonPrimitive)?.contentOrNull ?: continue
                         // 跨重启去重：终态回执已落库时直接回执，不再执行。
                         val stored = processedStore.receipt(id)
                         if (stored != null) {
-                            runCatching { client.postReceipt(stored) }
+                            deliverReceipt(client, stored)
                             results += "$id：duplicate"
                             continue
                         }
@@ -174,7 +186,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         } else {
                             receipt
                         }
-                        runCatching { client.postReceipt(finalReceipt) }
+                        deliverReceipt(client, finalReceipt)
                         val status = (finalReceipt["status"] as? JsonPrimitive)?.contentOrNull ?: "unknown"
                         if (status in TERMINAL_STATUSES) {
                             processedStore.save(id, finalReceipt)
@@ -340,6 +352,35 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                 _audit.value = auditLog.list()
             }
         }
+    }
+
+    /** 先落盘再发送：成功删除，失败留在 outbox 等下次同步/启动重试。 */
+    private suspend fun deliverReceipt(client: HttpHubClient, receipt: JsonObject) {
+        val id = (receipt["envelope_id"] as? JsonPrimitive)?.contentOrNull ?: return
+        val key = "receipt:$id"
+        withContext(Dispatchers.IO) { outbox.enqueue(key, "receipt", receipt) }
+        try {
+            withContext(Dispatchers.IO) { client.postReceipt(receipt) }
+            withContext(Dispatchers.IO) { outbox.markSent(key) }
+        } catch (_: Exception) {
+            // 记一次失败并按指数退避安排下次重试
+            withContext(Dispatchers.IO) { outbox.markFailed(key) }
+        }
+    }
+
+    private suspend fun flushOutbox(client: HttpHubClient): Int = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        var sent = 0
+        for (item in outbox.due(now)) {
+            try {
+                client.postReceipt(item.payload)
+                outbox.markSent(item.key)
+                sent++
+            } catch (_: Exception) {
+                outbox.markFailed(item.key, now)
+            }
+        }
+        sent
     }
 
     private fun recordAudit(intent: AssistantIntent, outcome: String, artifact: String? = null) {

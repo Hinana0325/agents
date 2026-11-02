@@ -46,16 +46,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import cn.phoneassistant.chat.ChatViewModel
 import cn.phoneassistant.core.AssistantIntent
 import cn.phoneassistant.core.IntentType
+import cn.phoneassistant.core.Jwk
 import cn.phoneassistant.llm.LlmClient
 import cn.phoneassistant.model.ChatMessage
 import cn.phoneassistant.model.PendingIntent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 private enum class Screen { CHAT, SETTINGS, NOTES, PAIRING }
 
@@ -63,6 +67,8 @@ private enum class Screen { CHAT, SETTINGS, NOTES, PAIRING }
 @Composable
 fun ChatScreen(viewModel: ChatViewModel) {
     var screen by remember { mutableStateOf(Screen.CHAT) }
+    val syncing by viewModel.syncing.collectAsState()
+    val remote by viewModel.remoteApproval.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -83,6 +89,9 @@ fun ChatScreen(viewModel: ChatViewModel) {
                 },
                 actions = {
                     if (screen == Screen.CHAT) {
+                        TextButton(onClick = { viewModel.syncNow() }, enabled = !syncing) {
+                            Text(if (syncing) "同步中" else "同步")
+                        }
                         TextButton(onClick = { screen = Screen.NOTES }) { Text("记录") }
                         TextButton(onClick = { screen = Screen.PAIRING }) { Text("配对") }
                         TextButton(onClick = { screen = Screen.SETTINGS }) { Text("设置") }
@@ -109,6 +118,22 @@ fun ChatScreen(viewModel: ChatViewModel) {
                 modifier = Modifier.padding(padding),
             )
         }
+    }
+
+    remote?.let { approval ->
+        AlertDialog(
+            onDismissRequest = { viewModel.answerRemote(false) },
+            title = { Text("远端任务待确认") },
+            text = {
+                Text("动作：${approval.intent}（L${approval.level}）\n${approval.summary}")
+            },
+            confirmButton = {
+                Button(onClick = { viewModel.answerRemote(true) }) { Text("确认执行") }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.answerRemote(false) }) { Text("取消") }
+            },
+        )
     }
 }
 
@@ -300,6 +325,8 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
     var confirmClear by remember { mutableStateOf(false) }
     var hubUrl by remember { mutableStateOf(store.hubUrl) }
     var hubTokenInput by remember { mutableStateOf("") }
+    var hubPubkey by remember { mutableStateOf(store.hubPubkey) }
+    var hubKid by remember { mutableStateOf(store.hubKid) }
     var hubState by remember { mutableStateOf(store.hasHubToken to store.isHubConfigured) }
     var hubMessage by remember { mutableStateOf("") }
     var hubIsError by remember { mutableStateOf(false) }
@@ -477,6 +504,20 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
             singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
         )
+        OutlinedTextField(
+            value = hubPubkey,
+            onValueChange = { hubPubkey = it },
+            modifier = Modifier.fillMaxWidth().height(120.dp),
+            label = { Text("Hub 公钥（JWK JSON）") },
+            textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+        )
+        OutlinedTextField(
+            value = hubKid,
+            onValueChange = { hubKid = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Hub kid") },
+            singleLine = true,
+        )
         Text(
             "编排服务：" + if (hubState.second) "已配置" else "未配置",
             style = MaterialTheme.typography.bodyMedium,
@@ -485,13 +526,20 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
             Button(
                 onClick = {
                     val urlError = validateBaseUrl(hubUrl)
+                    val pubkeyError = validateHubPubkey(hubPubkey)
                     when {
                         urlError != null -> {
                             hubIsError = true
                             hubMessage = urlError
                         }
+                        pubkeyError != null -> {
+                            hubIsError = true
+                            hubMessage = pubkeyError
+                        }
                         else -> {
                             store.hubUrl = hubUrl
+                            store.hubPubkey = hubPubkey
+                            store.hubKid = hubKid
                             if (hubTokenInput.isNotBlank()) {
                                 store.hubToken = hubTokenInput
                                 hubTokenInput = ""
@@ -568,8 +616,7 @@ private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifi
 }
 
 /** 与 network_security_config 保持一致：只允许 https，本机调试地址可用 http。 */
-private fun validateBaseUrl(raw: String): String? {
-    val value = raw.trim().trimEnd('/')
+private fun validateBaseUrl(raw: String): String? {    val value = raw.trim().trimEnd('/')
     if (value.isEmpty()) return "请填写服务地址。"
     val cleartext = value.startsWith("http://localhost") ||
         value.startsWith("http://127.0.0.1") ||
@@ -578,6 +625,14 @@ private fun validateBaseUrl(raw: String): String? {
         return "服务地址必须以 https:// 开头；本机调试可用 http://localhost、http://127.0.0.1 或 http://10.0.2.2。"
     }
     return null
+}
+
+/** Hub 公钥必须是一把合法的 P-256 JWK。 */
+private fun validateHubPubkey(text: String): String? {
+    if (text.isBlank()) return null
+    val obj = runCatching { Json.parseToJsonElement(text) as? JsonObject }.getOrNull()
+        ?: return "Hub 公钥必须是 JSON 对象。"
+    return Jwk.validate(obj)
 }
 
 private fun intentTypeLabel(type: IntentType): String = when (type) {

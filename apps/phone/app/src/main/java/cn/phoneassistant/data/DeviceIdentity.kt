@@ -3,6 +3,7 @@ package cn.phoneassistant.data
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import cn.phoneassistant.core.ApprovalProof
 import cn.phoneassistant.core.DeviceCert
 import cn.phoneassistant.core.Es256
 import cn.phoneassistant.core.PairingRequest
@@ -10,6 +11,7 @@ import java.math.BigInteger
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.PrivateKey
+import java.security.SecureRandom
 import java.security.interfaces.ECPublicKey
 import java.security.spec.ECGenParameterSpec
 import java.time.Instant
@@ -75,9 +77,16 @@ class DeviceIdentity(context: Context) {
         )
     }
 
+    /** 给一条待确认信封生成 L2/L3 审批证明（用 Keystore 身份密钥签名）。 */
+    fun createApproval(envelope: JsonObject, level: Int): JsonObject {
+        val nonceBytes = ByteArray(18)
+        SecureRandom().nextBytes(nonceBytes)
+        val nonce = Base64.getUrlEncoder().withoutPadding().encodeToString(nonceBytes)
+        return ApprovalProof.create(envelope, level, deviceId, nonce, Instant.now(), privateKey)
+    }
+
     /** 用本机公钥签一张测试证书并验签；返回 null 表示通过，否则是错误码。 */
-    fun selfTest(now: Instant = Instant.now()): String? {
-        val issuedAt = format(now)
+    fun selfTest(now: Instant = Instant.now()): String? {        val issuedAt = format(now)
         val expiresAt = format(now.plus(365, ChronoUnit.DAYS))
         val cert = DeviceCert.create(
             deviceId = "self-test",

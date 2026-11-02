@@ -5,12 +5,17 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import cn.phoneassistant.agent.PhoneAgent
+import cn.phoneassistant.agent.RemoteApproval
+import cn.phoneassistant.agent.describeEnvelope
 import cn.phoneassistant.core.AssistantIntent
 import cn.phoneassistant.core.AuditEntry
 import cn.phoneassistant.core.AuditLog
 import cn.phoneassistant.core.IntentType
+import cn.phoneassistant.core.Jwk
 import cn.phoneassistant.core.ModelIntentParser
 import cn.phoneassistant.core.ValidationResult
+import cn.phoneassistant.core.runtime.EnvelopeState
 import cn.phoneassistant.data.ChatHistoryStore
 import cn.phoneassistant.data.DeviceIdentity
 import cn.phoneassistant.data.NoteStore
@@ -19,8 +24,14 @@ import cn.phoneassistant.intent.IntentExecutor
 import cn.phoneassistant.llm.LlmClient
 import cn.phoneassistant.model.ChatMessage
 import cn.phoneassistant.model.PendingIntent
+import cn.phoneassistant.transport.HttpHubClient
 import java.io.File
 import java.util.UUID
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,6 +68,15 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val _audit = MutableStateFlow<List<AuditEntry>>(emptyList())
     val audit: StateFlow<List<AuditEntry>> = _audit.asStateFlow()
     private val auditLog = AuditLog(File(application.filesDir, "audit.json"))
+
+    private val _syncing = MutableStateFlow(false)
+    val syncing: StateFlow<Boolean> = _syncing.asStateFlow()
+
+    private val _remoteApproval = MutableStateFlow<RemoteApproval?>(null)
+    val remoteApproval: StateFlow<RemoteApproval?> = _remoteApproval.asStateFlow()
+
+    @Volatile
+    private var remoteDecision: CompletableDeferred<Boolean>? = null
 
     private var nextId = 1L
 
@@ -104,6 +124,91 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             } finally {
                 _thinking.value = false
             }
+        }
+    }
+
+    /** 从编排服务拉取一次信封并处理；L2 会弹确认框。 */
+    fun syncNow() {
+        if (_syncing.value) return
+        val hubUrl = settings.hubUrl
+        val token = settings.hubToken
+        val pubkeyText = settings.hubPubkey
+        val kid = settings.hubKid
+        if (hubUrl.isBlank() || token.isBlank() || pubkeyText.isBlank()) {
+            appendAssistant("还没配齐编排服务：Hub 地址、设备令牌、Hub 公钥都要填。", isError = true)
+            return
+        }
+        val pubkey = runCatching { Json.parseToJsonElement(pubkeyText) as? JsonObject }.getOrNull()
+        if (pubkey == null) {
+            appendAssistant("Hub 公钥不是合法 JSON。", isError = true)
+            return
+        }
+        Jwk.validate(pubkey)?.let {
+            appendAssistant("Hub 公钥不合法：$it", isError = true)
+            return
+        }
+        _syncing.value = true
+        viewModelScope.launch {
+            try {
+                val lines = withContext(Dispatchers.IO) {
+                    val client = HttpHubClient(hubUrl, identity.deviceId, token)
+                    val agent = PhoneAgent(getApplication(), identity, pubkey, kid)
+                    val pull = client.pull()
+                    val results = mutableListOf<String>()
+                    for (envelope in pull.envelopes) {
+                        val id = (envelope["id"] as? JsonPrimitive)?.contentOrNull ?: continue
+                        val receipt = agent.submit(envelope)
+                        val finalReceipt = if (agent.stateOf(id) == EnvelopeState.AWAITING_CONFIRM) {
+                            val level = agent.requiredLevelOf(id) ?: 2
+                            val approved = askRemote(envelope, level)
+                            if (approved) agent.approve(id, envelope, level) else agent.reject(id)
+                        } else {
+                            receipt
+                        }
+                        runCatching { client.postReceipt(finalReceipt) }
+                        val status = (finalReceipt["status"] as? JsonPrimitive)?.contentOrNull ?: "unknown"
+                        val intentName = (envelope["intent"] as? JsonPrimitive)?.contentOrNull?.uppercase() ?: "REMOTE"
+                        auditLog.append(
+                            AuditEntry(
+                                id = UUID.randomUUID().toString(),
+                                tsMillis = System.currentTimeMillis(),
+                                intent = intentName,
+                                summary = "来自编排服务",
+                                outcome = if (status == "done") "success" else "failure",
+                            ),
+                        )
+                        results += "$id：$status"
+                    }
+                    _audit.value = auditLog.list()
+                    results
+                }
+                appendAssistant(
+                    if (lines.isEmpty()) "编排服务没有新任务。" else "同步完成：\n" + lines.joinToString("\n"),
+                )
+            } catch (e: Exception) {
+                appendAssistant("同步失败：${e.message ?: "未知错误"}", isError = true)
+            } finally {
+                _syncing.value = false
+            }
+        }
+    }
+
+    /** 用户在界面上对远端任务点确认/取消。 */
+    fun answerRemote(approved: Boolean) {
+        remoteDecision?.complete(approved)
+    }
+
+    private suspend fun askRemote(envelope: JsonObject, level: Int): Boolean {
+        val id = (envelope["id"] as? JsonPrimitive)?.contentOrNull.orEmpty()
+        val intent = (envelope["intent"] as? JsonPrimitive)?.contentOrNull.orEmpty()
+        val decision = CompletableDeferred<Boolean>()
+        remoteDecision = decision
+        _remoteApproval.value = RemoteApproval(id, intent, describeEnvelope(envelope), level)
+        return try {
+            decision.await()
+        } finally {
+            _remoteApproval.value = null
+            remoteDecision = null
         }
     }
 

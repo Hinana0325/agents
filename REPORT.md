@@ -460,3 +460,30 @@
 - **没有真实 hub 端点**：拉取/回执只对 MockWebServer 验证过；设备注册、令牌签发、FCM 唤醒、WS 都未做。
 - 拉取到的信封还没有接入手机 `DeviceRuntime`（执行器映射、L2 审批弹窗、回执回传），下一步做。
 - 轮询频率/前台限制/退避策略未设计。
+
+## 18. 手机端接上设备运行时（mock hub 端到端）— 2026-11-02 晚（续）
+
+### 做了什么
+
+- core：`ProtocolMapping`（协议意图+params → 现有 `AssistantIntent`；create_event 换算展示字段）6 个单测。
+- 手机：`PhoneAgent` 装配 `DeviceRuntime`（hub 公钥验签、按设备策略、L2 审批用 Keystore 签 `approval.v1`），
+  执行器映射到现有 Android Intent 执行器；`DeviceIdentity.createApproval`。
+- 顶栏新增“同步”：拉取一次 → 逐条提交 → L2 弹确认 → 执行 → 终态回执回传；结果写聊天与动作历史。
+- 设置页补 Hub 公钥（JWK）与 kid；`isHubConfigured` 要求地址/令牌/公钥齐全。
+
+### 已核验（模拟器 + 临时 mock hub，mock hub 未入库）
+
+1. 电脑起临时 mock hub（用 `~/.dpa-sim` 的测试密钥签名信封），手机设置 Hub 地址/令牌/公钥。
+2. 点“同步”：拉到一条 L2 `save_note` → 弹“远端任务待确认（L2）” → 点确认 →
+   Keystore 签审批 → 执行 → 备忘 `20261102-132213_远端任务.txt` 落盘。
+3. mock hub 收到回执：`{"status":"done","device_id":"phone-c1949faa",...}`；
+   聊天显示“同步完成：0193f0a8-…：done”。
+4. 测试：core 53 个（新增 ProtocolMapping 6 个）、desktop 25、手机 3，全绿；APK 构建通过。
+
+### 未完成 / 已知限制
+
+- **没有真实 hub**：设备注册、令牌签发、吊销、FCM 唤醒、WS 均未做；当前靠手动“同步”。
+- 手机运行时去重状态在内存，重启后同一信封会重新处理（桌面端已有 SQLite 去重）。
+- `open_app` 的 `app_id` 暂按包名处理，还没有端上应用目录映射 UI。
+- `voice_command` / `task_handoff` 在手机上直接拒绝（语音/接力属后续阶段）。
+- 回执发送失败只吞掉异常，没有重试队列。

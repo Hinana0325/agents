@@ -95,7 +95,21 @@ class SettingsStore(context: Context) {
         get() = hubToken.isNotBlank()
 
     val isHubConfigured: Boolean
-        get() = hubUrl.isNotBlank() && hasHubToken
+        get() = hubUrl.isNotBlank() && hasHubToken && hubPubkey.isNotBlank()
+
+    /** Hub 签名公钥（JWK JSON 文本），用于验证云端信封。 */
+    var hubPubkey: String
+        get() = storagePrefs?.getString(KEY_HUB_PUBKEY, "").orEmpty().trim()
+        set(value) {
+            storagePrefs?.edit()?.putString(KEY_HUB_PUBKEY, value.trim())?.apply()
+        }
+
+    /** Hub 的 kid；缺省用 hub-test-1（本地联调）。 */
+    var hubKid: String
+        get() = storagePrefs?.getString(KEY_HUB_KID, "hub-test-1").orEmpty().ifBlank { "hub-test-1" }
+        set(value) {
+            storagePrefs?.edit()?.putString(KEY_HUB_KID, value.trim())?.apply()
+        }
 
     fun clearHubToken() {
         storagePrefs?.edit()?.remove(KEY_HUB_TOKEN)?.apply()
@@ -111,5 +125,7 @@ class SettingsStore(context: Context) {
         const val KEY_API_KEY = "api_key"
         const val KEY_HUB_URL = "hub_url"
         const val KEY_HUB_TOKEN = "hub_token"
+        const val KEY_HUB_PUBKEY = "hub_pubkey"
+        const val KEY_HUB_KID = "hub_kid"
     }
 }

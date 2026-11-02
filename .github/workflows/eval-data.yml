@@ -1,0 +1,21 @@
+name: eval-data
+
+on:
+  push:
+    paths:
+      - "eval/**"
+      - "protocol/**"
+  pull_request:
+    paths:
+      - "eval/**"
+      - "protocol/**"
+
+jobs:
+  eval-data-gate:
+    name: eval data quality gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Eval data gate
+        # 纯标准库 runner，无需安装依赖
+        run: python3 eval/runners/rule_runner.py --strict

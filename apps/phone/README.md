@@ -66,14 +66,17 @@
 - 不收集、不上报、不接广告、不接统计；网络只发往用户自己在设置里填写的大模型服务地址。
 - 不做离线本地模型、不做语音、不做跨应用连续操作、不做日程/闹钟的直接写入
   （一律走系统新建界面，需要用户在系统界面最后确认）。
-- 不做任何需要危险权限的事：清单里只有联网（INTERNET），外加一条普通权限
+- 不做任何需要危险权限的事：清单里只有联网（INTERNET），外加两条普通权限：
   `com.android.alarm.permission.SET_ALARM`（安装即授予、无弹窗，AOSP 时钟的
-  ACTION_SET_ALARM/ACTION_SET_TIMER 接收方要求调用方持有它；不声明会在 AOSP 上被拒）。
+  ACTION_SET_ALARM/ACTION_SET_TIMER 接收方要求调用方持有它；不声明会在 AOSP 上被拒）
+  与 `USE_BIOMETRIC`（L3 审批用，安装即授予、无弹窗）。
 
 ## 密钥存放在哪里
 
-- 全部设置（服务地址、模型名、密钥）都只放在 Android Keystore 保护的
-  `EncryptedSharedPreferences`（见 `data/SettingsStore.kt`）中。
+- 全部设置（服务地址、模型名、密钥）都由 `data/SecureSettings.kt` 做字段级
+  AES-256-GCM 加密：密钥只存在 Android Keystore，密文写入普通 SharedPreferences，
+  字段名作为 AAD（密文不能在字段间搬运）。已不再依赖 deprecated 的
+  `EncryptedSharedPreferences`。
 - 代码、构建配置、日志、聊天记录里都没有密钥，也没有写死的服务地址、模型名和个人信息。
 - 密钥只在发起本次请求时放进 Authorization 请求头，用完即丢弃；
   界面只显示“已设置 / 未设置”，从不回显原文。
@@ -157,8 +160,7 @@ apps/phone/
 5. 备忘只存在本机，没有同步、没有导出、卸载即丢失。
 6. 加密存储依赖设备 Keystore：建不出来时应用不会崩溃，也不会退回明文，
    而是明确提示“本机加密存储不可用”，设置无法保存。
-7. `androidx.security:security-crypto` 为稳定版 `1.1.0`，但该版本起
-   `EncryptedSharedPreferences`/`MasterKey` 已被官方标记 deprecated；
-   换用 Keystore 直管 AES-GCM（或 Tink）是后续任务。
-8. 手机尚未接入协议信封：`HANDOFF_TASK`/`VOICE_COMMAND` 对应的
-   `task_handoff`/`voice_command` 还没有收发代码，属 Phase 1。
+7. 设置存储从旧版 `EncryptedSharedPreferences` 换成 `SecureSettings` 时**没有做迁移**：
+   升级后已有设置会显示为未配置，需要重新填一次（预发布阶段的有意取舍）。
+8. `task_handoff`/`voice_command` 仍不执行（手机端映射为拒绝）；跨设备接力
+   需要真实 hub 就绪后再接。

@@ -859,3 +859,31 @@
 - 第 11 条没有做“生物识别批准后执行”的洪水版本（取消路径已覆盖升 L3）。
 - mock hub 仍是投递即出队，不复刻真实 hub 的重投/状态机。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 33. 设置存储改用 Keystore AES-GCM — 2026-11-02 晚（续）
+
+### 做了什么
+
+- 新增 `data/SecureSettings.kt`：每个设置值用 Keystore 里的 AES-256-GCM 密钥
+  单独加密，`base64(iv || ciphertext)` 写入普通 SharedPreferences；字段名作为 AAD，
+  密文不能在字段之间搬运。写入用 `commit()`。
+- `SettingsStore` 全面改用 `SecureSettings`，公开 API 不变；删除
+  `androidx.security:security-crypto` 依赖（连同 catalog 里的条目）。
+- 没有做旧格式迁移：升级后设置显示为未配置，需要重填一次（预发布阶段的有意取舍，
+  已在手机 README 的已知限制里写明）。
+- 修正手机 README 两条过期描述：权限清单补上 `USE_BIOMETRIC`；
+  “手机尚未接入协议信封”改为“task_handoff/voice_command 仍不执行”。
+
+### 已核验（Android 16 模拟器）
+
+1. `SecureSettingsTest` 4 个仪器测试通过：写入/读取/跨实例持久化/删除、
+   原始 XML 不含明文、篡改密文回退默认值、密文换字段名无法解密（AAD 生效）。
+2. 仪器测试总数 8（含 1 个默认跳过的交互式 L3 测试），0 失败。
+3. 构建不再出现 `EncryptedSharedPreferences`/`MasterKey` 的弃用告警；
+   core 117、桌面 27、手机 6 全绿，release APK 可打包。
+
+### 未完成
+
+- 旧加密设置没有迁移（升级即重置一次）；如要保留，需要一次性迁移代码并继续带旧依赖一个版本。
+- 设置值仍在读取时于调用线程解密（与旧实现一致的现状）；后续可改成异步缓存。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。

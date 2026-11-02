@@ -1,6 +1,7 @@
 package cn.phoneassistant.desktop
 
 import cn.phoneassistant.core.EnvelopeValidator
+import cn.phoneassistant.core.RateWindowStore
 import cn.phoneassistant.core.runtime.DeviceRuntime
 import cn.phoneassistant.core.runtime.EnvelopeState
 import cn.phoneassistant.core.runtime.TrustedApprover
@@ -48,6 +49,7 @@ class InboxAgent(
         ),
         appCatalog = config.app_catalog,
         urlAllowlist = config.url_allowlist,
+        rateWindow = RateWindowStore(File(paths.home, "rate_window.json")),
     )
 
     fun hasHubKey(): Boolean = config.hub_pubkey != null

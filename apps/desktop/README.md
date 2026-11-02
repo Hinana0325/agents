@@ -11,7 +11,8 @@
   日历/闹钟按策略只有手机可达，电脑明确返回失败，不假装成功。
 - **确认**：L1 直接执行；L2 在 Compose 主界面弹确认框（默认按钮是“取消”），确认后用
   **本机审批密钥**签名 `approval.v1` 再执行；L3 电脑没有审批权，留在 `pending/` 并提示去手机批准。
-  非交互运行（`once`）时 L2 留在 `pending/`。
+  非交互运行（`once`）时 L2 留在 `pending/`。与手机一致：60 秒内第 11 条起强制升 L3，
+  窗口落盘（`rate_window.json`），重启不重置。
 - **界面**：Compose Desktop（Kotlin/JVM + Material3）主窗口显示设备信息、hub 公钥状态、
   inbox/pending/outbox 计数，并有“运行日志 / 已处理 / 设置”三个页签；设置页可编辑
   应用目录（JSON）、URL 允许清单、搜索模板与 dry_run，保存前校验并写入 config.json；

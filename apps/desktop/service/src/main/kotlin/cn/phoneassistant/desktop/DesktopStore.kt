@@ -18,6 +18,8 @@ import kotlinx.serialization.json.contentOrNull
  */
 class DesktopStore(file: File) : AutoCloseable {
 
+    data class ProcessedRow(val envelopeId: String, val status: String, val processedAt: String)
+
     private val connection = DriverManager.getConnection("jdbc:sqlite:${file.absolutePath}")
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -60,6 +62,22 @@ class DesktopStore(file: File) : AutoCloseable {
         connection.createStatement().use { statement ->
             statement.executeQuery("SELECT COUNT(*) FROM processed").use { rs ->
                 return if (rs.next()) rs.getInt(1) else 0
+            }
+        }
+    }
+
+    @Synchronized
+    fun recent(limit: Int = 50): List<ProcessedRow> {
+        connection.prepareStatement(
+            "SELECT envelope_id, status, processed_at FROM processed ORDER BY processed_at DESC LIMIT ?",
+        ).use { ps ->
+            ps.setInt(1, limit)
+            ps.executeQuery().use { rs ->
+                val rows = mutableListOf<ProcessedRow>()
+                while (rs.next()) {
+                    rows += ProcessedRow(rs.getString(1), rs.getString(2), rs.getString(3))
+                }
+                return rows
             }
         }
     }

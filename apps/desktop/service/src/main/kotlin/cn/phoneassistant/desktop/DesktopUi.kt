@@ -16,6 +16,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -49,7 +51,7 @@ import javax.imageio.ImageIO
 import kotlinx.coroutines.launch
 
 /** Compose Desktop 入口：主窗口 + 系统托盘。服务线程在 Main 里独立运行。 */
-fun runDesktopUi(state: UiState, config: DesktopConfigFile, paths: DesktopPaths) = application {
+fun runDesktopUi(state: UiState, config: DesktopConfigFile, paths: DesktopPaths, store: DesktopStore) = application {
     val scope = rememberCoroutineScope()
     val trayState = rememberTrayState()
     val windowState = rememberWindowState(width = 780.dp, height = 580.dp)
@@ -81,16 +83,23 @@ fun runDesktopUi(state: UiState, config: DesktopConfigFile, paths: DesktopPaths)
     ) {
         MaterialTheme {
             Surface(modifier = Modifier.fillMaxSize()) {
-                DesktopApp(state, config, paths)
+                DesktopApp(state, config, paths, store)
             }
         }
     }
 }
 
 @Composable
-private fun DesktopApp(state: UiState, config: DesktopConfigFile, paths: DesktopPaths) {
+private fun DesktopApp(state: UiState, config: DesktopConfigFile, paths: DesktopPaths, store: DesktopStore) {
     val logs by state.logs.collectAsState()
     val prompt by state.prompt.collectAsState()
+    var tab by remember { mutableStateOf(0) }
+    var processed by remember { mutableStateOf<List<DesktopStore.ProcessedRow>>(emptyList()) }
+
+    // 每次有新日志就刷新一次已处理记录（量很小，直接读库）
+    LaunchedEffect(logs) {
+        processed = runCatching { store.recent(80) }.getOrDefault(emptyList())
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(20.dp),
@@ -115,17 +124,44 @@ private fun DesktopApp(state: UiState, config: DesktopConfigFile, paths: Desktop
             OutlinedButton(onClick = { openDataDir(paths.home) }) { Text("打开数据目录") }
         }
         HorizontalDivider()
-        Text("运行日志", style = MaterialTheme.typography.titleMedium)
-        if (logs.isEmpty()) {
-            Text(
-                "还没有收到信封。",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+        TabRow(selectedTabIndex = tab) {
+            Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text("运行日志") })
+            Tab(
+                selected = tab == 1,
+                onClick = { tab = 1 },
+                text = { Text("已处理（${processed.size}）") },
             )
+        }
+        if (tab == 0) {
+            if (logs.isEmpty()) {
+                Text(
+                    "还没有收到信封。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    items(logs.asReversed()) { line ->
+                        Text(line, style = MaterialTheme.typography.bodySmall, fontSize = 12.sp)
+                    }
+                }
+            }
         } else {
-            LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                items(logs.asReversed()) { line ->
-                    Text(line, style = MaterialTheme.typography.bodySmall, fontSize = 12.sp)
+            if (processed.isEmpty()) {
+                Text(
+                    "还没有处理记录。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                LazyColumn(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                    items(processed) { row ->
+                        Text(
+                            "${row.status}  ${row.envelopeId}  ${row.processedAt}",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 12.sp,
+                        )
+                    }
                 }
             }
         }

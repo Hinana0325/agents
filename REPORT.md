@@ -245,16 +245,18 @@
 - **DPAPI 保护私钥**（JNA `Crypt32Util`，当前用户作用域）：私钥写 `identity-private.dpapi`；
   旧的明文 `identity-private.der` 首次加载时自动加密并删除。非 Windows 暂明文，`status` 会标注。
 - `status` 增加“已处理（持久化）”与“私钥保护”两行；ADR 0009 记录取舍。
+- **处理历史接入界面**：Compose 主窗口新增“运行日志 / 已处理”页签，后者读 SQLite 回执历史（最近 80 条）。
 
 ### 已核验
 
-- `:apps:desktop:service:test`：**12 个用例全绿**（原 8 个 + 跨重启去重 + DPAPI 往返 + 明文迁移）。
+- `:apps:desktop:service:test`：**13 个用例全绿**（原 8 个 + 跨重启去重 + DPAPI 往返 + 明文迁移 + 历史查询）。
 - 本机端到端（临时目录）：
   1. 首次 `status` 生成身份 → 目录里只有 `identity-private.dpapi` 与 `identity-public.der`，**没有明文私钥**；
      `status` 显示“私钥保护：DPAPI（当前用户）”。
   2. 发一条 `save_note` → `once` → 回执 done、备忘落盘、`已处理（持久化）：1`。
   3. 把同一信封重新放进 inbox（模拟重启后重复投递）→ `once` → 输出 `DUPLICATE done`，
      备忘数量仍为 1，数据库计数仍为 1。
+  4. 启动 Compose 界面 → 切到“已处理（1）”页签 → 显示 `done <id> <时间>`（截图核对）。
 
 ### 未完成
 

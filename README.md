@@ -34,7 +34,7 @@ docs/legacy/     # 被 v1 取代的旧原型定义
 - 阳性对照：故意改坏一条向量后，Python 退出码 1、Kotlin 测试 FAILED。
 - 设备运行时（`core/kotlin/.../runtime/`）：按 id 幂等去重、状态机、TTL 过期、回执、L2 待确认、L3 审批（绑定信封哈希 + nonce 防重放 + 级别权限），14 个单元测试全绿。
 - 手机 App v0.2.0：对话历史持久化、备忘页、地址校验、连接测试；**签名 release APK 已在 Android 16 模拟器上端到端跑通**（设置→测试连接→发消息→确认卡→拉起系统闹钟→重启后历史仍在）。
-- 电脑端 v1：**可独立运行的无头服务 + Compose Desktop 主界面/托盘**（本地信封通道 + SQLite 跨重启去重 + DPAPI 保护私钥 + save_note/web_search/open_app/set_timer 执行器 + L2 界面确认与本机审批密钥签名）；12 个单元测试全绿，并用 device-sim 在本机端到端跑通（含 Compose 弹窗批准与重复投递去重）。
+- 电脑端 v1：**可独立运行的无头服务 + Compose Desktop 主界面/托盘**（本地信封通道 + SQLite 跨重启去重与处理历史 + DPAPI 保护私钥 + save_note/web_search/open_app/set_timer 执行器 + L2 界面确认与本机审批密钥签名）；13 个单元测试全绿，并用 device-sim 在本机端到端跑通（含 Compose 弹窗批准与重复投递去重）。
 - core 共 26 个测试全绿，debug/release APK 均可打包。
 
 未验证 / 未完成（不要当成已完成）：

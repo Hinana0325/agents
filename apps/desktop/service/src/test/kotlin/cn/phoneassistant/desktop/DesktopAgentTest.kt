@@ -131,6 +131,21 @@ class DesktopAgentTest {
     }
 
     @Test
+    fun processedHistoryIsQueryable() {
+        val paths = paths()
+        writeEnvelope(paths, signEnvelope(envelope("save_note", buildJsonObject { put("text", "history") })))
+        agent(paths, dryRun = true).processAll()
+
+        val db = DesktopStore(File(paths.home, "desktop.db"))
+        stores += db
+        val rows = db.recent(10)
+
+        assertEquals(1, rows.size)
+        assertEquals("done", rows.first().status)
+        assertEquals(1, db.count())
+    }
+
+    @Test
     fun envelopeForAnotherDeviceIsRejected() {
         val paths = paths()
         val agent = agent(paths, dryRun = true)

@@ -126,7 +126,7 @@ private fun runWithUi(paths: DesktopPaths, config: DesktopConfigFile, identity: 
             },
             "dpa-inbox",
         ).apply { isDaemon = true }.start()
-        runDesktopUi(state, config, paths)
+        runDesktopUi(state, config, paths, store)
     } finally {
         runCatching { store.close() }
     }

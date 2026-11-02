@@ -30,7 +30,7 @@ docs/legacy/     # 被 v1 取代的旧原型定义
 
 已核验：
 
-- `protocol/vectors` 共 **230 条**（valid 35 / invalid 92 / policy 26 / injection 15 / signing 15 / cert 11 / revocation 9 / approval 15 / receipt 12）。
+- `protocol/vectors` 共 **252 条**（valid 35 / invalid 92 / policy 26 / injection 15 / signing 15 / cert 11 / revocation 9 / approval 15 / receipt 12 / sync 22）。
 - 同一份向量，Kotlin（`./gradlew :core:kotlin:test`）与 Python（`uv run --with cryptography python tools/vector-runner/py/runner.py`）**均 0 失败**。
 - 阳性对照：故意改坏一条向量后，Python 退出码 1、Kotlin 测试 FAILED。
 - 设备运行时（`core/kotlin/.../runtime/`）：按 id 幂等去重、状态机、TTL 过期、回执、L2 待确认、L3 审批（绑定信封哈希 + nonce 防重放 + 级别权限）、目标设备校验、持久化速率窗口（第 11 条/分钟升 L3），20 个单元测试全绿。

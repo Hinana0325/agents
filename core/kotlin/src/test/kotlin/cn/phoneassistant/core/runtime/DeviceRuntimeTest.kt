@@ -289,6 +289,41 @@ class DeviceRuntimeTest {
         assertEquals("UNKNOWN_ENVELOPE", errorCode(rt.approve(idOf(env), approval(env, "phone-1", 3, phone.private, nonce()))))
     }
 
+    @Test
+    fun eleventhEnvelopeWithinAMinuteIsEscalatedToL3() {
+        val rt = runtime()
+        repeat(10) { index ->
+            val receipt = rt.submit(signEnvelope(envelope("chat", buildJsonObject { put("text", "m$index") }, level = 1)))
+            assertEquals("done", status(receipt))
+        }
+
+        val eleventh = signEnvelope(envelope("chat", buildJsonObject { put("text", "m10") }, level = 1))
+        val receipt = rt.submit(eleventh)
+
+        assertEquals("awaiting_confirm", status(receipt))
+        assertEquals(3, rt.requiredLevelOf(idOf(eleventh)))
+        assertEquals(10, calls.size)
+        assertEquals(
+            "done",
+            status(rt.approve(idOf(eleventh), approval(eleventh, "phone-1", 3, phone.private, nonce()))),
+        )
+        assertEquals(11, calls.size)
+    }
+
+    @Test
+    fun rateLimitWindowSlidesAfterAMinute() {
+        val rt = runtime()
+        repeat(10) {
+            rt.submit(signEnvelope(envelope("chat", buildJsonObject { put("text", "m") }, level = 1)))
+        }
+
+        clockNow = clockNow.plusSeconds(61)
+        val later = signEnvelope(envelope("chat", buildJsonObject { put("text", "later") }, level = 1))
+
+        assertEquals("done", status(rt.submit(later)))
+        assertEquals(11, calls.size)
+    }
+
     // -------------------------------------------------------------- helpers
 
     private fun eventEnvelope(level: Int): JsonObject = envelope(

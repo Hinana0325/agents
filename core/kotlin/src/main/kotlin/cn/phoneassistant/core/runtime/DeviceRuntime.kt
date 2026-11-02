@@ -55,6 +55,23 @@ class DeviceRuntime(
 
     private val records = LinkedHashMap<String, Record>()
     private val usedNonces = mutableSetOf<String>()
+    private val submissionTimes = ArrayDeque<Instant>()
+
+    /**
+     * policy 的 envelopes_per_min > 10：超过阈值就升到 L3（要求生物识别），
+     * 但不丢弃信封；没有可用 L3 审批方时它会一直等到 TTL 过期。
+     * @return 当前这条是否属于超限投递
+     */
+    private fun overRateLimit(now: Instant): Boolean {
+        while (submissionTimes.isNotEmpty() &&
+            !submissionTimes.first().isAfter(now.minusSeconds(RATE_WINDOW_SECONDS))
+        ) {
+            submissionTimes.removeFirst()
+        }
+        val over = submissionTimes.size >= RATE_LIMIT_PER_MINUTE
+        submissionTimes.addLast(now)
+        return over
+    }
 
     fun stateOf(id: String): EnvelopeState? = records[id]?.state
 
@@ -84,13 +101,14 @@ class DeviceRuntime(
             return receipt(id.orEmpty(), "rejected", result.code ?: "BAD_TYPE")
         }
 
+        val level = if (overRateLimit(clock())) maxOf(result.level!!, 3) else result.level!!
         if (!result.executable) {
-            return store(id!!, envelope, result.level!!, EnvelopeState.REJECTED, "rejected", "VOICE_NOT_EXECUTABLE")
+            return store(id!!, envelope, level, EnvelopeState.REJECTED, "rejected", "VOICE_NOT_EXECUTABLE")
         }
-        return if (result.level!! >= 2) {
-            store(id!!, envelope, result.level, EnvelopeState.AWAITING_CONFIRM, "awaiting_confirm")
+        return if (level >= 2) {
+            store(id!!, envelope, level, EnvelopeState.AWAITING_CONFIRM, "awaiting_confirm")
         } else {
-            store(id!!, envelope, result.level, EnvelopeState.EXECUTING, "executing")
+            store(id!!, envelope, level, EnvelopeState.EXECUTING, "executing")
             runAndFinish(id)
         }
     }
@@ -211,6 +229,8 @@ class DeviceRuntime(
         (element as? JsonPrimitive)?.takeIf { it.isString }?.content
 
     private companion object {
+        const val RATE_LIMIT_PER_MINUTE = 10
+        const val RATE_WINDOW_SECONDS = 60L
         val FORMAT: DateTimeFormatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC)
     }

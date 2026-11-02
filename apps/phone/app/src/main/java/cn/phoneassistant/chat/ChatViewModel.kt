@@ -9,6 +9,7 @@ import cn.phoneassistant.core.AssistantIntent
 import cn.phoneassistant.core.IntentType
 import cn.phoneassistant.core.ModelIntentParser
 import cn.phoneassistant.core.ValidationResult
+import cn.phoneassistant.data.ChatHistoryStore
 import cn.phoneassistant.data.SettingsStore
 import cn.phoneassistant.intent.IntentExecutor
 import cn.phoneassistant.llm.LlmClient
@@ -49,10 +50,15 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     init {
         // 在 IO 线程第一次触碰加密存储，界面之后读设置就不会在主线程做 Keystore I/O。
         viewModelScope.launch(Dispatchers.IO) { settings.isConfigured }
-        appendAssistant(
-            "你好，我是手机助理。先在右上角“设置”里填好服务地址、模型和密钥，" +
-                "然后直接说话就行：我会先把要做的事列出来，需要确认的动作等你点确认才执行。",
-        )
+        viewModelScope.launch {
+            val loaded = withContext(Dispatchers.IO) { ChatHistoryStore.load(getApplication()) }
+            if (loaded.isEmpty()) {
+                appendAssistant(INTRO)
+            } else {
+                nextId = (loaded.maxOfOrNull { it.id } ?: 0L) + 1
+                _messages.value = loaded
+            }
+        }
     }
 
     fun send(text: String) {
@@ -173,6 +179,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun appendUser(text: String) {
         _messages.update { it + ChatMessage(id = nextId++, isUser = true, text = text) }
+        persist()
     }
 
     private fun appendAssistant(text: String, isError: Boolean = false) {
@@ -180,6 +187,26 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         _messages.update {
             it + ChatMessage(id = nextId++, isUser = false, text = text, isError = isError)
         }
+        persist()
+    }
+
+    private fun persist() {
+        val snapshot = _messages.value
+        viewModelScope.launch(Dispatchers.IO) { ChatHistoryStore.save(getApplication(), snapshot) }
+    }
+
+    /** 清空对话记录（含本地存档），保留开场白。 */
+    fun clearHistory() {
+        _pending.value = null
+        nextId = 1
+        _messages.value = emptyList()
+        appendAssistant(INTRO)
+    }
+
+    private companion object {
+        const val INTRO =
+            "你好，我是手机助理。先在右上角“设置”里填好服务地址、模型和密钥，" +
+                "然后直接说话就行：我会先把要做的事列出来，需要确认的动作等你点确认才执行。"
     }
 
     class Factory(private val application: Application) : ViewModelProvider.Factory {

@@ -1,17 +1,20 @@
-# 手机助理 v0.1
+# 手机助理 v0.2.0
 
 应用级、不需要 root 的个人手机助理最小可用原型。
 包名 `cn.phoneassistant`，应用名“手机助理”，界面为简体中文、中性灰白配色。
 
-> 状态说明（请先读）：源码已在本机首次编译通过（JDK 17 + Android SDK 35 + Gradle 8.11.1），
-> 校验相关的 11 个单元测试已迁到 `core/kotlin` 并全绿，debug APK 可打包。
-> **仍未在真机验证**：没有安卓设备可用，界面与 7 种意图的实际跳转只在静态层面成立。
-> 校验规则不再在本目录：模型输出解析在 `core/kotlin/.../ModelIntentParser.kt`，
+> 状态说明（请先读）：v0.2.0 已在**一次性 Android 16 模拟器**上完成端到端验证
+> （安装 → 设置并测试连接 → 发消息 → 意图确认卡 → 拉起系统闹钟 → 重启后历史仍在），
+> 并产出签名的 release APK。**尚未在物理真机上验证**；没有 GMS/激进省电机型的真实表现数据。
+> 校验规则不在本目录：模型输出解析在 `core/kotlin/.../ModelIntentParser.kt`，
 > 协议信封校验在 `core/kotlin/.../EnvelopeValidator.kt`。
 
 ## v0.1 能做什么
 
-- 对话界面：消息列表、输入框、思考中提示。
+- 对话界面：消息列表、输入框、思考中提示；对话历史保存在应用私有目录，重启不丢，可在设置里清空。
+- 备忘页：列出本机备忘，点开看全文，可删除；空状态有引导。
+- 设置页：服务地址（强制 https，本机调试允许 localhost/127.0.0.1/10.0.2.2 的 http）、模型名、密钥；
+  保存前校验，另有「测试连接」（只请求 `/models`，不消耗对话额度）与版本号显示。
 - 意图卡片：需要确认的动作先展示“动作 + 参数”，点“确认执行”才执行，
   点“取消”则不产生任何副作用。
 - 大模型客户端：OpenAI 兼容接口，服务地址和模型名在设置里填写，
@@ -39,7 +42,9 @@
 - 不收集、不上报、不接广告、不接统计；网络只发往用户自己在设置里填写的大模型服务地址。
 - 不做离线本地模型、不做语音、不做跨应用连续操作、不做日程/闹钟的直接写入
   （一律走系统新建界面，需要用户在系统界面最后确认）。
-- 不做任何需要危险权限的事：清单里唯一的权限就是联网。
+- 不做任何需要危险权限的事：清单里只有联网（INTERNET），外加一条普通权限
+  `com.android.alarm.permission.SET_ALARM`（安装即授予、无弹窗，AOSP 时钟的
+  ACTION_SET_ALARM/ACTION_SET_TIMER 接收方要求调用方持有它；不声明会在 AOSP 上被拒）。
 
 ## 密钥存放在哪里
 
@@ -58,11 +63,27 @@
 subst V: "<本仓库所在目录>"     # 目录名含中文时必须；AGP 与单测 classpath 都会炸
 cd V:
 ./gradlew :apps:phone:app:assembleDebug
-./gradlew :core:kotlin:test        # 模型输出解析 11 例 + 协议向量 183 条
+./gradlew :apps:phone:app:assembleRelease     # 需要 local.properties 里的签名配置
+./gradlew :core:kotlin:test                   # 模型输出解析 11 例 + 协议向量 183 条 + 运行时 14 例
 ```
 
-构建产物在 `apps/phone/app/build/outputs/apk/debug/`。首次构建需要联网下载依赖；
+构建产物在 `apps/phone/app/build/outputs/apk/`。首次构建需要联网下载依赖；
 Gradle 发行版已缓存在本机，`gradlew` 可离线启动。
+
+### release 签名
+
+签名材料不进仓库。keystore 放在仓库外（本机是
+`C:\Users\jq200\.android\keystores\phoneassistant.jks`），口令与路径写在
+gitignore 的根目录 `local.properties`：
+
+```properties
+release.storeFile=C:/Users/<you>/.android/keystores/phoneassistant.jks
+release.storePassword=...
+release.keyAlias=phoneassistant
+release.keyPassword=...
+```
+
+没有这四项时 `assembleRelease` 仍可构建，只是产出未签名包。
 
 ## 怎么设置密钥
 
@@ -101,7 +122,8 @@ apps/phone/
 
 ## 已知限制（v0.1，诚实记录）
 
-1. 已编译、已跑单元测试；**未在真机上验证**：界面、7 种意图的实际跳转、Keystore 存储都没有实机证据。
+1. 已在 Android 16 模拟器完成端到端验证；**未在物理真机验证**（不同厂商的时钟/日历实现、
+   省电策略、Keystore 行为都可能不同）。
 2. 模型输出质量决定意图质量：模型一旦返回非法 JSON 或非法参数，
    应用只会拒绝并提示重说，不会“尽力猜”着执行。
 3. 打开应用依赖系统桌面可启动应用列表：有的应用没有桌面入口时无法打开，

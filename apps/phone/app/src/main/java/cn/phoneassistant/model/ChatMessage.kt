@@ -1,8 +1,10 @@
 package cn.phoneassistant.model
 
 import cn.phoneassistant.core.AssistantIntent
+import kotlinx.serialization.Serializable
 
 /** 聊天列表中的一条消息。 */
+@Serializable
 data class ChatMessage(
     val id: Long,
     val isUser: Boolean,

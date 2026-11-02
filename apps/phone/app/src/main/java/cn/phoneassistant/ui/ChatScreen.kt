@@ -13,9 +13,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -35,9 +38,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -45,36 +50,55 @@ import androidx.compose.ui.unit.dp
 import cn.phoneassistant.chat.ChatViewModel
 import cn.phoneassistant.core.AssistantIntent
 import cn.phoneassistant.core.IntentType
+import cn.phoneassistant.llm.LlmClient
 import cn.phoneassistant.model.ChatMessage
 import cn.phoneassistant.model.PendingIntent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+private enum class Screen { CHAT, SETTINGS, NOTES }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(viewModel: ChatViewModel) {
-    var showSettings by remember { mutableStateOf(false) }
+    var screen by remember { mutableStateOf(Screen.CHAT) }
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("手机助理") },
+                title = {
+                    Text(
+                        when (screen) {
+                            Screen.CHAT -> "手机助理"
+                            Screen.SETTINGS -> "设置"
+                            Screen.NOTES -> "备忘"
+                        },
+                    )
+                },
+                navigationIcon = {
+                    if (screen != Screen.CHAT) {
+                        TextButton(onClick = { screen = Screen.CHAT }) { Text("返回") }
+                    }
+                },
                 actions = {
-                    TextButton(onClick = { showSettings = !showSettings }) {
-                        Text(if (showSettings) "返回对话" else "设置")
+                    if (screen == Screen.CHAT) {
+                        TextButton(onClick = { screen = Screen.NOTES }) { Text("备忘") }
+                        TextButton(onClick = { screen = Screen.SETTINGS }) { Text("设置") }
                     }
                 },
             )
         },
     ) { padding ->
-        if (showSettings) {
-            SettingsScreen(
-                viewModel = viewModel,
-                onBack = { showSettings = false },
-                modifier = Modifier.padding(padding),
-            )
-        } else {
-            ChatContent(
+        when (screen) {
+            Screen.CHAT -> ChatContent(
                 viewModel = viewModel,
                 modifier = Modifier.padding(padding),
             )
+            Screen.SETTINGS -> SettingsScreen(
+                viewModel = viewModel,
+                modifier = Modifier.padding(padding),
+            )
+            Screen.NOTES -> NotesScreen(modifier = Modifier.padding(padding))
         }
     }
 }
@@ -251,7 +275,9 @@ private fun IntentConfirmCard(
 }
 
 @Composable
-private fun SettingsScreen(viewModel: ChatViewModel, onBack: () -> Unit, modifier: Modifier = Modifier) {
+private fun SettingsScreen(viewModel: ChatViewModel, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val store = viewModel.settings
     var baseUrl by remember { mutableStateOf(store.baseUrl) }
     var model by remember { mutableStateOf(store.model) }
@@ -259,12 +285,20 @@ private fun SettingsScreen(viewModel: ChatViewModel, onBack: () -> Unit, modifie
     var savedMessage by remember { mutableStateOf("") }
     var savedIsError by remember { mutableStateOf(false) }
     var storageState by remember { mutableStateOf(store.hasApiKey to store.isConfigured) }
+    var testMessage by remember { mutableStateOf("") }
+    var testIsError by remember { mutableStateOf(false) }
+    var testing by remember { mutableStateOf(false) }
+    var confirmClear by remember { mutableStateOf(false) }
+    val versionName = remember {
+        runCatching {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        }.getOrNull() ?: "?"
+    }
 
     Column(
-        modifier = modifier.fillMaxSize().padding(16.dp),
+        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("设置", style = MaterialTheme.typography.titleLarge)
         Text(
             "密钥只保存在本机加密存储中，不会上传到除你填写的服务地址之外的任何地方，" +
                 "也不会显示原文。留空密钥则保持上次的设置不变。",
@@ -309,18 +343,31 @@ private fun SettingsScreen(viewModel: ChatViewModel, onBack: () -> Unit, modifie
         Row {
             Button(
                 onClick = {
-                    store.baseUrl = baseUrl
-                    store.model = model
-                    if (apiKeyInput.isNotBlank()) {
-                        store.apiKey = apiKeyInput
-                        apiKeyInput = ""
-                    }
-                    storageState = store.hasApiKey to store.isConfigured
-                    savedIsError = store.storageFailure != null
-                    savedMessage = if (savedIsError) {
-                        "保存失败：" + store.storageFailure.orEmpty()
-                    } else {
-                        "已保存。"
+                    val urlError = validateBaseUrl(baseUrl)
+                    when {
+                        urlError != null -> {
+                            savedIsError = true
+                            savedMessage = urlError
+                        }
+                        model.isBlank() -> {
+                            savedIsError = true
+                            savedMessage = "请填写模型名。"
+                        }
+                        else -> {
+                            store.baseUrl = baseUrl
+                            store.model = model
+                            if (apiKeyInput.isNotBlank()) {
+                                store.apiKey = apiKeyInput
+                                apiKeyInput = ""
+                            }
+                            storageState = store.hasApiKey to store.isConfigured
+                            savedIsError = store.storageFailure != null
+                            savedMessage = if (savedIsError) {
+                                "保存失败：" + store.storageFailure.orEmpty()
+                            } else {
+                                "已保存。"
+                            }
+                        }
                     }
                 },
             ) {
@@ -346,11 +393,104 @@ private fun SettingsScreen(viewModel: ChatViewModel, onBack: () -> Unit, modifie
                 color = if (savedIsError) DangerRed else SuccessGreen,
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedButton(onClick = onBack) {
-            Text("返回对话")
+
+        OutlinedButton(
+            enabled = !testing,
+            onClick = {
+                val urlError = validateBaseUrl(baseUrl)
+                val key = if (apiKeyInput.isNotBlank()) apiKeyInput else store.apiKey
+                when {
+                    urlError != null -> {
+                        testIsError = true
+                        testMessage = urlError
+                    }
+                    model.isBlank() -> {
+                        testIsError = true
+                        testMessage = "请先填写模型名。"
+                    }
+                    key.isBlank() -> {
+                        testIsError = true
+                        testMessage = "请先填写密钥。"
+                    }
+                    else -> {
+                        testing = true
+                        testMessage = ""
+                        scope.launch {
+                            val result = withContext(Dispatchers.IO) {
+                                runCatching {
+                                    LlmClient(baseUrl.trim().trimEnd('/'), model.trim(), key).checkConnection()
+                                }
+                            }
+                            testing = false
+                            testIsError = result.isFailure
+                            testMessage = result.getOrElse { e -> e.message ?: "连接测试失败。" }
+                        }
+                    }
+                }
+            },
+        ) {
+            Text(if (testing) "正在测试…" else "测试连接")
         }
+        if (testMessage.isNotEmpty()) {
+            Text(
+                testMessage,
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (testIsError) DangerRed else SuccessGreen,
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+        Text("数据", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "对话记录与备忘都存在本机应用私有目录，卸载即清除；清空对话不会删除备忘。",
+            style = MaterialTheme.typography.bodySmall,
+            color = MutedGrey,
+        )
+        OutlinedButton(onClick = { confirmClear = true }) {
+            Text("清空对话记录", color = DangerRed)
+        }
+        Text(
+            "手机助理 v$versionName · 应用级，无 root、无后台服务",
+            style = MaterialTheme.typography.bodySmall,
+            color = MutedGrey,
+        )
     }
+
+    if (confirmClear) {
+        AlertDialog(
+            onDismissRequest = { confirmClear = false },
+            title = { Text("清空对话记录？") },
+            text = { Text("本机的聊天存档会被删除，备忘不受影响。此操作不可撤销。") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.clearHistory()
+                        confirmClear = false
+                        savedIsError = false
+                        savedMessage = "对话记录已清空。"
+                    },
+                ) {
+                    Text("清空", color = DangerRed)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmClear = false }) { Text("取消") }
+            },
+        )
+    }
+}
+
+/** 与 network_security_config 保持一致：只允许 https，本机调试地址可用 http。 */
+private fun validateBaseUrl(raw: String): String? {
+    val value = raw.trim().trimEnd('/')
+    if (value.isEmpty()) return "请填写服务地址。"
+    val cleartext = value.startsWith("http://localhost") ||
+        value.startsWith("http://127.0.0.1") ||
+        value.startsWith("http://10.0.2.2")
+    if (!value.startsWith("https://") && !cleartext) {
+        return "服务地址必须以 https:// 开头；本机调试可用 http://localhost、http://127.0.0.1 或 http://10.0.2.2。"
+    }
+    return null
 }
 
 private fun intentTypeLabel(type: IntentType): String = when (type) {

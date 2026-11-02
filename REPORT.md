@@ -154,3 +154,40 @@
 - **没有把协议意图接到系统 Intent**：协议参数（`app_id`、`begin_ms`）与现有模型输出参数（`appName`、`date/startTime`）不同，需要端上应用目录与映射层，属下一步。
 - 审批的 L3 生物识别没做：纯 JVM 层只校验"审批方有 L3 权限"，真正调用 `BiometricPrompt` 是手机 UI 的事。
 - 云端与 device-sim 仍未开始。
+
+## 8. 手机端成品化 v0.2.0 + 模拟器端到端验证 — 2026-11-02 晚（续）
+
+按用户要求先把手机端做成可交付的成品，云端卡点往后放。
+
+### 新增功能
+
+- **对话历史持久化**：`data/ChatHistoryStore.kt`，应用私有目录 JSON，保留最近 200 条；重启不丢；设置页可清空。
+- **备忘页**：`ui/NotesScreen.kt` + `NoteStore.list/read/delete`；列表按时间倒序，点开看全文，可删除；读取/删除只接受 notes 目录下的 `.txt`，拒绝路径分隔符。
+- **设置校验与连接测试**：地址必须是 https（本机调试允许 localhost/127.0.0.1/10.0.2.2 的 http，与 `network_security_config` 一致）；新增 `LlmClient.checkConnection()`，只打 `/models`，不消耗对话额度；显示版本号。
+- **release 签名**：keystore 生成在仓库外 `C:\Users\jq200\.android\keystores\phoneassistant.jks`，口令/路径写在 gitignored 的 `local.properties`；`assembleRelease` 产出已签名 APK。版本升到 0.2.0（versionCode 2）。
+- 顶部栏改为 对话 / 备忘 / 设置 三页导航；系统拒绝时把原始异常换成可读中文。
+
+### 模拟器端到端验证（一次性 AVD，Android 16，验证后已删除）
+
+1. 安装签名 release APK，启动 → 界面正常（中文、中性灰白、右上角备忘/设置）。
+2. 未配置时发消息 → 红色提示“还没配好…”，不会发网络请求。
+3. `am force-stop` 后重启 → 历史消息仍在（持久化生效）。
+4. 备忘页 → 列表、详情弹窗、删除按钮均正常（注入一条测试备忘验证读取与标题解析）。
+5. 设置页填入 `http://10.0.2.2:8899/v1`（本机假服务）→“测试连接”返回绿色“连接成功（HTTP 200）”；保存后状态变为“密钥已设置；已配齐”。
+6. 地址填 `http://example.com/v1` → 保存被红色错误拦截（明文只允许本机调试地址）。
+7. **完整意图链路**：假 `/chat/completions` 返回 SET_ALARM 意图 → 应用显示回复与确认卡（动作/时间/备注）→ 点“确认执行” → 系统时钟被拉起，7:30、备注“测试闹钟”、弹出 “Alarm set” → 返回应用显示“已为你打开系统界面”。
+
+### 验证中发现并修复的真机 bug
+
+- 首次点确认后系统拒绝：`Permission Denial: ... requires com.android.alarm.permission.SET_ALARM`。
+  AOSP 时钟的 `HandleSetAlarmApiCalls` 要求调用方持有该**普通权限**（安装即授予、无弹窗）。
+  已在 Manifest 声明 `com.android.alarm.permission.SET_ALARM`，重装后同一操作成功拉起时钟。
+  **这条只有在真实系统上跑才会暴露**，编译、单测、lint 都不会报。
+
+### 产物与状态
+
+- 签名包：`apps/phone/app/build/outputs/apk/release/app-release.apk`（20,896,855 字节，versionName 0.2.0）。
+- debug 包：`apps/phone/app/build/outputs/apk/debug/app-debug.apk`。
+- core 测试仍为 26 个全绿；APK 的 `aapt2 dump badging` 复核通过。
+- **仍未在物理真机验证**；模拟器的 AOSP 时钟/日历不能代表小米等厂商实现。
+- 签名私钥与口令只在本机，未进仓库、未打印到日志。

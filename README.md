@@ -32,11 +32,12 @@ docs/legacy/     # 被 v1 取代的旧原型定义
 - 同一份向量，Kotlin（`./gradlew :core:kotlin:test`）与 Python（`uv run --with cryptography python tools/vector-runner/py/runner.py`）**均 0 失败**。
 - 阳性对照：故意改坏一条向量后，Python 退出码 1、Kotlin 测试 FAILED。
 - 设备运行时（`core/kotlin/.../runtime/`）：按 id 幂等去重、状态机、TTL 过期、回执、L2 待确认、L3 审批（绑定信封哈希 + nonce 防重放 + 级别权限），14 个单元测试全绿。
-- 手机 App 编译通过，core 的 26 个测试全绿，debug APK 可打包。
+- 手机 App v0.2.0：对话历史持久化、备忘页、地址校验、连接测试；**签名 release APK 已在 Android 16 模拟器上端到端跑通**（设置→测试连接→发消息→确认卡→拉起系统闹钟→重启后历史仍在）。
+- core 共 26 个测试全绿，debug/release APK 均可打包。
 
 未验证 / 未完成（不要当成已完成）：
 
-- **没有真机**：手机 App 的界面、7 种意图跳转、Keystore 存储只在静态层面成立。
+- **未在物理真机验证**（不同厂商时钟/日历实现、省电策略、Keystore 行为可能不同）。
 - **没有传输层**：手机还没有 WS/FCM 收信封的代码，运行时目前只被单元测试驱动。
 - **没有云端 hub**、没有 device-sim；`signing/` 向量验证的是设备侧验签，不是"云真的签了"。
 - CI 工作流已写（两侧向量 + Android 构建 + lint + gitleaks），但**从未在 GitHub 上跑过**。

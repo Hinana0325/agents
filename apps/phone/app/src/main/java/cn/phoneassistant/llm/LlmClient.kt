@@ -79,6 +79,34 @@ class LlmClient(
         }
     }
 
+    /** 连接测试：只请求 /models，不消耗对话额度；成功返回中文说明，失败抛 [LlmException]。 */
+    fun checkConnection(): String {
+        val endpoint = "$baseUrl/models"
+        val connection = (URL(endpoint).openConnection() as HttpURLConnection).apply {
+            requestMethod = "GET"
+            connectTimeout = 10_000
+            readTimeout = 10_000
+            setRequestProperty("Authorization", "Bearer $apiKey")
+        }
+        try {
+            val status = connection.responseCode
+            if (status in 200..299) return "连接成功（HTTP $status）。"
+            throw LlmException(
+                when (status) {
+                    401, 403 -> "密钥被拒绝（HTTP $status），请检查密钥。"
+                    404 -> "服务没有 /models 接口（HTTP 404），请确认地址以 /v1 结尾。"
+                    else -> "服务返回了 HTTP $status，请检查地址与模型名。"
+                },
+            )
+        } catch (e: LlmException) {
+            throw e
+        } catch (e: Exception) {
+            throw LlmException("网络请求失败：${e.message ?: "请检查网络后重试。"}")
+        } finally {
+            connection.disconnect()
+        }
+    }
+
     class LlmException(message: String) : Exception(message)
 
     @Serializable

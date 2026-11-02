@@ -145,7 +145,13 @@ object IntentExecutor {
             context.startActivity(intent)
             ExecutionResult.Success("已为你打开系统界面，请在系统界面中最后确认一次。")
         } catch (e: Exception) {
-            ExecutionResult.Failure("打开系统界面失败：${e.message ?: "未知错误"}。")
+            val raw = e.message.orEmpty()
+            val reason = if (raw.contains("Permission Denial", ignoreCase = true)) {
+                "系统应用拒绝了这次请求（缺少它要求的权限），请升级应用后再试。"
+            } else {
+                raw.ifBlank { "未知错误" }
+            }
+            ExecutionResult.Failure("打开系统界面失败：$reason")
         }
     }
 }

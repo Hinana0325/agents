@@ -72,6 +72,8 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _audit = MutableStateFlow<List<AuditEntry>>(emptyList())
     val audit: StateFlow<List<AuditEntry>> = _audit.asStateFlow()
+    private val _auditIntegrity = MutableStateFlow<String?>(null)
+    val auditIntegrity: StateFlow<String?> = _auditIntegrity.asStateFlow()
     private val auditLog = AuditLog(File(application.filesDir, "audit.json"))
     private val processedStore = ProcessedStore(File(application.filesDir, "processed.json"))
     private val outbox = Outbox(File(application.filesDir, "outbox.json"))
@@ -90,7 +92,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     init {
         // 在 IO 线程第一次触碰加密存储，界面之后读设置就不会在主线程做 Keystore I/O。
         viewModelScope.launch(Dispatchers.IO) { settings.isConfigured }
-        viewModelScope.launch(Dispatchers.IO) { _audit.value = auditLog.list() }
+        viewModelScope.launch(Dispatchers.IO) { refreshAuditOnIo() }
         // 启动时补发上次没送出去的回执；仍有剩余就交给 WorkManager，进程退出后也会重试。
         viewModelScope.launch(Dispatchers.IO) {
             if (settings.isHubConfigured) {
@@ -210,7 +212,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
                         )
                         results += "$id：$status"
                     }
-                    _audit.value = auditLog.list()
+                    refreshAuditOnIo()
                     results
                 }
                 appendAssistant(
@@ -364,7 +366,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
             )
             withContext(Dispatchers.IO) {
                 auditLog.append(undo)
-                _audit.value = auditLog.list()
+                refreshAuditOnIo()
             }
         }
     }
@@ -387,6 +389,12 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private suspend fun flushOutbox(client: HttpHubClient): Int =
         flushDue(outbox) { client.postReceipt(it) }
 
+    /** 只在 IO 线程调用。 */
+    private fun refreshAuditOnIo() {
+        _audit.value = auditLog.list()
+        _auditIntegrity.value = auditLog.verify()
+    }
+
     private fun recordAudit(intent: AssistantIntent, outcome: String, artifact: String? = null) {
         val entry = AuditEntry(
             id = UUID.randomUUID().toString(),
@@ -398,7 +406,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
         )
         viewModelScope.launch(Dispatchers.IO) {
             auditLog.append(entry)
-            _audit.value = auditLog.list()
+            refreshAuditOnIo()
         }
     }
 

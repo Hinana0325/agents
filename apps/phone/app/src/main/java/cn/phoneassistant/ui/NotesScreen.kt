@@ -184,11 +184,22 @@ private fun formatDate(millis: Long): String =
 @Composable
 private fun HistoryTab(viewModel: ChatViewModel, modifier: Modifier = Modifier) {
     val entries by viewModel.audit.collectAsState()
+    val integrity by viewModel.auditIntegrity.collectAsState()
     Column(modifier = modifier.padding(16.dp)) {
         Text(
             "只记录本机的执行结果，不保存密钥或完整聊天内容。",
             style = MaterialTheme.typography.bodySmall,
             color = MutedGrey,
+        )
+        Text(
+            when (integrity) {
+                null, "" -> "审计链：完整（SHA-256 哈希链）"
+                "AUDIT_TAMPERED" -> "审计链异常：有记录被改动"
+                "AUDIT_CHAIN_BROKEN" -> "审计链异常：中间记录缺失"
+                else -> "审计链异常：$integrity"
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = if (integrity == null || integrity == "") MutedGrey else MaterialTheme.colorScheme.error,
         )
         Spacer(modifier = Modifier.height(8.dp))
         if (entries.isEmpty()) {

@@ -22,6 +22,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonObject
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -35,6 +36,13 @@ class DesktopAgentTest {
     val temp = TemporaryFolder()
 
     private val hub = keyPair()
+    private val stores = mutableListOf<DesktopStore>()
+
+    @After
+    fun closeStores() {
+        stores.forEach { runCatching { it.close() } }
+        stores.clear()
+    }
 
     @Test
     fun noteIsExecutedAndReceiptWritten() {
@@ -101,6 +109,25 @@ class DesktopAgentTest {
         assertTrue(results.single().startsWith("rejected"))
         assertEquals(0, notesCount(paths))
         assertEquals("rejected", readReceipts(paths).single()["status"]!!.jsonPrimitive.content)
+    }
+
+    @Test
+    fun duplicateAcrossRestartIsNotExecutedAgain() {
+        val paths = paths()
+        val env = signEnvelope(envelope("save_note", buildJsonObject { put("text", "once") }))
+
+        writeEnvelope(paths, env)
+        agent(paths, dryRun = true).processAll()
+
+        // 模拟进程重启：关掉数据库连接，重新建 agent
+        stores.forEach { runCatching { it.close() } }
+        stores.clear()
+
+        writeEnvelope(paths, env)
+        val results = agent(paths, dryRun = true).processAll()
+
+        assertTrue(results.single().startsWith("DUPLICATE"))
+        assertEquals(1, notesCount(paths))
     }
 
     @Test
@@ -183,13 +210,18 @@ class DesktopAgentTest {
         paths: DesktopPaths,
         dryRun: Boolean,
         confirm: ((ApprovalPrompt) -> Boolean)? = null,
-    ): InboxAgent = InboxAgent(
-        paths = paths,
-        config = config(dryRun),
-        identity = DesktopIdentity(paths.home),
-        notifier = Notifier { _, _ -> },
-        confirm = confirm,
-    )
+    ): InboxAgent {
+        val store = DesktopStore(File(paths.home, "desktop.db"))
+        stores += store
+        return InboxAgent(
+            paths = paths,
+            config = config(dryRun),
+            identity = DesktopIdentity(paths.home),
+            notifier = Notifier { _, _ -> },
+            confirm = confirm,
+            store = store,
+        )
+    }
 
     private fun envelope(intent: String, params: JsonObject, level: Int = 1): JsonObject = buildJsonObject {
         put("v", 1)

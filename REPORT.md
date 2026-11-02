@@ -233,3 +233,31 @@
 - 运行时去重状态只在内存；重启后靠 `pending/` 重放与“处理完即移走文件”兜底，接 WS 前必须持久化。
 - 托盘图标常驻、通知点击、安装包/自启/自动更新、本地模型、相册整理、桌面自动化均未做。
 - 电脑端只在中文 Windows 17 JDK 上跑过；计划要求“系统未定”，Linux/macOS 未验证。
+
+## 10. 电脑端持久化与密钥保护 — 2026-11-02 晚（续）
+
+补上 ADR 0007 里标记为 Phase 2 余项的两个缺口。
+
+### 做了什么
+
+- **SQLite 持久化**（`org.xerial:sqlite-jdbc`，表 `processed`）：只落终态回执（done/failed/rejected/cancelled）；
+  `awaiting_confirm` 不落库，重启后重新处理。处理前按 `envelope_id` 查库，命中直接返回上次回执并移入 `processed/`。
+- **DPAPI 保护私钥**（JNA `Crypt32Util`，当前用户作用域）：私钥写 `identity-private.dpapi`；
+  旧的明文 `identity-private.der` 首次加载时自动加密并删除。非 Windows 暂明文，`status` 会标注。
+- `status` 增加“已处理（持久化）”与“私钥保护”两行；ADR 0009 记录取舍。
+
+### 已核验
+
+- `:apps:desktop:service:test`：**12 个用例全绿**（原 8 个 + 跨重启去重 + DPAPI 往返 + 明文迁移）。
+- 本机端到端（临时目录）：
+  1. 首次 `status` 生成身份 → 目录里只有 `identity-private.dpapi` 与 `identity-public.der`，**没有明文私钥**；
+     `status` 显示“私钥保护：DPAPI（当前用户）”。
+  2. 发一条 `save_note` → `once` → 回执 done、备忘落盘、`已处理（持久化）：1`。
+  3. 把同一信封重新放进 inbox（模拟重启后重复投递）→ `once` → 输出 `DUPLICATE done`，
+     备忘数量仍为 1，数据库计数仍为 1。
+
+### 未完成
+
+- TPM（CNG）与跨平台密钥库未做；DPAPI 绑定当前 Windows 用户，换机/重装后需重新配对。
+- SQLite 只存去重与回执；收件箱/发件箱持久化、重试队列、审计历史页未做。
+- WS/FCM、手机扫码配对、设备吊销仍未开始。

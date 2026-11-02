@@ -33,6 +33,7 @@ class InboxAgent(
     private val identity: DesktopIdentity,
     private val notifier: Notifier,
     private val confirm: ((ApprovalPrompt) -> Boolean)?,
+    private val store: DesktopStore,
 ) {
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -86,6 +87,13 @@ class InboxAgent(
             writeReceipt(id, rejected(id, "TARGET_NOT_ALLOWED", "目标是 $toDevice，不是 ${config.device_id}"))
             moveTo(file, paths.processed)
             return "TARGET_NOT_ALLOWED ${file.name}"
+        }
+
+        // 跨重启去重：终态 id 与回执已落库，重复投递直接返回上次结果。
+        store.receipt(id)?.let { stored ->
+            writeReceipt(id, stored)
+            moveTo(file, paths.processed)
+            return "DUPLICATE ${status(stored)} ${file.name}"
         }
 
         val receipt = runtime.submit(parsed)
@@ -154,6 +162,10 @@ class InboxAgent(
 
     private fun writeReceipt(id: String, receipt: JsonObject) {
         runCatching { File(paths.outbox, "$id.json").writeText(receipt.toString(), Charsets.UTF_8) }
+        val state = status(receipt)
+        if (id != "unknown" && state in TERMINAL_STATUSES) {
+            runCatching { store.save(id, receipt) }
+        }
     }
 
     private fun moveTo(file: File, dir: File) {
@@ -186,5 +198,6 @@ class InboxAgent(
     private companion object {
         val FORMAT: DateTimeFormatter =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneOffset.UTC)
+        val TERMINAL_STATUSES = setOf("done", "failed", "rejected", "cancelled")
     }
 }

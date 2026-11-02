@@ -54,6 +54,10 @@ private fun printStatus(paths: DesktopPaths, config: DesktopConfigFile, identity
     println("dry_run：${config.dry_run}")
     println("应用目录：${config.app_catalog.size} 项；URL 允许清单：${config.url_allowlist.size} 项")
     println("inbox：${count(paths.inbox)}；pending：${count(paths.pending)}；outbox：${count(paths.outbox)}")
+    println("已处理（持久化）：" + runCatching {
+        DesktopStore(File(paths.home, "desktop.db")).use { it.count() }
+    }.getOrDefault(0))
+    println("私钥保护：" + if (SecretStore.isProtected) "DPAPI（当前用户）" else "明文（非 Windows，尚未加密）")
     println("本机公钥：")
     println(pretty.encodeToString(identity.publicJwk()))
 }
@@ -73,18 +77,21 @@ private fun runOnce(paths: DesktopPaths, config: DesktopConfigFile, identity: De
         println("还没配置 hub 公钥，拒绝接收任何信封。先运行 device-sim install（或手工填 config.json）。")
         return
     }
-    val agent = InboxAgent(
-        paths = paths,
-        config = config,
-        identity = identity,
-        notifier = Notifier { title, body -> println("[通知] $title：$body") },
-        confirm = null,
-    )
-    val results = agent.processAll()
-    if (results.isEmpty()) {
-        println("收件箱是空的。")
-    } else {
-        results.forEach { println(it) }
+    DesktopStore(File(paths.home, "desktop.db")).use { store ->
+        val agent = InboxAgent(
+            paths = paths,
+            config = config,
+            identity = identity,
+            notifier = Notifier { title, body -> println("[通知] $title：$body") },
+            confirm = null,
+            store = store,
+        )
+        val results = agent.processAll()
+        if (results.isEmpty()) {
+            println("收件箱是空的。")
+        } else {
+            results.forEach { println(it) }
+        }
     }
 }
 
@@ -95,28 +102,34 @@ private fun runWithUi(paths: DesktopPaths, config: DesktopConfigFile, identity: 
     }
     val state = UiState()
     state.log("已启动：${config.device_id}，监听 ${paths.inbox}")
-    val agent = InboxAgent(
-        paths = paths,
-        config = config,
-        identity = identity,
-        notifier = state.notifier,
-        confirm = state::ask,
-    )
-    Thread(
-        {
-            while (true) {
-                val results = try {
-                    agent.processAll()
-                } catch (e: Exception) {
-                    listOf("ERROR ${e.message}")
+    val store = DesktopStore(File(paths.home, "desktop.db"))
+    try {
+        val agent = InboxAgent(
+            paths = paths,
+            config = config,
+            identity = identity,
+            notifier = state.notifier,
+            confirm = state::ask,
+            store = store,
+        )
+        Thread(
+            {
+                while (true) {
+                    val results = try {
+                        agent.processAll()
+                    } catch (e: Exception) {
+                        listOf("ERROR ${e.message}")
+                    }
+                    results.forEach(state::log)
+                    Thread.sleep(1000L)
                 }
-                results.forEach(state::log)
-                Thread.sleep(1000L)
-            }
-        },
-        "dpa-inbox",
-    ).apply { isDaemon = true }.start()
-    runDesktopUi(state, config, paths)
+            },
+            "dpa-inbox",
+        ).apply { isDaemon = true }.start()
+        runDesktopUi(state, config, paths)
+    } finally {
+        runCatching { store.close() }
+    }
 }
 
 private fun count(dir: File): Int =

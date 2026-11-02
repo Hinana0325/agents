@@ -25,6 +25,8 @@ application {
 dependencies {
     implementation(project(":core:kotlin"))
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.sqlite.jdbc)
+    implementation(libs.jna.platform)
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
     testImplementation(libs.junit)

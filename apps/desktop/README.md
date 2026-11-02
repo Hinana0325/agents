@@ -16,19 +16,17 @@
   inbox/pending/outbox 计数与运行日志；系统托盘提供“显示主界面 / 退出”，关闭窗口最小化到托盘。
 - **身份**：P-256 密钥对，`pair` 命令输出 `device_id + 公钥 JWK`，供将来的手机扫码背书使用。
 
-已验证：8 个单元测试全绿；本机端到端跑通（device-sim 签发 → 电脑执行 → 回执 done；
-L2 在 Compose 界面点确认后执行，含审批密钥签名；取消则 rejected；篡改/错设备被拒；
-重复投递只执行一次）。
+已验证：12 个单元测试全绿（含跨重启去重、DPAPI 往返/迁移）；本机端到端跑通
+（device-sim 签发 → 电脑执行 → 回执 done → 重投同一信封返回 DUPLICATE 且不再执行；
+L2 在 Compose 界面点确认后执行，含审批密钥签名；取消则 rejected；篡改/错设备被拒）。
 
 **未实现**（不要当成已完成）：
 
 - WS/FCM 传输、手机扫码配对与设备证书、设备吊销。
-- 密钥保护：目前私钥是 `~/.dpa-desktop/identity-private.der`（PKCS#8 明文文件），
-  计划要求 DPAPI/TPM 包一层，属 Phase 2 余项，**不要在生产环境使用当前存储方式**。
-- 本地模型、相册整理、文件夹分类、桌面自动化、安装包/自启/自动更新、SQLite 持久化。
+- 密钥保护：Windows 已用 DPAPI；**TPM 未做**，非 Windows 仍是明文文件。
+- 本地模型、相册整理、文件夹分类、桌面自动化、安装包/自启/自动更新。
 - 主界面之外的页面（审计历史、应用目录编辑、设置）后续再补。
-- 运行时状态只在内存里；重启后 `pending/` 会重新处理，但“已执行 id”的去重记录不持久化，
-  依赖本地通道“处理完即移走文件”来避免重放。接 WS 前必须换成持久化收件箱/发件箱。
+- SQLite 目前只存“已处理 id + 回执”；收件箱/发件箱的持久化与重试队列还没做。
 
 ## 运行
 
@@ -73,6 +71,13 @@ apps/desktop/service/build/install/service/bin/service.bat run
 
 `hub_pubkey` 为空时服务**拒绝接收任何信封**（不允许跳过验签）。`dry_run=true` 时
 打开浏览器/启动程序只返回将要执行的命令，便于测试。
+
+## 数据与密钥
+
+- 数据目录默认 `~/.dpa-desktop`（`DPA_DESKTOP_HOME` 可覆盖）：`inbox/ outbox/ pending/ processed/ notes/`。
+- `desktop.db`（SQLite）：已处理信封 id 与终态回执，用于跨重启去重。`awaiting_confirm` 不落库，重启后重新处理。
+- 私钥：Windows 上由 DPAPI 保护为 `identity-private.dpapi`（旧明文 `.der` 会自动加密并删除）；
+  非 Windows 暂时明文，`status` 会明确标注。
 
 ## 安全边界
 

@@ -20,12 +20,14 @@ import kotlinx.serialization.json.put
 /**
  * 电脑端身份与审批密钥（P-256）。
  *
- * 当前把 PKCS#8 私钥写在 ~/.dpa-desktop/identity-private.der。
- * **这还不是最终方案**：计划里要求 DPAPI/TPM 包一层，Phase 2 余项。
+ * Windows 上用 DPAPI 保护私钥（`identity-private.dpapi`）；
+ * 旧版本留下的明文 `identity-private.der` 会在首次加载时自动加密并删除。
+ * 非 Windows 系统暂时明文落盘，界面上会明确标注。
  */
 class DesktopIdentity(home: File) {
 
-    private val privateFile = File(home, "identity-private.der")
+    private val protectedFile = File(home, "identity-private.dpapi")
+    private val plainFile = File(home, "identity-private.der")
     private val publicFile = File(home, "identity-public.der")
 
     val keyPair: KeyPair = loadOrCreate()
@@ -48,19 +50,34 @@ class DesktopIdentity(home: File) {
     }
 
     private fun loadOrCreate(): KeyPair {
-        if (privateFile.isFile && publicFile.isFile) {
+        val privateBytes = when {
+            protectedFile.isFile -> SecretStore.unprotect(protectedFile.readBytes())
+            plainFile.isFile -> plainFile.readBytes().also { raw ->
+                if (SecretStore.isProtected) {
+                    protectedFile.writeBytes(SecretStore.protect(raw))
+                    plainFile.delete()
+                }
+            }
+            else -> null
+        }
+        if (privateBytes != null && publicFile.isFile) {
             return try {
                 val factory = KeyFactory.getInstance("EC")
-                val priv = factory.generatePrivate(PKCS8EncodedKeySpec(privateFile.readBytes()))
+                val priv = factory.generatePrivate(PKCS8EncodedKeySpec(privateBytes))
                 val pub = factory.generatePublic(X509EncodedKeySpec(publicFile.readBytes()))
                 KeyPair(pub, priv)
             } catch (e: Exception) {
-                throw IllegalStateException("身份密钥读取失败，请检查 $privateFile：${e.message}")
+                throw IllegalStateException("身份密钥读取失败，请检查 $protectedFile：${e.message}")
             }
         }
         val generator = KeyPairGenerator.getInstance("EC").apply { initialize(ECGenParameterSpec("secp256r1")) }
         val pair = generator.generateKeyPair()
-        privateFile.writeBytes((pair.private as PrivateKey).encoded)
+        val encoded = (pair.private as PrivateKey).encoded
+        if (SecretStore.isProtected) {
+            protectedFile.writeBytes(SecretStore.protect(encoded))
+        } else {
+            plainFile.writeBytes(encoded)
+        }
         publicFile.writeBytes(pair.public.encoded)
         return pair
     }

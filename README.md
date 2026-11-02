@@ -47,6 +47,9 @@ docs/legacy/     # 被 v1 取代的旧原型定义
   在网络可用时后台补发（`outbox-retry`，模拟器仪器测试已验证登记与发送）。没有真实 hub/注册/令牌签发/FCM/WS。
 - core 共 131 个测试、桌面 30 个、手机 6 个、仪器测试 9 个（含 1 个默认跳过的交互式 L3 生物识别测试）全绿，debug/release APK 均可打包。设置存储已改为 Keystore AES-GCM（`SecureSettings`），不再依赖 deprecated 的 EncryptedSharedPreferences；应用目录支持从已安装应用多选添加；待确认信封落盘，进程被杀后重启能恢复审批。
 - 手机端已用 `tools/device-sim/mock_hub.py` 在模拟器上跑通：签名信封 → 拉取 → 验签/策略 → L1 执行 → 回执；L3 信封 → 生物识别 → 执行 → 回执。
+- 本地模型层骨架（第 7 节，2026-11-02）：`core/kotlin/.../localmodel/` 提供 IntentClassifier 接口、LocalModelRouter 降级链（异常捕获、全链无果返回 null 交上层澄清）、ResourceBudget 内存预算声明、RuleBasedClassifier（包装既有 LocalIntentParser）；分类器只出"意图提案"、taint 透传，确认级仍由策略引擎算。接线说明见 `docs/local-model.md`。core 测试增至 155。
+- eval 评测基线（阶段 3 前置）：`eval/` 话术集 327 条（9 意图每意图 ≥30 + clarify/refuse 33）+ 注入集 104 条（note/web_text/calendar_title/filename/app_name 五载体、六种手法，auto_exec 一律 false）；`eval/runners/rule_runner.py`（纯标准库）做数据质量门禁并按 `protocol/schema/intents/*.json` 动态校验 params 键名，`--strict` 通过；`eval/nightly.sh` 与 CI 数据门禁 workflow 就绪。打分后端待云端大模型网关落地后接入。
+- 属性测试（第 10 节）：JVM 侧 kotest-property 5 条不变量（taint 单调/签名任一位变异必败/handoff 深度≤1/同 id N 投递副作用 1 次/未知字段拒绝），test 已切 JUnitPlatform 并挂 vintage 引擎保住既有 JUnit4 测试；Python 侧 Hypothesis 10 条性质镜像同套不变量（`uv run --with hypothesis --with cryptography python tools/vector-runner/py/property_test.py`）。core 测试合计 165 全绿。
 
 未验证 / 未完成（不要当成已完成）：
 
@@ -57,7 +60,8 @@ docs/legacy/     # 被 v1 取代的旧原型定义
 - CI 工作流已写（两侧向量 + Android 构建/lint + 桌面测试 + gitleaks），但**从未在 GitHub 上跑过**。
 - schema 与两份手写实现靠向量对齐，没有引入通用 JSON Schema 校验器做交叉检查。
 - 配对已支持二维码（桌面生成、手机从相册扫描）、复制 JSON、设备证书吊销与轮换；相机实时扫码未做。
-- 手表/耳机仍只有设计文档；电脑文件搜索默认不接入（ADR 0006 待拍板）；本地模型、MSI 安装包、自动更新都未开始。
+- 手表/耳机仍只有设计文档；电脑文件搜索默认不接入（ADR 0006 待拍板）；本地模型仅完成规则层骨架（localmodel 接口/路由/降级，ONNX/LLM 分类器未接入），MSI 安装包、自动更新都未开始。
+- 本轮新增（2026-11-02）：eval 数据门禁与属性测试只在沙箱验证，未在 GitHub CI 上跑过；本地模型层未接入任何真实模型，未过真机。
 
 ## 怎么跑
 

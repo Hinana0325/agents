@@ -48,6 +48,42 @@ class PairingTest {
     }
 
     @Test
+    fun rePairingRevokesThePreviousCertificate() {
+        val paths = DesktopPaths(Files.createTempDirectory("pairing-rotate").toFile()).also { it.ensure() }
+        val identity = DesktopIdentity(paths.home)
+        val trusted = Pairing.trust(paths, DesktopConfigFile(device_id = "pc-1"), jwk(phone)).getOrThrow()
+        val first = certificateFor(identity, signingKey = phone.private)
+        val firstConfig = Pairing.verifyCertificate(paths, trusted, first, now).getOrThrow()
+        assertTrue(firstConfig.revoked_certs.isEmpty())
+
+        val second = certificateFor(
+            identity,
+            signingKey = phone.private,
+            issuedAt = now.minusSeconds(1),
+            expiresAt = now.plusSeconds(86_400 + 1),
+        )
+        val rotated = Pairing.verifyCertificate(paths, firstConfig, second, now).getOrThrow()
+
+        assertEquals(second, rotated.device_cert)
+        assertEquals(listOf(DeviceCert.hash(first)), rotated.revoked_certs)
+        assertEquals(
+            "CERT_REVOKED",
+            Pairing.verifyCertificate(paths, rotated, first, now).exceptionOrNull()!!.message,
+        )
+    }
+
+    @Test
+    fun certificateStateReportsExpiry() {
+        assertEquals("无证书", Pairing.certificateState(null, now))
+        val far = certificateWithExpiry(now.plusSeconds(90L * 24 * 3600))
+        assertTrue(Pairing.certificateState(far, now).startsWith("有效"))
+        val soon = certificateWithExpiry(now.plusSeconds(10L * 24 * 3600))
+        assertTrue(Pairing.certificateState(soon, now).startsWith("即将过期"))
+        val expired = certificateWithExpiry(now.minusSeconds(3600))
+        assertTrue(Pairing.certificateState(expired, now).startsWith("已过期"))
+    }
+
+    @Test
     fun revokedCertificateIsRejectedAndCleared() {
         val paths = DesktopPaths(Files.createTempDirectory("pairing-revoke").toFile()).also { it.ensure() }
         val identity = DesktopIdentity(paths.home)
@@ -140,16 +176,33 @@ class PairingTest {
         assertTrue(Pairing.trust(paths, DesktopConfigFile(device_id = "pc-1"), bad).isFailure)
     }
 
-    private fun certificateFor(identity: DesktopIdentity, signingKey: java.security.PrivateKey): JsonObject =
+    private fun certificateFor(
+        identity: DesktopIdentity,
+        signingKey: java.security.PrivateKey,
+        issuedAt: Instant = now.minusSeconds(60),
+        expiresAt: Instant = now.plusSeconds(86_400),
+    ): JsonObject =
         DeviceCert.create(
             deviceId = "pc-1",
             role = "pc",
             maxLevel = 2,
             pubkeyJwk = identity.publicJwk(),
             issuedBy = "phone-1",
-            issuedAt = timestamp(now.minusSeconds(60)),
-            expiresAt = timestamp(now.plusSeconds(86_400)),
+            issuedAt = timestamp(issuedAt),
+            expiresAt = timestamp(expiresAt),
             signingKey = signingKey,
+        )
+
+    private fun certificateWithExpiry(expiresAt: Instant): JsonObject =
+        DeviceCert.create(
+            deviceId = "pc-1",
+            role = "pc",
+            maxLevel = 2,
+            pubkeyJwk = jwk(other),
+            issuedBy = "phone-1",
+            issuedAt = timestamp(now.minusSeconds(60)),
+            expiresAt = timestamp(expiresAt),
+            signingKey = phone.private,
         )
 
     private fun timestamp(instant: Instant): String =

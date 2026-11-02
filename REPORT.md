@@ -936,3 +936,27 @@
 - 恢复只处理当前 Hub 配置下仍能验签的信封；Hub 配置被清除时会提示“无法恢复”，记录保留。
 - 恢复是串行的：多个待确认信封会依次弹框，没有队列 UI。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 36. 电脑端证书轮换与到期提示 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- `Pairing.verifyCertificate` 在替换已有证书时，自动把旧证书哈希加入本地吊销表
+  （轮换语义），旧证书再用会被 `CERT_REVOKED` 拒绝。
+- 新增 `Pairing.certificateState`：`status` 显示“有效（剩余 N 天）/ 即将过期（≤30 天）/ 已过期”。
+- 文档补充轮换流程：手机对同一电脑重新签发新证书 → 电脑 `verify-cert`；
+  注意证书哈希不含签名，两个时间/密钥完全相同的证书是同一张，真正轮换必须换
+  `issued_at`/`expires_at`（手机端 `createCertificate` 用当前时间，天然满足）。
+
+### 已核验
+
+1. `PairingTest.rePairingRevokesThePreviousCertificate`：第一张证书验证通过；
+   第二张（不同 issued_at）替换后，旧哈希进入 `revoked_certs`，旧证书再验返回 `CERT_REVOKED`。
+2. `PairingTest.certificateStateReportsExpiry`：无证书 / 有效 / 即将过期 / 已过期 四种文案。
+3. 桌面 29 个测试全绿；core 125、手机 6、仪器测试 9（1 交互式跳过）不受影响。
+
+### 未完成
+
+- 手机端“已签发证书”台账不会随电脑轮换自动更新；旧证书需要用户在手机上单独吊销/归档。
+- 还没有到期前提醒（只有 `status` 被动显示）；相机实时扫码仍未做。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。

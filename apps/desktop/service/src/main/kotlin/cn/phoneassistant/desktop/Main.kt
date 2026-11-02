@@ -64,6 +64,7 @@ private fun printStatus(paths: DesktopPaths, config: DesktopConfigFile, identity
     println("hub 公钥：${if (config.hub_pubkey == null) "未配置（配置前拒绝接收信封）" else "已配置（kid=${config.hub_kid}）"}")
     println("信任根（手机公钥）：${if (config.phone_pubkey == null) "未配置" else "已配置"}")
     println("设备证书：${Pairing.describeCertificate(config.device_cert)}")
+    println("证书状态：${Pairing.certificateState(config.device_cert)}")
     println("已吊销证书：${config.revoked_certs.size} 个")
     println("dry_run：${config.dry_run}")
     println("应用目录：${config.app_catalog.size} 项；URL 允许清单：${config.url_allowlist.size} 项")

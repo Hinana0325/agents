@@ -46,9 +46,32 @@ object Pairing {
             ?: return Result.failure(IllegalStateException("还没有信任根：先运行 trust-phone <手机公钥.json>"))
         val error = DeviceCert.verify(cert, root, now, config.revoked_certs.toSet())
         if (error != null) return Result.failure(IllegalArgumentException(error))
-        val updated = config.copy(device_cert = cert)
+        // 轮换：换上新证书时把旧证书哈希列入本地吊销表，避免旧证书继续可用。
+        val newHash = DeviceCert.hash(cert)
+        val oldHash = config.device_cert?.let { DeviceCert.hash(it) }
+        val revoked = if (oldHash != null && oldHash != newHash) {
+            (config.revoked_certs + oldHash).distinct()
+        } else {
+            config.revoked_certs
+        }
+        val updated = config.copy(device_cert = cert, revoked_certs = revoked)
         DesktopConfig.save(paths, updated)
         return Result.success(updated)
+    }
+
+    /** 供 status 显示的人话：有效 / 即将过期 / 已过期。 */
+    fun certificateState(cert: JsonObject?, now: Instant = Instant.now()): String {
+        if (cert == null) return "无证书"
+        val expiresText = (cert["expires_at"] as? JsonPrimitive)?.contentOrNull
+            ?: return "证书格式不完整"
+        val expiresAt = runCatching { Instant.parse(expiresText) }.getOrNull()
+            ?: return "证书格式不完整"
+        val remaining = java.time.Duration.between(now, expiresAt)
+        return when {
+            remaining.isNegative -> "已过期（$expiresText）"
+            remaining.toDays() <= 30 -> "即将过期（剩余 ${remaining.toDays()} 天，$expiresText）"
+            else -> "有效（剩余 ${remaining.toDays()} 天，$expiresText）"
+        }
     }
 
     /** 验证手机签发的吊销记录；把证书哈希列入本地吊销表，并清掉匹配的本机证书。 */

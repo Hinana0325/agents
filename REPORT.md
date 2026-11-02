@@ -774,3 +774,37 @@
 
 - 回执（receipt.v1）还没有金标准向量；它目前由运行时单元测试与端到端联调覆盖。
 - 真实 hub、注册/令牌签发、FCM/WS 仍未做。
+
+## 30. 手机端 mock hub 与真实 L3 端到端 — 2026-11-02 晚（续）
+
+### 做了什么
+
+- `tools/device-sim/mock_hub.py`：用 `protocol/spec/signing.md` 的格式签发信封，
+  提供 `GET /v1/device/inbox`、`POST /v1/device/receipts`、`POST /test/enqueue` 与
+  `GET /test/state`；私钥落在系统临时目录，不进仓库；`selftest` 用 Python 参考校验器
+  验证自己签出的信封。
+- 修了一个设备侧真实缺陷：`DeviceRuntime` 之前不检查 `to.device`，现在目标不是本机的
+  信封直接返回 `TARGET_NOT_ALLOWED`（与电脑端行为一致），新增单测。
+- 修了一个 L3 UI 真实缺陷：`BiometricPrompt` 之前没有传 `CryptoObject`，生物识别会
+  成功但审批密钥从未解锁；现在把签名器绑定到 `CryptoObject`。
+
+### 已核验（Android 16 模拟器 + 已录入指纹 + mock hub）
+
+1. 手机设置连接 mock hub（`http://10.0.2.2:8899`、Bearer 令牌、启动时打印的 JWK），
+   点击“同步”拉取签名信封。
+2. L1 `chat`：手机执行并回执，hub 日志
+   `receipt 01a19ca9-…0001 done`，界面显示“同步完成：…：done”。
+3. L3 `create_event`（attendees 触发 L3）：手机弹出 L3 对话框 → “生物识别确认” →
+   按指纹 → 审批密钥签名 → 执行 → hub 收到
+   `receipt 01a19caa-…0003 done`，界面显示 done。
+4. 目标校验：给 `phone-2` 的信封在运行时被拒（单测 `envelopeForAnotherDeviceIsRejected`）。
+5. 已知环境问题：AOSP 模拟器的 Calendar 应用在 `ACTION_INSERT` 时自身
+   `ClassNotFoundException` 崩溃；手机端 `startActivity` 已成功，回执按“已交给系统界面”
+   记 done，日历编辑器本身没有可用的验收证据。
+
+### 未完成
+
+- 速率限制（第 11 条升 L3）还没有在真机 UI 上做洪水演练；目前由 core 单测覆盖。
+- mock hub 的 inbox 是“投递即出队”，没有真实 hub 的 at-least-once 重投；跨重启去重
+  仍由手机的 `processed.json` 单测/旧联调覆盖。
+- 真实 hub、注册/令牌签发、FCM/WS 仍未做。

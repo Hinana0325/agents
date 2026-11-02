@@ -15,7 +15,7 @@ apps/phone/      # Android（Kotlin + Compose），现有手机 MVP
 apps/watch/      # 设计文档 only（轻量端，经手机中转）
 apps/desktop/    # 电脑执行节点：无头服务（Kotlin/JVM）+ 只读文件搜索存根（默认不接入协议，ADR 0006）
 tools/vector-runner/  # Kotlin/Python 跑同一份向量；Python 侧为参考实现
-tools/device-sim/     # 以 hub 身份签发信封，投递到电脑端收件箱（本地联调）
+tools/device-sim/     # 以 hub 身份签发信封：电脑端本地收件箱 + 手机端 HTTP mock hub
 docs/adr/        # 0001-0006
 docs/devices/    # 耳机等设备的说明
 docs/legacy/     # 被 v1 取代的旧原型定义
@@ -42,7 +42,8 @@ docs/legacy/     # 被 v1 取代的旧原型定义
   已把信封接入 `DeviceRuntime`（L2 手机确认、Keystore 审批签名、回执回传），并用临时 mock hub 在模拟器上端到端跑通；
   终态回执落盘，**重启后重复投递只回执不执行**；回执失败进发件箱并按指数退避重试，同时由 WorkManager
   在网络可用时后台补发（`outbox-retry`，模拟器仪器测试已验证登记与发送）。没有真实 hub/注册/令牌签发/FCM/WS。
-- core 共 105 个测试、桌面 27 个、手机 6 个、仪器测试 4 个（含 1 个默认跳过的交互式 L3 生物识别测试）全绿，debug/release APK 均可打包。
+- core 共 106 个测试、桌面 27 个、手机 6 个、仪器测试 4 个（含 1 个默认跳过的交互式 L3 生物识别测试）全绿，debug/release APK 均可打包。
+- 手机端已用 `tools/device-sim/mock_hub.py` 在模拟器上跑通：签名信封 → 拉取 → 验签/策略 → L1 执行 → 回执；L3 信封 → 生物识别 → 执行 → 回执。
 
 未验证 / 未完成（不要当成已完成）：
 

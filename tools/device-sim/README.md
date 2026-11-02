@@ -31,7 +31,28 @@ uv run --with cryptography python tools/device-sim/sim.py receipts
 - `--origin` / `--tainted`：验证污点加级。
 - `--ttl`：默认 300 秒。
 
+## 手机端 mock hub
+
+`mock_hub.py` 用同一套签名格式提供一个最小 HTTP hub，供手机拉取：
+
+```bash
+# 启动（打印 JWK；令牌默认 test-token，kid 固定 hub-test-1）
+uv run --with cryptography python tools/device-sim/mock_hub.py serve --host 0.0.0.0 --port 8899
+
+# 先自测：签发一条信封并用 Python 参考校验器验证
+uv run --with cryptography python tools/device-sim/mock_hub.py selftest
+
+# 投递一条（device 用手机配对页显示的 device id）
+curl -X POST http://127.0.0.1:8899/test/enqueue -H 'Content-Type: application/json' \
+  -d '{"intent":"chat","params":{"text":"hello"},"device":"phone-bbb3f3c4"}'
+# 查看队列、已投递与回执
+curl http://127.0.0.1:8899/test/state
+```
+
+手机设置里填 `http://10.0.2.2:8899`（模拟器）或电脑局域网地址、Bearer 令牌、启动时打印的 JWK。
+`GET /v1/device/inbox` 与 `POST /v1/device/receipts` 需要令牌。
+
 ## 注意
 
-- 测试私钥只在 `~/.dpa-sim/`，不进仓库；它只是测试 hub，不是真实云端密钥。
-- 本地目录通道是开发联调用的，不是安全传输；不要在生产环境使用。
+- 测试私钥只在 `~/.dpa-sim/` 与系统临时目录，不进仓库；它只是测试 hub，不是真实云端密钥。
+- 本地目录通道与 mock hub 都是开发联调用的，不是安全传输；不要在生产环境使用。

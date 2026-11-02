@@ -208,6 +208,7 @@ private fun showL3Prompt(
     }
     runCatching {
         builder.build().authenticate(
+            BiometricPrompt.CryptoObject(signature),
             CancellationSignal(),
             executor,
             object : BiometricPrompt.AuthenticationCallback() {
